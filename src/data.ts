@@ -163,3 +163,88 @@ export const TX_LIST: TxItem[] = [
 ]
 
 export const TX_FILTERS = ['全部', '充值', '消费', '报销', '创作', '推广', '提现', '手续费'] as const
+
+/* ── 好友与消息（PRD §73）────────────────────────────────────────── */
+
+export interface Member {
+  id: string
+  avatar: string
+  nick: string
+  handle: string
+  verify: string
+  city: string
+  online: boolean
+  bio: string
+}
+
+/** 可添加为好友的演示成员（“我”= @alex，不在此表内） */
+export const MEMBERS: Record<string, Member> = {
+  mia: { id: 'mia', avatar: 'M', nick: 'Mia', handle: '@mia', verify: 'Frequent Traveler', city: 'Bangkok', online: true, bio: '曼谷美食与旅行攻略' },
+  sora: { id: 'sora', avatar: 'S', nick: 'Sora', handle: '@sora', verify: 'Verified Member', city: 'Seoul', online: true, bio: '首尔甜品猎人' },
+  ken: { id: 'ken', avatar: 'K', nick: 'Ken', handle: '@ken', verify: 'Local Creator', city: 'Hong Kong', online: false, bio: '港岛咖啡地图作者' },
+  tokyofood: { id: 'tokyofood', avatar: 'T', nick: 'TokyoFood', handle: '@tokyofood', verify: 'Verified Purchase', city: 'Tokyo', online: true, bio: '东京探店日记' },
+  coffeelog: { id: 'coffeelog', avatar: 'C', nick: 'CoffeeLog', handle: '@coffeelog', verify: 'Local Creator', city: 'Hong Kong', online: false, bio: '香港咖啡地图' },
+  yuki: { id: 'yuki', avatar: 'Y', nick: 'Yuki', handle: '@yuki', verify: 'Verified Member', city: 'Osaka', online: true, bio: '大阪吃到扶墙出' },
+  daniel: { id: 'daniel', avatar: 'D', nick: 'Daniel', handle: '@daniel', verify: 'Frequent Traveler', city: 'Singapore', online: false, bio: '环球旅行 30 国' },
+}
+
+export interface FriendReq {
+  id: number
+  member: string
+  note: string
+  time: string
+}
+
+export interface ChatMsg {
+  id: number
+  mine: boolean
+  text: string
+  time: string
+  day: string
+  read?: boolean
+}
+
+/** 单聊会话：id 即对方成员 id（演示态，见 §73.16） */
+export interface Conv {
+  id: string
+  msgs: ChatMsg[]
+  unread: number
+}
+
+export interface Social {
+  friends: string[]
+  reqIn: FriendReq[]
+  reqOut: string[]
+  convs: Conv[]
+}
+
+export const SOCIAL_SEED: Social = {
+  friends: ['mia'],
+  reqIn: [
+    { id: 1, member: 'sora', note: '来自通讯录匹配', time: '5m' },
+    { id: 2, member: 'ken', note: '通过你的帖子找到你', time: '昨天' },
+  ],
+  reqOut: [],
+  convs: [
+    {
+      id: 'mia',
+      unread: 1,
+      msgs: [
+        { id: 1, mine: false, text: '曼谷夜市那家泰式炒粉，攻略写好了发你 📝', time: '18:20', day: '昨天' },
+        { id: 2, mine: true, text: '太好了，下个月就去！', time: '18:47', day: '昨天', read: true },
+        { id: 3, mine: false, text: '到了喊我，再给你推几家本地人去的', time: '09:15', day: '今天' },
+      ],
+    },
+  ],
+}
+
+/** 模拟回复语料（key 为成员 id） */
+export const REPLIES: Record<string, string[]> = {
+  mia: ['好呀，到时候组队 🙌', '这家我 mark 好久了，一起去', '收到收到', '曼谷见！'],
+  sora: ['好嘞', '甜品店周末人少，建议 3 点去', '哈哈哈真的', '下次来首尔多待两天，我带你'],
+  ken: ['中环那家新开的我还没试', '港岛线攻略我更新了', '+1', '改天咖啡走起'],
+  tokyofood: ['这家我也在 list 上', '东京的话听我的准没错 😎', '排队 30 分钟起，早点去'],
+  coffeelog: ['手冲推荐试试冰冲', '这批豆子昨天刚到货', '好，留个位置给你'],
+  yuki: ['大阪烧我吹爆', '环球影城攻略要吗', '嘿嘿，来了带你吃'],
+  daniel: ['新加坡美食节刚好在这周', '辣蟹记得提前预约', '收到！'],
+}

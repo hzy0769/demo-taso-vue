@@ -4,6 +4,7 @@ import { app, ROOTS, show, openSheet, closeSheets, closeDialog, dialogOk, bootst
 import IconSprite from './components/IconSprite.vue'
 import ComposerSheet from './components/ComposerSheet.vue'
 import CommentsSheet from './components/CommentsSheet.vue'
+import AddFriendSheet from './components/AddFriendSheet.vue'
 
 import ScreenSplash from './screens/ScreenSplash.vue'
 import ScreenWelcome from './screens/ScreenWelcome.vue'
@@ -33,6 +34,10 @@ import ScreenLanguage from './screens/ScreenLanguage.vue'
 import ScreenSecurity from './screens/ScreenSecurity.vue'
 import ScreenKyc from './screens/ScreenKyc.vue'
 import ScreenNotifications from './screens/ScreenNotifications.vue'
+import ScreenFriends from './screens/ScreenFriends.vue'
+import ScreenMessages from './screens/ScreenMessages.vue'
+import ScreenChat from './screens/ScreenChat.vue'
+import ScreenMyQrcode from './screens/ScreenMyQrcode.vue'
 
 const clock = ref('9:41')
 function tick() {
@@ -95,6 +100,10 @@ onMounted(() => {
         <ScreenSecurity />
         <ScreenKyc />
         <ScreenNotifications />
+        <ScreenFriends />
+        <ScreenMessages />
+        <ScreenChat />
+        <ScreenMyQrcode />
       </div>
 
       <nav class="tabbar" v-show="isRoot">
@@ -109,6 +118,7 @@ onMounted(() => {
 
       <ComposerSheet />
       <CommentsSheet />
+      <AddFriendSheet />
 
       <div class="dialog" :class="{ on: !!app.dialog }" role="alertdialog">
         <b style="font-size:16px">{{ app.dialog?.title }}</b>

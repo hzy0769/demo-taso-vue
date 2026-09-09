@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { computed } from 'vue'
 import { app, show, toast } from '../store'
 import PageHeader from '../components/PageHeader.vue'
 
@@ -7,12 +8,15 @@ const stats = [
   { n: '42', label: 'Reviews' },
   { n: '1.2K', label: 'Likes' },
 ]
+
+const msgUnread = computed(() => app.social.convs.reduce((n, c) => n + c.unread, 0))
 </script>
 
 <template>
   <section class="scr" :class="{ on: app.screen === 'me' }" data-screen="me">
     <PageHeader title="我的" :back-btn="false">
       <template #right>
+        <button class="bk" aria-label="我的二维码" @click="show('my-qrcode')"><svg class="ic"><use href="#i-qrcode"/></svg></button>
         <button class="bk" aria-label="设置" @click="show('settings')"><svg class="ic"><use href="#i-settings"/></svg></button>
       </template>
     </PageHeader>
@@ -54,6 +58,18 @@ const stats = [
       <button class="li" @click="toast('我的足迹')">
         <span class="li-ic"><svg class="ic"><use href="#i-pin"/></svg></span>
         <span class="li-title">我的足迹</span>
+        <svg class="ic" style="color:var(--muted)"><use href="#i-right"/></svg>
+      </button>
+      <button class="li" @click="show('friends')">
+        <span class="li-ic"><svg class="ic"><use href="#i-users"/></svg></span>
+        <span class="li-title">好友</span>
+        <span v-if="app.social.reqIn.length" class="li-val" style="color:var(--accent)">{{ app.social.reqIn.length }} 条新申请</span>
+        <svg class="ic" style="color:var(--muted)"><use href="#i-right"/></svg>
+      </button>
+      <button class="li" @click="show('messages')">
+        <span class="li-ic"><svg class="ic"><use href="#i-chat"/></svg></span>
+        <span class="li-title">消息</span>
+        <span v-if="msgUnread" class="li-val" style="color:var(--danger)">{{ msgUnread }} 条未读</span>
         <svg class="ic" style="color:var(--muted)"><use href="#i-right"/></svg>
       </button>
       <button class="li" @click="show('creator')">
