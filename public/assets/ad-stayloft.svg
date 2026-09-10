@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="720" height="720" viewBox="0 0 720 720" font-family="-apple-system,'PingFang SC','Noto Sans CJK SC','Microsoft YaHei',sans-serif">
+  <defs>
+    <radialGradient id="glow" cx="15%" cy="0%" r="95%">
+      <stop offset="0%" stop-color="#C8A96B" stop-opacity=".18"/>
+      <stop offset="55%" stop-color="#C8A96B" stop-opacity=".05"/>
+      <stop offset="100%" stop-color="#C8A96B" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="720" height="720" fill="#141311"/>
+  <rect width="720" height="720" fill="url(#glow)"/>
+  <path d="M54 86 76 62 98 86Z" fill="#C8A96B"/>
+  <text x="112" y="86" font-size="30" font-weight="600" fill="#FFFFFF">StayLoft</text>
+  <text x="48" y="212" font-size="60" font-weight="700" fill="#FFFFFF">亚洲 12 城 Loft</text>
+  <text x="48" y="292" font-size="60" font-weight="700" fill="#FFFFFF">闪促低至 <tspan fill="#C8A96B">6 折</tspan></text>
+  <g>
+    <rect x="48" y="336" width="624" height="80" rx="14" fill="none" stroke="#57503C" stroke-width="2"/>
+    <text x="80" y="386" font-size="28" fill="#EDEAE2">东京 · 涩谷 ¥420/晚</text>
+    <text x="640" y="386" text-anchor="end" font-size="28" font-weight="600" fill="#C8A96B">6 折</text>
+    <rect x="48" y="426" width="624" height="80" rx="14" fill="none" stroke="#57503C" stroke-width="2"/>
+    <text x="80" y="476" font-size="28" fill="#EDEAE2">首尔 · 明洞 ¥360/晚</text>
+    <text x="640" y="476" text-anchor="end" font-size="28" font-weight="600" fill="#C8A96B">6.5 折</text>
+    <rect x="48" y="516" width="624" height="80" rx="14" fill="none" stroke="#57503C" stroke-width="2"/>
+    <text x="80" y="566" font-size="28" fill="#EDEAE2">曼谷 · 通罗 ¥280/晚</text>
+    <text x="640" y="566" text-anchor="end" font-size="28" font-weight="600" fill="#C8A96B">5.8 折</text>
+  </g>
+  <rect x="48" y="616" width="264" height="72" rx="36" fill="#FFFFFF"/>
+  <text x="180" y="662" text-anchor="middle" font-size="26" font-weight="600" fill="#141311">查看日期 →</text>
+  <rect x="336" y="616" width="336" height="72" rx="36" fill="none" stroke="#C8A96B" stroke-width="2"/>
+  <text x="504" y="661" text-anchor="middle" font-size="22" fill="#C8A96B">免费取消 · 先住后付</text>
+</svg>

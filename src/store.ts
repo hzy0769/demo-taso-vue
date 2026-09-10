@@ -29,6 +29,8 @@ interface DialogReq {
   title: string
   text: string
   onOk?: () => void
+  /** 主按钮文案，默认「确认」 */
+  okText?: string
 }
 
 /** 好友页共享 Tab 状态（消息中心横幅可直达「请求」Tab） */
@@ -112,7 +114,11 @@ export const app = reactive({
   visited: localStorage.getItem('taso-visited') === '1',
   toast: '',
   toastOn: false,
-  sheet: '' as '' | 'composer' | 'comments' | 'add-friend',
+  sheet: '' as '' | 'composer' | 'comments' | 'add-friend' | 'post-more',
+  /** 帖子更多操作弹层正在针对的帖子 */
+  morePost: null as Post | null,
+  /** 已关注的帖子作者（@handle，参考 X 的帖子菜单） */
+  follows: loadFollows(),
   dialog: null as DialogReq | null,
   /** 首页 For You 数据（发布成功后向头部插入新帖） */
   foryou: [...foryouSeed] as Post[],
@@ -190,12 +196,120 @@ export function openPostById(id: number) {
   show('post')
 }
 
+/* ── 帖子更多操作（参考 X 的帖子菜单，前期版本只保留核心三项）────────── */
+
+function loadFollows(): string[] {
+  try {
+    const raw = localStorage.getItem('taso-follows')
+    if (raw) {
+      const a = JSON.parse(raw) as unknown
+      if (Array.isArray(a)) return a.filter(x => typeof x === 'string')
+    }
+  } catch { /* 损坏时视为未关注 */ }
+  return []
+}
+
+/** 帖子右上角「更多」→ 打开操作菜单 */
+export function openPostMore(p: Post) {
+  app.morePost = p
+  app.sheet = 'post-more'
+}
+
+export function isFollowed(handle: string) {
+  return app.follows.includes(handle)
+}
+
+/** 关注 / 取消关注帖子作者（演示态：本地记录） */
+export function toggleFollowAuthor(handle: string) {
+  const followed = isFollowed(handle)
+  app.follows = followed ? app.follows.filter(h => h !== handle) : [...app.follows, handle]
+  localStorage.setItem('taso-follows', JSON.stringify(app.follows))
+  closeSheets()
+  toast(followed ? `已取消关注 ${handle}` : `已关注 ${handle}`)
+}
+
+/** 不感兴趣：从信息流移除该帖（演示态：仅本地过滤） */
+export function notInterested() {
+  notInterestedSilently()
+  closeSheets()
+  toast('好的，会减少推荐此类内容')
+}
+
+/** 举报帖子：弹确认框，确认后提交（演示态：仅提示） */
+export function reportPost() {
+  const p = app.morePost
+  if (!p) return
+  closeSheets()
+  showDialog('举报帖子', `确认举报 ${p.author} 发布的这条帖子吗？提交后我们会尽快审核处理。`, () => toast('已收到举报，感谢反馈'))
+}
+
+/* ── 广告帖操作（参考 X 的广告菜单）────────────────────────────────── */
+
+/** 我不喜欢这个广告：从信息流移除并反馈 */
+export function dislikeAd() {
+  notInterestedSilently()
+  closeSheets()
+  toast('已收到反馈，会减少此类广告')
+}
+
+/** 为什么我会看到这个广告：弹说明框 */
+export function whyThisAd() {
+  const p = app.morePost
+  if (!p) return
+  closeSheets()
+  showDialog(
+    '为什么我会看到这个广告？',
+    `根据你的浏览与互动，Taso 向你展示来自 ${p.author} 的这条广告。你可以随时在「设置 · 通知与推荐」中调整广告偏好。`,
+    undefined,
+    '知道了',
+  )
+}
+
+/** 隐藏广告主：其全部帖子从信息流移除 */
+export function muteAdAuthor() {
+  const author = app.morePost?.author
+  if (!author) return
+  app.foryou = app.foryou.filter(p => p.author !== author)
+  app.following = app.following.filter(p => p.author !== author)
+  closeSheets()
+  toast(`已隐藏 ${author} 的广告`)
+}
+
+/** 屏蔽广告主：弹确认框，确认后全量移除 */
+export function blockAdAuthor() {
+  const author = app.morePost?.author
+  if (!author) return
+  closeSheets()
+  showDialog('屏蔽广告主', `屏蔽后你将不再看到 ${author} 发布的广告与内容，确认继续吗？`, () => {
+    app.foryou = app.foryou.filter(p => p.author !== author)
+    app.following = app.following.filter(p => p.author !== author)
+    toast(`已屏蔽 ${author}`)
+  }, '屏蔽')
+}
+
+/** 举报广告 */
+export function reportAd() {
+  const p = app.morePost
+  if (!p) return
+  closeSheets()
+  showDialog('举报广告', `确认举报 ${p.author} 投放的这条广告吗？提交后我们会尽快审核处理。`, () => toast('已收到举报，感谢反馈'), '举报')
+}
+
+/** 从两条信息流移除当前操作的帖子（不动弹层、不提示） */
+function notInterestedSilently() {
+  const id = app.morePost?.id
+  if (id != null) {
+    app.foryou = app.foryou.filter(p => p.id !== id)
+    app.following = app.following.filter(p => p.id !== id)
+  }
+}
+
 export function closeSheets() {
   app.sheet = ''
 }
 
-export function showDialog(title: string, text: string, onOk?: () => void) {
-  app.dialog = { title, text, onOk }
+export function showDialog(title: string, text: string, onOk?: () => void, okText?: string) {
+  app.dialog = { title, text, onOk, okText }
 }
 
 export function closeDialog() {
@@ -507,7 +621,7 @@ export function logout() {
 
 /** 删除账号（AUTH-016/017）：清空全部本地状态，回到首次启动 */
 export function deleteAccount() {
-  for (const k of ['taso-auth', 'taso-visited', 'taso-screen', 'taso-social', 'taso-bal', 'taso-wd']) {
+  for (const k of ['taso-auth', 'taso-visited', 'taso-screen', 'taso-social', 'taso-bal', 'taso-wd', 'taso-follows']) {
     localStorage.removeItem(k)
   }
   app.auth.user = null
@@ -515,6 +629,8 @@ export function deleteAccount() {
   app.visited = false
   app.bal = 12580
   app.wd = 800
+  app.follows = []
+  app.morePost = null
   app.social = JSON.parse(JSON.stringify(SOCIAL_SEED))
   app.stack = ['splash']
   show('splash', false)

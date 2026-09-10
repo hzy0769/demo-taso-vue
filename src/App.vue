@@ -5,6 +5,7 @@ import IconSprite from './components/IconSprite.vue'
 import ComposerSheet from './components/ComposerSheet.vue'
 import CommentsSheet from './components/CommentsSheet.vue'
 import AddFriendSheet from './components/AddFriendSheet.vue'
+import PostMoreSheet from './components/PostMoreSheet.vue'
 
 import ScreenSplash from './screens/ScreenSplash.vue'
 import ScreenWelcome from './screens/ScreenWelcome.vue'
@@ -137,13 +138,14 @@ onMounted(() => {
       <ComposerSheet />
       <CommentsSheet />
       <AddFriendSheet />
+      <PostMoreSheet />
 
       <div class="dialog" :class="{ on: !!app.dialog }" role="alertdialog">
         <b style="font-size:16px">{{ app.dialog?.title }}</b>
         <p style="color:var(--muted);font-size:14px;margin-top:8px">{{ app.dialog?.text }}</p>
         <div class="row" style="margin-top:18px;gap:10px">
           <button class="btn btn-o" @click="closeDialog()">取消</button>
-          <button class="btn btn-p" @click="dialogOk()">确认</button>
+          <button class="btn btn-p" @click="dialogOk()">{{ app.dialog?.okText ?? '确认' }}</button>
         </div>
       </div>
 

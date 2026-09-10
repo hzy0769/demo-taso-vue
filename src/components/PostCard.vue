@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import { show, toast, openSheet, openPost } from '../store'
+import { show, toast, openSheet, openPost, openPostMore } from '../store'
 import type { Post } from '../data'
 import PostText from './PostText.vue'
 
@@ -29,16 +29,20 @@ function toggleBookmark() {
             <b style="font-size:14px">{{ post.author }}</b>
             <span class="vfy"><svg class="ic sm f"><use href="#i-check"/></svg>{{ post.verify }}</span>
           </div>
-          <span class="meta">{{ post.meta }}</span>
+          <span v-if="post.meta" class="meta">{{ post.meta }}</span>
         </div>
       </div>
-      <button class="bk" aria-label="更多" @click="toast('更多操作：不感兴趣 / 屏蔽 / 举报')"><svg class="ic"><use href="#i-more"/></svg></button>
+      <div class="row" style="gap:4px">
+        <span v-if="post.ad" class="ad-tag">Ad</span>
+        <button class="bk" aria-label="更多" @click.stop="openPostMore(post)"><svg class="ic"><use href="#i-more"/></svg></button>
+      </div>
     </div>
     <div @click="openPost(post)">
       <PostText :post="post" clamp />
       <div class="img-wrap" style="display:block;width:100%;margin-top:12px">
         <img :src="post.image" :width="post.imgW" :height="post.imgH" :alt="post.author" />
       </div>
+      <div v-if="post.ad" class="ad-from">来自 {{ post.ad }}</div>
     </div>
     <button v-if="post.merchant" class="row-b" style="width:100%;margin-top:12px;padding:10px 12px;border:1px solid var(--border);border-radius:12px;background:var(--surface);text-align:left" @click="show('merchant')">
       <div class="row">

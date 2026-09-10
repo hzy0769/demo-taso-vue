@@ -22,6 +22,67 @@ export interface Post {
   shareCount?: string
   /** 合作商家卡片（仅部分帖子展示） */
   merchant?: { title: string; meta: string }
+  /** 广告帖（参考 X 信息流广告）：值为落地页域名，有值即显示 Ad 标签、图下「来自域名」、广告专属菜单 */
+  ad?: string
+  /** 广告落地页链接文案（正文尾部金色展示，如 WanderPass.com） */
+  link?: string
+}
+
+/* ── 信息流广告（参考 X：广告主账号 + 推广创意图 + 落地页域名）──────── */
+
+const adWanderpass: Post = {
+  id: 91,
+  avatar: 'W',
+  author: '@wanderpass',
+  verify: 'Advertiser',
+  meta: '',
+  text: '长途飞行落地就断网？我这次环日之旅全程在线。\n\nWanderPass eSIM 覆盖 190+ 目的地，扫码即激活，不用换卡不用排队。\n\n全站流量包最高 62% OFF，Taso 用户专享！\n\n试试吧 -> ',
+  link: 'WanderPass.com',
+  lang: '英语',
+  original: 'Dead roaming ruins a good trip. My whole Japan loop stayed online with a WanderPass eSIM — scan to activate, no SIM swap, no kiosk queue.\n\n190+ destinations covered, data packs up to 62% OFF for Taso members!\n\nTry it -> WanderPass.com',
+  image: '/assets/ad-wanderpass.svg',
+  imgW: 720,
+  imgH: 880,
+  likeCount: '2.6K',
+  commentCount: '296',
+  shareCount: '266',
+  ad: 'wanderpass.com',
+}
+
+const adStayloft: Post = {
+  id: 92,
+  avatar: 'L',
+  author: '@stayloft',
+  verify: 'Advertiser',
+  meta: '',
+  text: '旺季住东京，一晚 ¥420 的设计 Loft 你敢信？\n\nStayLoft 亚洲 12 城限时闪促，Taso 用户再享独家 6 折。\n\n部分房型含免费取消，商旅报销直接对接 Taso。\n\n看看日期 -> ',
+  link: 'StayLoft.com',
+  lang: '英语',
+  original: 'A design Loft in Tokyo for ¥420 a night in peak season? Yes really.\n\nStayLoft flash sale across 12 Asian cities, with an exclusive extra discount for Taso users.\n\nSelected rooms include free cancellation and link straight into Taso expense reports.\n\nCheck dates -> StayLoft.com',
+  image: '/assets/ad-stayloft.svg',
+  imgW: 720,
+  imgH: 720,
+  likeCount: '1.1K',
+  commentCount: '98',
+  shareCount: '74',
+  ad: 'stayloft.com',
+}
+
+const adRailasia: Post = {
+  id: 93,
+  avatar: 'R',
+  author: '@railasia',
+  verify: 'Advertiser',
+  meta: '',
+  text: '一张通票扫遍亚洲高铁，这次真的打折了。\n\nRailAsia 通票全线路 8 折，Taso App 内下单再返 3% 报销金。\n\n坐高铁看海去 -> ',
+  link: 'RailAsia.com',
+  image: '/assets/ad-railasia.svg',
+  imgW: 720,
+  imgH: 800,
+  likeCount: '864',
+  commentCount: '56',
+  shareCount: '41',
+  ad: 'railasia.com',
 }
 
 export const foryouSeed: Post[] = [
@@ -59,6 +120,7 @@ export const foryouSeed: Post[] = [
     commentCount: '47',
     shareCount: '130',
   },
+  adWanderpass,
   {
     id: 3,
     avatar: 'S',
@@ -75,6 +137,7 @@ export const foryouSeed: Post[] = [
     commentCount: '156',
     shareCount: '389',
   },
+  adStayloft,
 ]
 
 export const followingPosts: Post[] = [
@@ -91,6 +154,7 @@ export const followingPosts: Post[] = [
     likeCount: '3.1K',
     commentCount: '204',
   },
+  adRailasia,
   {
     id: 5,
     avatar: 'M',

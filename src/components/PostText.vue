@@ -42,7 +42,7 @@ function toggleOriginal() {
     </div>
     <p ref="el" class="post-text" :class="{ clamp: clamp && !expanded }">
       <template v-if="showOriginal">{{ body }}</template>
-      <template v-else>{{ post.text }}<span v-if="post.goldTag" class="gold">{{ post.goldTag }}</span></template>
+      <template v-else>{{ post.text }}<span v-if="post.link" class="gold"> {{ post.link }}</span><span v-if="post.goldTag" class="gold">{{ post.goldTag }}</span></template>
     </p>
     <button v-if="truncated" class="tr-link" @click.stop="expanded = true">更多</button>
   </div>
