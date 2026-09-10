@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
-import { app, show } from '../store'
+import { app, show, openPostById } from '../store'
 import { SEARCH_DB, type SearchItem } from '../data'
 import PageHeader from '../components/PageHeader.vue'
 
@@ -39,7 +39,7 @@ const iconFor = (t: SearchItem['t']) =>
       >{{ t }}</button>
     </div>
     <div class="stack" style="margin-top:14px">
-      <button v-for="r in results" :key="r.t + r.n" class="li" @click="show(r.go)">
+      <button v-for="r in results" :key="r.t + r.n" class="li" @click="r.pid ? openPostById(r.pid) : show(r.go)">
         <span class="li-ic"><svg class="ic"><use :href="iconFor(r.t)"/></svg></span>
         <span>
           <span class="li-title" style="display:block">{{ r.n }}</span>

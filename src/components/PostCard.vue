@@ -1,13 +1,13 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import { show, toast, openSheet } from '../store'
+import { show, toast, openSheet, openPost } from '../store'
 import type { Post } from '../data'
+import PostText from './PostText.vue'
 
 defineProps<{ post: Post }>()
 
 const liked = ref(false)
 const saved = ref(false)
-const showOriginal = ref(false)
 
 function toggleLike() {
   liked.value = !liked.value
@@ -34,14 +34,12 @@ function toggleBookmark() {
       </div>
       <button class="bk" aria-label="更多" @click="toast('更多操作：不感兴趣 / 屏蔽 / 举报')"><svg class="ic"><use href="#i-more"/></svg></button>
     </div>
-    <p style="margin-top:10px">{{ post.text }}<span v-if="post.goldTag" class="gold">{{ post.goldTag }}</span></p>
-    <div v-if="post.original" class="row" style="margin-top:8px">
-      <button class="tag" @click="showOriginal = !showOriginal">{{ showOriginal ? '收起' : '查看原文 · View original' }}</button>
+    <div @click="openPost(post)">
+      <PostText :post="post" clamp />
+      <div class="img-wrap" style="display:block;width:100%;margin-top:12px">
+        <img :src="post.image" :width="post.imgW" :height="post.imgH" :alt="post.author" />
+      </div>
     </div>
-    <div v-if="showOriginal" style="margin-top:8px;padding:10px 12px;background:var(--fg-soft);border-radius:12px;font-size:14px">{{ post.original }}</div>
-    <button class="img-wrap" style="display:block;width:100%;margin-top:12px" @click="show('post')">
-      <img :src="post.image" :width="post.imgW" :height="post.imgH" :alt="post.author" />
-    </button>
     <button v-if="post.merchant" class="row-b" style="width:100%;margin-top:12px;padding:10px 12px;border:1px solid var(--border);border-radius:12px;background:var(--surface);text-align:left" @click="show('merchant')">
       <div class="row">
         <span class="li-ic"><svg class="ic"><use href="#i-pin"/></svg></span>

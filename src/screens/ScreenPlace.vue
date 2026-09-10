@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { app, show, toast } from '../store'
+import { app, show, toast, openPostById } from '../store'
 import PageHeader from '../components/PageHeader.vue'
 </script>
 
@@ -19,16 +19,16 @@ import PageHeader from '../components/PageHeader.vue'
     </div>
     <h3 style="font-size:15px;font-weight:600;margin:18px 0 10px">热门内容</h3>
     <div class="grid-2">
-      <button class="tile img-wrap" @click="show('post')">
+      <button class="tile img-wrap" @click="openPostById(1)">
         <img src="/assets/taso-yakiniku.jpg" width="720" height="481" alt="烧肉" /><span class="cap">和牛烧肉</span>
       </button>
-      <button class="tile img-wrap" @click="show('post')">
+      <button class="tile img-wrap" @click="openPostById(4)">
         <img src="/assets/taso-ramen.jpg" width="720" height="720" alt="拉面" /><span class="cap">深夜拉面</span>
       </button>
-      <button class="tile img-wrap" @click="show('post')">
+      <button class="tile img-wrap" @click="toast('相关帖子（演示）')">
         <img src="/assets/taso-sushi.jpg" width="720" height="480" alt="寿司" /><span class="cap">鮨 Taso</span>
       </button>
-      <button class="tile img-wrap" @click="show('post')">
+      <button class="tile img-wrap" @click="openPostById(2)">
         <img src="/assets/taso-coffee.jpg" width="720" height="480" alt="咖啡" /><span class="cap">手冲咖啡</span>
       </button>
     </div>

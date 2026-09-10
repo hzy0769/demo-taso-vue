@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import { app, show, toast } from '../store'
+import { app, toast, openPostById } from '../store'
 import PageHeader from '../components/PageHeader.vue'
 
 const contents = [
-  { img: '/assets/taso-ramen.jpg', title: '东京深夜拉面攻略', stat: '124K views · HK$120' },
-  { img: '/assets/taso-yakiniku.jpg', title: 'Shibuya 烧肉探店', stat: '62K views · HK$80' },
-  { img: '/assets/taso-coffee.jpg', title: '香港咖啡地图', stat: '18K views · HK$23' },
+  { img: '/assets/taso-ramen.jpg', title: '东京深夜拉面攻略', stat: '124K views · HK$120', pid: 4 },
+  { img: '/assets/taso-yakiniku.jpg', title: 'Shibuya 烧肉探店', stat: '62K views · HK$80', pid: 1 },
+  { img: '/assets/taso-coffee.jpg', title: '香港咖啡地图', stat: '18K views · HK$23', pid: 2 },
 ]
 </script>
 
@@ -19,7 +19,7 @@ const contents = [
     </div>
     <h3 style="font-size:15px;font-weight:600;margin:18px 0 10px">内容表现</h3>
     <div class="card" style="padding:4px 14px">
-      <button v-for="c in contents" :key="c.title" class="li" style="border:0" @click="show('post')">
+      <button v-for="c in contents" :key="c.title" class="li" style="border:0" @click="openPostById(c.pid)">
         <img :src="c.img" width="44" height="44" alt="" style="border-radius:10px;width:44px;height:44px;object-fit:cover" />
         <span class="li-title">{{ c.title }}</span>
         <span class="li-val num">{{ c.stat }}</span>

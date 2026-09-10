@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import { app, show, toast } from '../store'
+import { app, toast, openPostById } from '../store'
 import PageHeader from '../components/PageHeader.vue'
 
 const saved = ref(false)
@@ -47,13 +47,13 @@ function toggleSave() {
       <button v-for="s in ['Posts', 'Reviews', 'Offers']" :key="s" :class="{ on: seg === s }" @click="seg = s">{{ s }}</button>
     </div>
     <div class="stack" style="margin-top:12px">
-      <button class="card" style="text-align:left;width:100%" @click="show('post')">
+      <button class="card" style="text-align:left;width:100%" @click="openPostById(4)">
         <div class="row">
           <img src="/assets/taso-ramen.jpg" width="56" height="56" alt="" style="border-radius:12px;width:56px;height:56px;object-fit:cover" />
           <div><b style="font-size:14px">@alex</b><p style="font-size:13px;color:var(--muted);margin-top:2px">和牛入口即化，午市套餐超值。</p></div>
         </div>
       </button>
-      <button class="card" style="text-align:left;width:100%" @click="show('post')">
+      <button class="card" style="text-align:left;width:100%" @click="openPostById(1)">
         <div class="row">
           <img src="/assets/taso-yakiniku.jpg" width="56" height="56" alt="" style="border-radius:12px;width:56px;height:56px;object-fit:cover" />
           <div><b style="font-size:14px">@tokyofood</b><p style="font-size:13px;color:var(--muted);margin-top:2px">Shibuya 这家烧肉真的值得来吗？</p></div>

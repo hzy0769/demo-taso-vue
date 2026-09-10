@@ -117,6 +117,8 @@ export const app = reactive({
   /** 首页 For You 数据（发布成功后向头部插入新帖） */
   foryou: [...foryouSeed] as Post[],
   following: followingPosts,
+  /** 详情页正在展示的帖子 id（openPost 设置，未知 id 回退热帖） */
+  postId: 1,
   /** 好友与消息（PRD §73） */
   social: loadSocial(),
   chatWith: '',
@@ -174,6 +176,18 @@ export function back() {
 
 export function openSheet(name: 'composer' | 'comments' | 'add-friend') {
   app.sheet = name
+}
+
+/** 点击帖子 → 详情页展示完整内容 */
+export function openPost(p: Post) {
+  app.postId = p.id
+  show('post')
+}
+
+/** 搜索等只知道 id 的场景 */
+export function openPostById(id: number) {
+  app.postId = id
+  show('post')
 }
 
 export function closeSheets() {

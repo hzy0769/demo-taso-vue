@@ -9,7 +9,9 @@ export interface Post {
   text: string
   /** 文内金色话题标签 */
   goldTag?: string
-  /** 提供“查看原文”折叠块的帖子才显示翻译开关 */
+  /** 非中文源语言帖子：显示「翻译自 XX · 显示原文 / 显示翻译」开关 */
+  lang?: string
+  /** 未翻译的原文文本（与 lang 成对出现） */
   original?: string
   image: string
   imgW: number
@@ -29,9 +31,10 @@ export const foryouSeed: Post[] = [
     author: '@tokyofood',
     verify: 'Verified Purchase',
     meta: 'Tokyo · 2h ago',
-    text: 'Shibuya 这家烧肉真的值得来吗？入口即化的和牛，人均只要 ¥3,800。',
+    text: 'Shibuya 这家烧肉真的值得来吗？入口即化的和牛，人均只要 ¥3,800。\n\n排到晚上九点才进店，但炭火一起，一切都值了。必点厚切牛舌和 A5 和牛肋条，外焦里嫩，店员帮忙烤制，火候掌握得恰到好处。\n\n最后上的石锅牛肋饭香气扑鼻，配一碗海带汤收尾刚好。用 Taso 会员卡结账还能打 95 折，记得提前在 App 领券。\n\n总体非常值得专程来一次，下次想来试试午市套餐。',
     goldTag: '#焼肉Taso',
-    original: '原文：Is this yakiniku in Shibuya really worth it? Melt-in-your-mouth wagyu at ¥3,800 per person.',
+    lang: '英语',
+    original: 'Is this yakiniku in Shibuya really worth it? Melt-in-your-mouth wagyu at ¥3,800 per person.\n\nWe got a table at 9pm, but once the charcoal was lit it was all worth it. Must-orders: thick-cut beef tongue and A5 wagyu short rib. The staff grill everything tableside and nail the doneness.\n\nThe stone-pot short rib rice to finish is incredible — grab a coupon in the app first for 5% off with the Taso card. Absolutely worth the trip; trying the lunch set next time.',
     image: '/assets/taso-yakiniku.jpg',
     imgW: 720,
     imgH: 481,
@@ -47,7 +50,8 @@ export const foryouSeed: Post[] = [
     verify: 'Local Creator',
     meta: 'Hong Kong · 5h ago',
     text: '香港这杯手冲太惊艳，豆子是埃塞俄比亚日晒，果酸明亮，值得专程去。',
-    original: '原文：This pour-over in Hong Kong is stunning — an Ethiopian natural with bright acidity.',
+    lang: '英语',
+    original: 'This pour-over in Hong Kong is stunning — an Ethiopian natural with bright acidity.',
     image: '/assets/taso-coffee.jpg',
     imgW: 720,
     imgH: 480,
@@ -62,6 +66,8 @@ export const foryouSeed: Post[] = [
     verify: 'Verified Member',
     meta: 'Seoul · 8h ago',
     text: '首尔这家甜品店的黄豆粉冰，排队 40 分钟也值。',
+    lang: '韩语',
+    original: '서울 이 디저트 가게의 콩가루 빙수, 40분을 줄 서도 갈 가치가 있어요.',
     image: '/assets/taso-dessert.jpg',
     imgW: 720,
     imgH: 1281,
@@ -92,6 +98,8 @@ export const followingPosts: Post[] = [
     verify: 'Frequent Traveler',
     meta: 'Bangkok · 3h ago',
     text: '曼谷夜市的泰式炒粉，锅气十足，一份只要 60 泰铢。',
+    lang: '泰语',
+    original: 'ผัดไทยที่ตลาดกลางคืนนี้ฉ่ำกำลังดี แค่ 60 บาทต่อจานเท่านั้น',
     image: '/assets/taso-bangkok.jpg',
     imgW: 720,
     imgH: 557,
@@ -105,17 +113,19 @@ export interface SearchItem {
   n: string
   d: string
   go: ScreenId
+  /** 帖子结果：直达对应详情页 */
+  pid?: number
 }
 
 export const SEARCH_DB: SearchItem[] = [
   { t: '用户', n: '@tokyofood', d: '东京美食探店 · 12.8K 粉丝', go: 'profile' },
   { t: '商家', n: '焼肉Taso', d: 'Shibuya · ★4.7', go: 'merchant' },
-  { t: '帖子', n: 'Shibuya这家烧肉真的值得来吗？', d: '@tokyofood · 1.2K 赞', go: 'post' },
+  { t: '帖子', n: 'Shibuya这家烧肉真的值得来吗？', d: '@tokyofood · 1.2K 赞', go: 'post', pid: 1 },
   { t: '地点', n: 'Shibuya', d: 'Tokyo · 热度 98', go: 'place' },
   { t: '话题', n: '#拉面', d: '12.4K 帖子', go: 'search' },
   { t: '商家', n: '鮨 Taso', d: 'Tokyo · ★4.8', go: 'merchant' },
   { t: '地点', n: 'Bangkok 夜市', d: 'Thailand · 热度 91', go: 'place' },
-  { t: '帖子', n: '香港这杯咖啡太惊艳', d: '@coffeelog · 862 赞', go: 'post' },
+  { t: '帖子', n: '香港这杯咖啡太惊艳', d: '@coffeelog · 862 赞', go: 'post', pid: 2 },
   { t: '用户', n: '@coffeelog', d: '香港咖啡地图 · 8.6K 粉丝', go: 'profile' },
   { t: '话题', n: '#温泉', d: '6.8K 帖子', go: 'search' },
   { t: '商家', n: 'Taso Coffee', d: 'Hong Kong · ★4.6', go: 'merchant' },
