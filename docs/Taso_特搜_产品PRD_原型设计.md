@@ -16,6 +16,7 @@
 > | V1.1 | 2026-09-09 | 新增 §72「手机端高保真原型 · Vue 3 实现状态」：V0.1 全部 31 个 P0/P1 页面已按设计令牌落地为 Vue 3 工程；§8.1 页面清单增加实现状态列；§69 V0.1 标记为已交付；§48/§62 补充设计系统与前端基线落地说明 |
 > | V1.2 | 2026-09-09 | 新增 §73「好友与即时消息」模块：好友关系状态机、P601–P603 页面规格、加好友/消息收发时序、消息类型演进、数据模型、API、安全风控与验收标准，并在原型中落地（好友/消息/聊天三屏 + 添加好友弹层 + 未读角标联动）；§6 信息架构、§8.1 页面清单、§45 数据模型、§52 通知、§57 埋点、§61 API、§68 验收标准及附录优先级/KPI 同步更新 |
 > | V1.2.1 | 2026-09-09 | 新增 P604「我的二维码名片」：参考微信「我的」页设计，顶栏二维码图标入口 + 名片展示页 + 扫一扫/保存（演示态）；§73 新增 §73.8 页面规格，后续小节顺延至 §73.9–§73.16 |
+> | V1.3 | 2026-09-10 | 新增 §75「注册与登录」模块：按《TASO 注册与登录 PRD v1.0》重构 P003 为「继续使用 TASO」统一入口（Apple/Google/X + 邮箱/手机号），新增 OAuth 授权、Email/Phone OTP、登录异常、新用户昵称、账号与安全、登录方式管理、设备会话、删除账号等 AUTH 系列页面并全部落地原型（9 个新屏幕 + P003 重构）；§8.1 页面清单同步更新 |
 >
 > 适用团队：产品、UI/UX、Web 前端、iOS、Android、后端、支付/卡业务、风控、审核、运营、财务
 >
@@ -323,14 +324,14 @@ flowchart TD
 
 ## 8.1 P0 核心页面
 
-原型状态列为高保真原型（Vue 3）中的落地情况，工程结构见 §72.2；「演示态」指 UI 与交互已实现，数据为静态演示数据（详见 §72.5）。P601–P604 为 V1.2 新增模块页面（§73），实现记录见 §73.16。
+原型状态列为高保真原型（Vue 3）中的落地情况，工程结构见 §72.2；「演示态」指 UI 与交互已实现，数据为静态演示数据（详见 §72.5）。P601–P604 为 V1.2 新增模块页面（§73），实现记录见 §73.16；AUTH-002–AUTH-017 为 V1.3 注册登录模块页面（设计规格见《TASO 注册与登录 PRD v1.0》），实现记录见 §75。
 
 | ID | 页面 | 优先级 | 原型状态 |
 |---|---|---|---|
 | P001 | 启动页 | P0 | ✅ 已实现（ScreenSplash） |
-| P002 | 欢迎/语言/地区 | P0 | ✅ 已实现（ScreenWelcome） |
-| P003 | 登录/注册 | P0 | ✅ 已实现，含验证码倒计时（ScreenLogin） |
-| P004 | 兴趣选择 | P0 | ✅ 已实现（ScreenInterests） |
+| P002 | 欢迎/语言/地区 | P0 | ✅ 已实现（ScreenWelcome · V1.3 起接至登录页） |
+| P003 | 登录/注册 | P0 | ✅ 已实现（V1.3 重构 · ScreenLogin：统一「继续使用 TASO」，Apple/Google/X + 邮箱/手机号 + 条款/语言入口，见 §75） |
+| P004 | 兴趣选择 | P0 | ✅ 已实现（ScreenInterests · V1.3 起支持跳过） |
 | P101 | 首页-For You | P0 | ✅ 已实现（ScreenHome · For You Tab） |
 | P102 | 首页-Following | P0 | ✅ 已实现（ScreenHome · Following Tab） |
 | P103 | 帖子详情 | P0 | ✅ 已实现（ScreenPost） |
@@ -364,6 +365,22 @@ flowchart TD
 | P602 | 消息中心 | P0 | ✅ 已实现（V1.2 新增 · ScreenMessages：会话列表 + 好友申请横幅 + 未读角标 + 空态） |
 | P603 | 聊天 | P0 | ✅ 已实现（V1.2 新增 · ScreenChat：双向气泡 / 日期分隔 / 已读状态 / 底部输入栏 / 本地模拟回复） |
 | P604 | 我的二维码名片 | P1 | ✅ 已实现（V1.2.1 新增 · ScreenMyQrcode：「我的」顶栏二维码入口 + 名片 + 扫一扫/保存演示） |
+| AUTH-002 | 注册登录首页 | P0 | ✅ 已实现（V1.3 · ScreenLogin：品牌置顶 + 三方按钮沉底 + 「或」分隔 + 邮箱/手机号入口） |
+| AUTH-003 | Email 输入 | P0 | ✅ 已实现（V1.3 · ScreenAuthEntry：Email/Phone 分段切换 + 格式校验） |
+| AUTH-004 | Email OTP | P0 | ✅ 已实现（V1.3 · ScreenAuthOtp：6 位输入框 + 自动跳格/粘贴 + 60s 重发倒计时） |
+| AUTH-005 | 手机号输入 | P1 | ✅ 已实现（V1.3 · ScreenAuthEntry · Phone：区号预选 + E.164 组装） |
+| AUTH-006 | 手机 OTP | P1 | ✅ 已实现（V1.3 · ScreenAuthOtp 复用，按目的地展示） |
+| AUTH-007 | 第三方授权中 | P0 | ✅ 已实现（V1.3 · ScreenAuthOauth：Google/Apple/X 品牌化模拟授权页 + Loading + 取消） |
+| AUTH-008 | 新用户昵称 | P0 | ✅ 已实现（V1.3 · ScreenAuthNickname：2–30 字符实时校验 + 非法字符过滤） |
+| AUTH-009 | 兴趣选择 | P1 | ✅ 已实现（V1.3 · 复用 P004 并补「跳过」） |
+| AUTH-010 | 登录异常 | P0 | ✅ 已实现（V1.3 · ScreenAuthError：OTP 连错 3 次进入 + Try again + 无法登录帮助） |
+| AUTH-011 | 账号被锁定 | P1 | ⬜ 未实现（原型以 AUTH-010 覆盖提示，锁定态留待接入真实风控） |
+| AUTH-012 | 账号与安全 | P0 | ✅ 已实现（V1.3 · ScreenAccount：账号信息/登录方式/设备会话/删除账号） |
+| AUTH-013 | 登录方式管理 | P0 | ✅ 已实现（V1.3 · ScreenAuthMethods：绑定/解绑 + 最后一个身份解绑拦截） |
+| AUTH-014 | 设备会话管理 | P1 | ✅ 已实现（V1.3 · ScreenAuthSessions：设备列表 + 退出其他设备） |
+| AUTH-015 | 绑定新登录方式 | P1 | ✅ 已实现（V1.3 · 并入 ScreenAuthMethods：点击未绑定项即时绑定演示） |
+| AUTH-016 | 删除账号 | P0 | ✅ 已实现（V1.3 · ScreenAuthDelete：删除范围/恢复窗口提示 + 二次确认） |
+| AUTH-017 | 账号删除确认 | P0 | ✅ 已实现（V1.3 · 确认对话框 + 本地数据全量重置回首启） |
 
 ---
 
@@ -3451,6 +3468,93 @@ E2EE（评估中，需平衡多端与举报审核）
 11. SFC — “Circular on provision of Relevant Stablecoin service by virtual asset trading platforms and licensed corporations”, 27 May 2026. https://apps.sfc.hk/edistributionWeb/api/circular/list-content/circular/doc?lang=TC&refNo=26EC26
 12. HKMA — “Explanatory Note on Licensing for Stored Value Facilities.” https://www.hkma.gov.hk/media/eng/doc/key-functions/financial-infrastructure/infrastructure/retail-payment-initiatives/Explanatory_note_on_licensing_for_SVF.pdf
 13. HKMA — “International Financial Centre / Stored Value Facilities” Annual Report 2025. https://www.hkma.gov.hk/media/eng/publication-and-research/annual-report/2025/16_International_Financial_Centre.pdf
+
+---
+
+# 75. 注册与登录 · 原型实现记录（V1.3 · 2026-09-10）
+
+> 设计规格来源：《TASO 注册与登录 PRD v1.0》（`docs/Taso_注册登录_PRD_v1.0.md`）。
+>
+> 核心模型：**一个 TASO User + 多个可绑定的 Authentication Identity + 独立的国家/语言/时区属性**；注册与登录统一为「继续使用 TASO」，不在首屏区分新老用户。
+
+## 75.1 页面清单与映射
+
+| AUTH 页面 | 原型组件 | 说明 |
+|---|---|---|
+| AUTH-001 启动页 | ScreenSplash（复用 P001） | 启动时按登录态分流（见 75.2） |
+| AUTH-002 注册登录首页 | ScreenLogin（V1.3 重构） | 品牌区置顶、认证按钮沉底的西式布局；Apple（黑底）/Google/X（白底描边）品牌按钮 + 「或」分隔 + 邮箱/手机号文字入口 + 条款链接 + 底部语言胶囊 |
+| AUTH-003/005 输入页 | ScreenAuthEntry | Email/Phone 分段切换；邮箱格式校验；区号预选（+852/+81/+82/+65/+66/+1/+44）；手机号按 E.164 组装 |
+| AUTH-004/006 OTP | ScreenAuthOtp | 6 位独立输入框（自动跳格、退格回跳、整段粘贴）；60s 重发倒计时；错误抖动 + 剩余次数提示；连错 3 次 → AUTH-010 |
+| AUTH-007 授权中 | ScreenAuthOauth | Google/Apple/X 品牌化模拟授权页：应用卡 + 账号行 + 权限清单 + Cancel/Continue（含 Loading 与「Signing in…」态）；Apple 演示账号使用 privaterelay 隐藏邮箱（PRD §7.2） |
+| AUTH-008 新用户昵称 | ScreenAuthNickname | 2–30 Unicode 字符校验（空值/过短/过长/控制字符与零宽字符）；显示认证来源徽标；完成后自动创建账号 |
+| AUTH-009 兴趣选择 | ScreenInterests（复用 P004） | 补充「跳过」按钮（AUTH PRD §12.4） |
+| AUTH-010 登录异常 | ScreenAuthError | 「Sign-in didn't complete」统一错误页 + Try again + Can't sign in? 帮助（不泄露账号注册状态） |
+| AUTH-012 账号与安全 | ScreenAccount | 入口：设置 → 账号与安全；展示 TASO ID/国家/界面语言/时区/注册时间 + 登录方式/设备会话/删除账号 |
+| AUTH-013/015 登录方式 | ScreenAuthMethods | 五种方式绑定态列表；点击未绑定项模拟校验后即时绑定；解绑需确认；**最后一个身份解绑被拦截**（PRD §14.1） |
+| AUTH-014 设备会话 | ScreenAuthSessions | 当前设备 + 其他设备列表；「退出其他设备」二次确认后撤销 |
+| AUTH-016/017 删除账号 | ScreenAuthDelete + 确认对话框 | 删除范围/恢复窗口（14 天）提示 → 二次确认 → 清空全部本地数据回到首启（演示态即时执行） |
+
+未实现：AUTH-011 账号被锁定（P1，依赖真实风控信号，原型以 AUTH-010 表达异常出口）。
+
+## 75.2 登录态模型与启动分流
+
+```text
+localStorage: taso-auth = {
+  id, nickname, countryCode, language, timezone, createdAt,
+  session,            // 登出 = false（账号与绑定保留，PRD §15）
+  identities: [ { provider, key, label, boundAt } ]
+}
+```
+
+启动分流（bootstrap）：
+
+```text
+session = true   → 恢复上次屏幕（引导/中转屏不可恢复，回退 home）
+session = false 且访问过 → splash → 直接登录页（回访用户不再看欢迎页）
+从未访问过        → splash → 欢迎页（P002 语言/地区，可跳过）→ 登录页
+```
+
+注册/登录统一流程：
+
+```text
+登录页 → [ OAuth 授权页 | 邮箱/手机输入 → OTP ]
+      → 身份归并（provider + key 查 identities）
+      → 已存在 → 登录（欢迎回来）→ 首页
+      → 不存在 → 昵称（创建 User，自动检测 navigator.language / Intl 时区）
+      → 兴趣（可跳过）→ 首页
+```
+
+## 75.3 关键交互规则（演示数据）
+
+| 规则 | 实现 |
+|---|---|
+| OTP 演示码 | 固定 `123456`（发送时以 Toast 提示）；错误提示剩余次数，连错 3 次进入 AUTH-010 |
+| 第三方固定身份 | google=`g-1029384756`、apple=`a-88231104`、x=`x-40211398`；同 provider 二次登录即命中身份 →「欢迎回来」 |
+| 解绑保护 | 仅剩一个身份时解绑 →「暂时无法解绑」对话框引导先绑定新方式 |
+| 登出语义 | 撤销 session，账号/身份/社交/余额数据保留 |
+| 删除账号 | 清空 taso-auth / taso-visited / taso-screen / taso-social / taso-bal / taso-wd，回到首启 |
+| 屏幕栈清理 | 授权/OTP 等中转屏在流程终结时出栈，返回键不会落回过期状态 |
+
+## 75.4 与既有原型的融合点
+
+- 欢迎页（P002）「开始探索/跳过」→ 登录页；登录页成为引导链路唯一入口（原 ScreenLogin 为孤立页面，本次接入主流程）
+- 兴趣页（P004）补「跳过」，按钮改为「跳过 / 完成」双操作
+- 设置页新增「账号与安全」入口；「退出登录」由 Toast 占位改为真实登出（确认对话框 → 登录页）
+- 「我的」页昵称/头像字母与登录账号联动（未登录回退演示身份 Alex）
+- `store.ts` 新增 auth 状态域与 `oauthBegin/finishOauth/sendOtp/verifyOtp/otpLocked/completeSignup/bindProvider/unbindProvider/logout/deleteAccount` 动作；`IconSprite` 新增 Apple/Google/X 品牌 logo 与 mail/smartphone/monitor/trash/alert/help 图标；`style.css` 新增 `.oauth-btn/.otp-box/.spin/.consent-*` 组件类（全部走设计令牌，Apple 黑底按钮使用 `--fg/--surface` 令牌）
+
+## 75.5 演示态边界
+
+- OAuth 授权页为本地模拟，不发起任何真实第三方请求；OTP 无真实下发
+- `taso-auth` 仅保存单个账号：新身份注册会替换本地已有账号（真实系统为多账号库）
+- 「绑定新方式」为即时成功演示（真实流程需完成对应 provider 校验）
+- AUTH-011 锁定、账号合并（PRD §13.2/§13.3）、Magic Link、Passkey 未实现
+
+## 75.6 验证记录（2026-09-10）
+
+- `npm run build`（vue-tsc 类型检查 + vite 构建）通过
+- 浏览器实测通过：首启链路（splash→welcome→login）；Google 授权→新用户昵称（空值/单字符/合法三态校验）→兴趣跳过→首页；「我的」昵称联动；绑定 Apple/邮箱→解绑 Google→最后身份解绑拦截→换绑；设备会话退出其他设备；登出→刷新直达登录页；Google 回访（身份已解绑→正确走新用户路径）；邮箱 OTP 非法格式拦截、错码 ×3→异常页→Try again；正确码→「欢迎回来，Zack」（email 身份命中）；删除账号→全量重置回首启
+- 关键页面截图核验：登录首页（三品牌按钮）、Google 授权页、OTP 页、账号与安全页视觉均符合设计令牌
 
 ---
 

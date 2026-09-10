@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { app, show, toast } from '../store'
+import { app, logout, showDialog, show } from '../store'
 import PageHeader from '../components/PageHeader.vue'
 import ToggleSwitch from '../components/ToggleSwitch.vue'
 </script>
@@ -8,6 +8,12 @@ import ToggleSwitch from '../components/ToggleSwitch.vue'
   <section class="scr" :class="{ on: app.screen === 'settings' }" data-screen="settings">
     <PageHeader title="设置" />
     <div class="card" style="margin-top:8px;padding:4px 14px">
+      <button class="li" style="border:0" @click="show('account')">
+        <span class="li-ic"><svg class="ic"><use href="#i-user"/></svg></span>
+        <span class="li-title">账号与安全</span>
+        <span class="li-val">{{ app.auth.user?.nickname ?? '未登录' }}</span>
+        <svg class="ic" style="color:var(--muted)"><use href="#i-right"/></svg>
+      </button>
       <button class="li" style="border:0" @click="show('language')">
         <span class="li-ic"><svg class="ic"><use href="#i-globe"/></svg></span>
         <span class="li-title">语言与地区</span><span class="li-val">简体中文 · HK</span>
@@ -39,6 +45,10 @@ import ToggleSwitch from '../components/ToggleSwitch.vue'
         <ToggleSwitch label="推送通知" />
       </div>
     </div>
-    <button class="btn btn-danger" style="margin-top:20px" @click="toast('已退出登录（原型演示）')">退出登录</button>
+    <button
+      class="btn btn-danger"
+      style="margin-top:20px"
+      @click="showDialog('退出登录？', '将撤销当前设备的 TASO 会话，账号与绑定关系保留。', logout)"
+    >退出登录</button>
   </section>
 </template>

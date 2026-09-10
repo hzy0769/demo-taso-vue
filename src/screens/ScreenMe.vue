@@ -10,6 +10,9 @@ const stats = [
 ]
 
 const msgUnread = computed(() => app.social.convs.reduce((n, c) => n + c.unread, 0))
+/** 登录账号昵称联动（AUTH PRD：完成认证后账号信息进入「我的」） */
+const name = computed(() => app.auth.user?.nickname ?? 'Alex')
+const initial = computed(() => name.value.trim().slice(0, 1).toUpperCase() || 'A')
 </script>
 
 <template>
@@ -22,10 +25,10 @@ const msgUnread = computed(() => app.social.convs.reduce((n, c) => n + c.unread,
     </PageHeader>
     <div class="card" style="margin-top:8px">
       <button class="row" style="width:100%;text-align:left" @click="show('profile')">
-        <span class="avatar lg">A</span>
+        <span class="avatar lg">{{ initial }}</span>
         <div style="flex:1">
           <div class="row" style="gap:5px">
-            <b style="font-size:17px">Alex</b>
+            <b style="font-size:17px">{{ name }}</b>
             <span class="vfy"><svg class="ic sm f"><use href="#i-check"/></svg>Creator</span>
           </div>
           <p class="meta">Tokyo · 12.8K Followers</p>

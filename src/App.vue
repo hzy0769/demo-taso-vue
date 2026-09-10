@@ -9,6 +9,11 @@ import AddFriendSheet from './components/AddFriendSheet.vue'
 import ScreenSplash from './screens/ScreenSplash.vue'
 import ScreenWelcome from './screens/ScreenWelcome.vue'
 import ScreenLogin from './screens/ScreenLogin.vue'
+import ScreenAuthOauth from './screens/ScreenAuthOauth.vue'
+import ScreenAuthEntry from './screens/ScreenAuthEntry.vue'
+import ScreenAuthOtp from './screens/ScreenAuthOtp.vue'
+import ScreenAuthError from './screens/ScreenAuthError.vue'
+import ScreenAuthNickname from './screens/ScreenAuthNickname.vue'
 import ScreenInterests from './screens/ScreenInterests.vue'
 import ScreenHome from './screens/ScreenHome.vue'
 import ScreenPost from './screens/ScreenPost.vue'
@@ -38,6 +43,10 @@ import ScreenFriends from './screens/ScreenFriends.vue'
 import ScreenMessages from './screens/ScreenMessages.vue'
 import ScreenChat from './screens/ScreenChat.vue'
 import ScreenMyQrcode from './screens/ScreenMyQrcode.vue'
+import ScreenAccount from './screens/ScreenAccount.vue'
+import ScreenAuthMethods from './screens/ScreenAuthMethods.vue'
+import ScreenAuthSessions from './screens/ScreenAuthSessions.vue'
+import ScreenAuthDelete from './screens/ScreenAuthDelete.vue'
 
 const clock = ref('9:41')
 function tick() {
@@ -75,6 +84,11 @@ onMounted(() => {
         <ScreenSplash />
         <ScreenWelcome />
         <ScreenLogin />
+        <ScreenAuthOauth />
+        <ScreenAuthEntry />
+        <ScreenAuthOtp />
+        <ScreenAuthError />
+        <ScreenAuthNickname />
         <ScreenInterests />
         <ScreenHome />
         <ScreenPost />
@@ -104,6 +118,10 @@ onMounted(() => {
         <ScreenMessages />
         <ScreenChat />
         <ScreenMyQrcode />
+        <ScreenAccount />
+        <ScreenAuthMethods />
+        <ScreenAuthSessions />
+        <ScreenAuthDelete />
       </div>
 
       <nav class="tabbar" v-show="isRoot">

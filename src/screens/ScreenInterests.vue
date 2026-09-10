@@ -19,6 +19,9 @@ const interests = ref(['拉面', '烧肉', '咖啡', '甜品', '温泉', '海岛
         @click="item.on = !item.on"
       >{{ item.label }}</button>
     </div>
-    <button class="btn btn-p" style="margin-top:28px" @click="show('home')">进入首页</button>
+    <div class="row" style="margin-top:28px;gap:10px">
+      <button class="btn btn-o" style="flex:none;padding:10px 22px;color:var(--muted)" @click="show('home')">跳过</button>
+      <button class="btn btn-p" style="flex:1" @click="show('home')">完成</button>
+    </div>
   </section>
 </template>

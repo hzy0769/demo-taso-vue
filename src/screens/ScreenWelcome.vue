@@ -15,7 +15,7 @@ const contentLangs = ref([
 <template>
   <section class="scr" :class="{ on: app.screen === 'welcome' }" data-screen="welcome">
     <div style="display:flex;justify-content:flex-end;padding:10px 0">
-      <button class="bk" style="width:auto;padding:0 10px;font-size:13px;color:var(--muted)" @click="show('interests')">跳过</button>
+      <button class="bk" style="width:auto;padding:0 10px;font-size:13px;color:var(--muted)" @click="show('login')">跳过</button>
     </div>
     <h1 style="font-size:26px;font-weight:700;letter-spacing:-.02em;line-height:1.3">Welcome to Taso<br /><span class="gold">发现世界的每一次体验</span></h1>
     <p class="meta" style="margin-top:6px">先选好语言与地区，让推荐更懂你。</p>
@@ -41,6 +41,7 @@ const contentLangs = ref([
         <option>Hong Kong</option><option>Tokyo</option><option>Bangkok</option><option>Seoul</option><option>中国大陆</option>
       </select>
     </div>
-    <button class="btn btn-p" style="margin-top:28px" @click="show('interests')">开始探索</button>
+    <button class="btn btn-p" style="margin-top:28px" @click="show('login')">开始探索</button>
+    <p class="meta" style="margin-top:10px;font-size:11px;text-align:center">下一步：使用 Apple / Google / X 或邮箱、手机号继续</p>
   </section>
 </template>
