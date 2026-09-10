@@ -28,6 +28,7 @@ import ScreenCardApply from './screens/ScreenCardApply.vue'
 import ScreenCardDetail from './screens/ScreenCardDetail.vue'
 import ScreenTopup from './screens/ScreenTopup.vue'
 import ScreenWallet from './screens/ScreenWallet.vue'
+import ScreenDividend from './screens/ScreenDividend.vue'
 import ScreenTransactions from './screens/ScreenTransactions.vue'
 import ScreenReimburse from './screens/ScreenReimburse.vue'
 import ScreenReimburseDetail from './screens/ScreenReimburseDetail.vue'
@@ -102,6 +103,7 @@ onMounted(() => {
         <ScreenCardDetail />
         <ScreenTopup />
         <ScreenWallet />
+        <ScreenDividend />
         <ScreenTransactions />
         <ScreenReimburse />
         <ScreenReimburseDetail />

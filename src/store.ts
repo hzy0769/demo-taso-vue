@@ -6,7 +6,7 @@ export type ScreenId =
   | 'auth-oauth' | 'auth-entry' | 'auth-otp' | 'auth-error' | 'auth-nickname'
   | 'home' | 'post' | 'profile' | 'discover' | 'search'
   | 'merchant' | 'place'
-  | 'benefits' | 'card-apply' | 'card-detail' | 'topup' | 'wallet'
+  | 'benefits' | 'card-apply' | 'card-detail' | 'topup' | 'wallet' | 'dividend'
   | 'transactions' | 'reimburse' | 'reimburse-detail'
   | 'referral' | 'creator'
   | 'me' | 'settings' | 'language' | 'security' | 'kyc' | 'notifications'
@@ -40,6 +40,11 @@ export type FriendsTab = '好友' | '请求' | '推荐'
 
 export type Provider = 'apple' | 'google' | 'x' | 'email' | 'phone'
 
+/** 账号级别:注册即会员;股东由后台审核开通(V1.6 股东分红) */
+export type Role = 'member' | 'shareholder'
+
+export const ROLE_NAME: Record<Role, string> = { member: '会员', shareholder: '股东' }
+
 /** 登录身份：一个 TASO User 可绑定多个（AUTH PRD §3.2） */
 export interface AuthIdentity {
   provider: Provider
@@ -59,6 +64,8 @@ export interface AuthUser {
   createdAt: string
   /** 是否持有有效 TASO session（登出 = false，账号保留） */
   session: boolean
+  /** 账号级别：注册默认会员，股东由后台审核（V1.6） */
+  role: Role
   identities: AuthIdentity[]
 }
 
@@ -79,7 +86,10 @@ function loadAuthUser(): AuthUser | null {
     const raw = localStorage.getItem('taso-auth')
     if (raw) {
       const u = JSON.parse(raw) as AuthUser
-      if (Array.isArray(u.identities) && u.nickname) return u
+      if (Array.isArray(u.identities) && u.nickname) {
+        if (u.role !== 'shareholder') u.role = 'member' // 旧账号无 role 字段时兜底为会员
+        return u
+      }
     }
   } catch { /* 损坏时视为未注册 */ }
   return null
@@ -571,6 +581,7 @@ export function completeSignup(nickname: string) {
     timezone: detectedTz,
     createdAt: new Date().toISOString().slice(0, 10),
     session: true,
+    role: 'member', // 注册即会员,股东需后台审核(V1.6)
     identities: [{ ...p, boundAt: new Date().toISOString().slice(0, 10) }],
   }
   persistAuth()
@@ -615,6 +626,18 @@ export function logout() {
   app.stack = ['login']
   show('login', false)
   toast('已退出登录')
+}
+
+/** 演示:点击「我的」页账号级别标记,在股东 / 会员间切换(真实环境股东由后台审核开通) */
+export function toggleRole() {
+  const user = app.auth.user
+  if (!user) {
+    toast('请先登录后再切换账号级别')
+    return
+  }
+  user.role = user.role === 'shareholder' ? 'member' : 'shareholder'
+  persistAuth()
+  toast(user.role === 'shareholder' ? '已切换为股东账号(演示)' : '已切换为会员账号(演示)')
 }
 
 /** 删除账号（AUTH-016/017）：清空全部本地状态，回到首次启动 */

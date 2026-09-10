@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import { app, show, toast } from '../store'
+import { app, show, toast, toggleRole, fmt } from '../store'
+import { DIVIDEND_TOTAL } from '../data'
 import PageHeader from '../components/PageHeader.vue'
 
 const stats = [
@@ -13,6 +14,8 @@ const msgUnread = computed(() => app.social.convs.reduce((n, c) => n + c.unread,
 /** 登录账号昵称联动（AUTH PRD：完成认证后账号信息进入「我的」） */
 const name = computed(() => app.auth.user?.nickname ?? 'Alex')
 const initial = computed(() => name.value.trim().slice(0, 1).toUpperCase() || 'A')
+/** 账号级别:股东时展示金色标记与「股东分红」入口（V1.6） */
+const isHolder = computed(() => app.auth.user?.role === 'shareholder')
 </script>
 
 <template>
@@ -30,6 +33,11 @@ const initial = computed(() => name.value.trim().slice(0, 1).toUpperCase() || 'A
           <div class="row" style="gap:5px">
             <b style="font-size:17px">{{ name }}</b>
             <span class="vfy"><svg class="ic sm f"><use href="#i-check"/></svg>Creator</span>
+            <span
+              class="role-tag" :class="isHolder ? 'holder' : 'member'"
+              role="button" tabindex="0" title="点击切换账号级别(演示)"
+              @click.stop="toggleRole" @keydown.enter.stop.prevent="toggleRole"
+            ><svg v-if="isHolder" class="ic sm f"><use href="#i-star"/></svg>{{ isHolder ? '股东' : '会员' }}</span>
           </div>
           <p class="meta">Tokyo · 12.8K Followers</p>
         </div>
@@ -88,6 +96,12 @@ const initial = computed(() => name.value.trim().slice(0, 1).toUpperCase() || 'A
       <button class="li" @click="show('wallet')">
         <span class="li-ic"><svg class="ic"><use href="#i-wallet"/></svg></span>
         <span class="li-title">钱包</span>
+        <svg class="ic" style="color:var(--muted)"><use href="#i-right"/></svg>
+      </button>
+      <button v-if="isHolder" class="li" @click="show('dividend')">
+        <span class="li-ic"><svg class="ic" style="color:var(--accent)"><use href="#i-star"/></svg></span>
+        <span class="li-title">股东分红</span>
+        <span class="li-val gold num">US${{ fmt(DIVIDEND_TOTAL) }}</span>
         <svg class="ic" style="color:var(--muted)"><use href="#i-right"/></svg>
       </button>
       <button class="li" @click="show('reimburse')">

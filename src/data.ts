@@ -233,6 +233,40 @@ export const TX_LIST: TxItem[] = [
 
 export const TX_FILTERS = ['全部', '充值', '消费', '报销', '创作', '推广', '手续费'] as const
 
+/* ── 股东分红（V1.6）────────────────────────────────────────────── */
+
+/** 分红池比例:平台会员卡销售总额 × 14% */
+export const DIVIDEND_RATE = 0.14
+
+export interface DividendPeriod {
+  /** 期数(按月递增) */
+  no: number
+  /** 结算周期 */
+  range: string
+  /** 发放日期 */
+  paidAt: string
+  /** 平台会员卡销售总额 */
+  cardSales: number
+  /** 股东关联销售总额(仅统计该股东下 3 级) */
+  relatedSales: number
+  /** 平台总销售额 */
+  platformSales: number
+}
+
+export const DIVIDEND_PERIODS: DividendPeriod[] = [
+  { no: 12, range: '2026-08-01 ~ 2026-08-31', paidAt: '2026-09-05', cardSales: 2400000, relatedSales: 86400, platformSales: 1800000 },
+  { no: 11, range: '2026-07-01 ~ 2026-07-31', paidAt: '2026-08-05', cardSales: 2150000, relatedSales: 76500, platformSales: 1700000 },
+  { no: 10, range: '2026-06-01 ~ 2026-06-30', paidAt: '2026-07-05', cardSales: 1980000, relatedSales: 60000, platformSales: 1500000 },
+  { no: 9, range: '2026-05-01 ~ 2026-05-31', paidAt: '2026-06-05', cardSales: 1860000, relatedSales: 52000, platformSales: 1600000 },
+  { no: 8, range: '2026-04-01 ~ 2026-04-30', paidAt: '2026-05-06', cardSales: 1720000, relatedSales: 49000, platformSales: 1400000 },
+  { no: 7, range: '2026-03-01 ~ 2026-03-31', paidAt: '2026-04-06', cardSales: 1600000, relatedSales: 42000, platformSales: 1200000 },
+]
+
+/** 累计已发放分红(供「我的」入口展示):Σ 会员卡销售总额 × 14% × (关联销售总额 ÷ 平台总销售额) */
+export const DIVIDEND_TOTAL = DIVIDEND_PERIODS.reduce(
+  (sum, p) => sum + p.cardSales * DIVIDEND_RATE * (p.relatedSales / p.platformSales), 0,
+)
+
 /* ── 好友与消息（PRD §73）────────────────────────────────────────── */
 
 export interface Member {
