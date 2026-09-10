@@ -7,7 +7,7 @@ export type ScreenId =
   | 'home' | 'post' | 'profile' | 'discover' | 'search'
   | 'merchant' | 'place'
   | 'benefits' | 'card-apply' | 'card-detail' | 'topup' | 'wallet'
-  | 'transactions' | 'reimburse' | 'reimburse-detail' | 'withdraw'
+  | 'transactions' | 'reimburse' | 'reimburse-detail'
   | 'referral' | 'creator'
   | 'me' | 'settings' | 'language' | 'security' | 'kyc' | 'notifications'
   | 'friends' | 'messages' | 'chat' | 'my-qrcode'
@@ -110,7 +110,6 @@ export const app = reactive({
   stack: ['splash'] as ScreenId[],
   screen: 'splash' as ScreenId,
   bal: 12580,
-  wd: 800,
   visited: localStorage.getItem('taso-visited') === '1',
   toast: '',
   toastOn: false,
@@ -147,7 +146,6 @@ export function toast(msg: string) {
 
 export function save() {
   localStorage.setItem('taso-bal', String(app.bal))
-  localStorage.setItem('taso-wd', String(app.wd))
 }
 
 function resetScroll() {
@@ -621,14 +619,13 @@ export function logout() {
 
 /** 删除账号（AUTH-016/017）：清空全部本地状态，回到首次启动 */
 export function deleteAccount() {
-  for (const k of ['taso-auth', 'taso-visited', 'taso-screen', 'taso-social', 'taso-bal', 'taso-wd', 'taso-follows']) {
+  for (const k of ['taso-auth', 'taso-visited', 'taso-screen', 'taso-social', 'taso-bal', 'taso-follows']) {
     localStorage.removeItem(k)
   }
   app.auth.user = null
   app.auth.pending = null
   app.visited = false
   app.bal = 12580
-  app.wd = 800
   app.follows = []
   app.morePost = null
   app.social = JSON.parse(JSON.stringify(SOCIAL_SEED))

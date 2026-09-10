@@ -30,9 +30,9 @@ function toggleFreeze() {
       </div>
     </TasoCard>
     <div class="card" style="margin-top:14px">
-      <div class="kv"><span class="k">余额</span><span class="v num">HK$ {{ fmt(app.bal) }}</span></div>
-      <div class="kv"><span class="k">本月消费</span><span class="v num">HK$ 3,920.00</span></div>
-      <div class="kv"><span class="k">合作商家节省</span><span class="v num gold">HK$ 280.00</span></div>
+      <div class="kv"><span class="k">余额</span><span class="v num">US$ {{ fmt(app.bal) }}</span></div>
+      <div class="kv"><span class="k">本月消费</span><span class="v num">US$ 3,920.00</span></div>
+      <div class="kv"><span class="k">合作商家节省</span><span class="v num gold">US$ 280.00</span></div>
     </div>
     <div class="card" style="margin-top:14px;padding:4px 14px">
       <button class="li" @click="toggleFreeze">

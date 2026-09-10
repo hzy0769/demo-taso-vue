@@ -21,10 +21,10 @@ function submit() {
     <h3 style="font-size:15px;font-weight:600;margin:18px 0 10px">结算中</h3>
     <div class="card">
       <div class="row-b"><b>焼肉Taso</b><span class="badge warn">SETTLING</span></div>
-      <div class="kv" style="margin-top:6px"><span class="k">消费</span><span class="v num">HK$ 800.00</span></div>
-      <div class="kv"><span class="k">可结算上限</span><span class="v num">HK$ 928.00</span></div>
-      <div class="kv"><span class="k">已结算</span><span class="v num ok">HK$ 120.00</span></div>
-      <div class="kv"><span class="k">剩余</span><span class="v num">HK$ 808.00</span></div>
+      <div class="kv" style="margin-top:6px"><span class="k">消费</span><span class="v num">US$ 800.00</span></div>
+      <div class="kv"><span class="k">可结算上限</span><span class="v num">US$ 928.00</span></div>
+      <div class="kv"><span class="k">已结算</span><span class="v num ok">US$ 120.00</span></div>
+      <div class="kv"><span class="k">剩余</span><span class="v num">US$ 808.00</span></div>
       <p class="meta" style="margin-top:8px">日结规则：按平台公布规则执行（0.05%/日，按审核通过金额独立结算）。</p>
       <button class="btn btn-o" style="margin-top:12px" @click="show('reimburse-detail')">查看详情</button>
     </div>

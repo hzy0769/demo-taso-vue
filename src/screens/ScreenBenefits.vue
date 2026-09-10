@@ -20,7 +20,7 @@ import TasoCard from '../components/TasoCard.vue'
     <div class="card" style="margin-top:14px">
       <div class="row-b">
         <span class="meta">可用余额</span>
-        <span class="num" style="font-size:24px;font-weight:700">HK$ {{ fmt(app.bal) }}</span>
+        <span class="num" style="font-size:24px;font-weight:700">US$ {{ fmt(app.bal) }}</span>
       </div>
       <div class="row" style="margin-top:14px;gap:10px">
         <button class="btn btn-p" style="flex:1" @click="show('topup')">充值</button>
@@ -30,12 +30,12 @@ import TasoCard from '../components/TasoCard.vue'
     <div class="row" style="margin-top:14px;gap:10px">
       <div class="card" style="flex:1">
         <div class="meta">本月权益</div>
-        <div class="num gold" style="font-size:20px;font-weight:700">HK$ 382</div>
+        <div class="num gold" style="font-size:20px;font-weight:700">US$ 382</div>
         <div class="meta" style="margin-top:2px">已优惠</div>
       </div>
       <div class="card" style="flex:1">
         <div class="meta">待结算</div>
-        <div class="num" style="font-size:20px;font-weight:700">HK$ 96</div>
+        <div class="num" style="font-size:20px;font-weight:700">US$ 96</div>
         <div class="meta" style="margin-top:2px">报销入账中</div>
       </div>
     </div>
@@ -61,6 +61,6 @@ import TasoCard from '../components/TasoCard.vue'
         <svg class="ic" style="color:var(--muted)"><use href="#i-right"/></svg>
       </button>
     </div>
-    <p class="meta" style="margin-top:14px">会员卡由持牌发卡机构提供，Taso 仅提供体验层与权益层。储值、报销与提现规则以合作机构实际处理为准。</p>
+    <p class="meta" style="margin-top:14px">会员卡由持牌发卡机构提供，Taso 仅提供体验层与权益层。储值与报销规则以合作机构实际处理为准。</p>
   </section>
 </template>

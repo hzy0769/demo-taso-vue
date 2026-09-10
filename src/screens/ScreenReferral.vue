@@ -16,7 +16,7 @@ function copyLink() {
     <div class="row" style="gap:8px;margin-top:8px">
       <div class="card" style="flex:1;padding:12px"><div class="num" style="font-weight:700">128</div><div class="meta">邀请人数</div></div>
       <div class="card" style="flex:1;padding:12px"><div class="num" style="font-weight:700">32</div><div class="meta">直接邀请</div></div>
-      <div class="card" style="flex:1;padding:12px"><div class="num gold" style="font-weight:700">2,380</div><div class="meta">总奖励 HK$</div></div>
+      <div class="card" style="flex:1;padding:12px"><div class="num gold" style="font-weight:700">2,380</div><div class="meta">总奖励 US$</div></div>
       <div class="card" style="flex:1;padding:12px"><div class="num warn" style="font-weight:700">420</div><div class="meta">待结算</div></div>
     </div>
     <div class="card" style="margin-top:14px">

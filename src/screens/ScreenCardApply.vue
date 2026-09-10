@@ -7,7 +7,7 @@ const perks = ['合作商家专属优惠', '会员限定活动', '消费权益�
 const steps = ['产品说明', '条款同意', '身份验证', '地址信息', '申请支付', '审核', '制卡', '配送', '激活']
 
 function apply() {
-  showDialog('确认申请', '实体卡办理费 HK$1,000，将进入持牌发卡机构的身份验证流程。', () =>
+  showDialog('确认申请', '实体卡办理费 US$1,000，将进入持牌发卡机构的身份验证流程。', () =>
     toast('申请已提交，进入审核（演示）'),
   )
 }
@@ -18,7 +18,7 @@ function apply() {
     <PageHeader title="申请实体卡" />
     <TasoCard pan="•••• •••• •••• ••••" style="margin-top:10px">
       <p class="meta" style="margin-top:12px;color:color-mix(in oklch,var(--fg) 62%,transparent)">实体卡办理费</p>
-      <div class="num" style="font-size:28px;font-weight:700">HK$ 1,000</div>
+      <div class="num" style="font-size:28px;font-weight:700">US$ 1,000</div>
     </TasoCard>
     <div class="card" style="margin-top:14px">
       <div v-for="p in perks" :key="p" class="li" style="border:0">

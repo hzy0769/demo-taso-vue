@@ -3,9 +3,9 @@ import { app, toast, openPostById } from '../store'
 import PageHeader from '../components/PageHeader.vue'
 
 const contents = [
-  { img: '/assets/taso-ramen.jpg', title: '东京深夜拉面攻略', stat: '124K views · HK$120', pid: 4 },
-  { img: '/assets/taso-yakiniku.jpg', title: 'Shibuya 烧肉探店', stat: '62K views · HK$80', pid: 1 },
-  { img: '/assets/taso-coffee.jpg', title: '香港咖啡地图', stat: '18K views · HK$23', pid: 2 },
+  { img: '/assets/taso-ramen.jpg', title: '东京深夜拉面攻略', stat: '124K views · US$120', pid: 4 },
+  { img: '/assets/taso-yakiniku.jpg', title: 'Shibuya 烧肉探店', stat: '62K views · US$80', pid: 1 },
+  { img: '/assets/taso-coffee.jpg', title: '香港咖啡地图', stat: '18K views · US$23', pid: 2 },
 ]
 </script>
 
@@ -13,7 +13,7 @@ const contents = [
   <section class="scr" :class="{ on: app.screen === 'creator' }" data-screen="creator">
     <PageHeader title="创作中心" />
     <div class="row" style="gap:8px;margin-top:8px">
-      <div class="card" style="flex:1;padding:12px"><div class="num gold" style="font-weight:700">620</div><div class="meta">本月收益 HK$</div></div>
+      <div class="card" style="flex:1;padding:12px"><div class="num gold" style="font-weight:700">620</div><div class="meta">本月收益 US$</div></div>
       <div class="card" style="flex:1;padding:12px"><div class="num warn" style="font-weight:700">180</div><div class="meta">待结算</div></div>
       <div class="card" style="flex:1;padding:12px"><div class="num ok" style="font-weight:700">440</div><div class="meta">已结算</div></div>
     </div>

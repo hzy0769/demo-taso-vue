@@ -205,38 +205,33 @@ export interface TxItem {
   badge: string
   badgeCls: 'ok' | 'warn'
   /** 分类筛选关键字 */
-  cat: '充值' | '消费' | '报销' | '创作' | '推广' | '提现'
+  cat: '充值' | '消费' | '报销' | '创作' | '推广'
 }
 
 export const TX_LIST: TxItem[] = [
   {
     title: '会员卡充值', meta: '2026-09-08 · TOPUP-09081234',
-    amount: '+HK$10,000', amountOk: true, sub: '手续费 HK$1,600',
+    amount: '+US$10,000', amountOk: true, sub: '手续费 US$1,600',
     badge: '交易完成', badgeCls: 'ok', cat: '充值',
   },
   {
     title: '焼肉Taso 消费', meta: '2026-09-08 · PAY-09081930',
-    amount: '−HK$800', amountOk: false, sub: '会员 95 折',
+    amount: '−US$800', amountOk: false, sub: '会员 95 折',
     badge: '交易完成', badgeCls: 'ok', cat: '消费',
   },
   {
-    title: '报销结算入账', meta: '2026-09-09 · RMB-09090012',
-    amount: '+HK$0.40', amountOk: true, sub: '日结 0.05%',
+    title: '报销结算入账', meta: '2026-09-09 · USD-09090012',
+    amount: '+US$0.40', amountOk: true, sub: '日结 0.05%',
     badge: '已入账', badgeCls: 'ok', cat: '报销',
   },
   {
     title: '创作收益', meta: '2026-09-07 · CRT-09070088',
-    amount: '+HK$120', amountOk: true, sub: '内容激励',
+    amount: '+US$120', amountOk: true, sub: '内容激励',
     badge: '已入账', badgeCls: 'ok', cat: '创作',
-  },
-  {
-    title: '提现', meta: '2026-09-05 · WDR-09050021',
-    amount: '−HK$500', amountOk: false, sub: '银行卡尾号 2021',
-    badge: '处理中', badgeCls: 'warn', cat: '提现',
   },
 ]
 
-export const TX_FILTERS = ['全部', '充值', '消费', '报销', '创作', '推广', '提现', '手续费'] as const
+export const TX_FILTERS = ['全部', '充值', '消费', '报销', '创作', '推广', '手续费'] as const
 
 /* ── 好友与消息（PRD §73）────────────────────────────────────────── */
 

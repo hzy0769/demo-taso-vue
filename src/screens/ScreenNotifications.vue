@@ -6,8 +6,8 @@ const items = [
   { icon: '#i-heart', title: 'Alex 赞了你的帖子', sub: '「东京深夜拉面攻略」· 2m' },
   { icon: '#i-user-plus', title: 'Sora 请求添加你为好友', sub: '好友申请 · 5m' },
   { icon: '#i-check', title: 'Taso 消费凭证审核已通过', sub: '焼肉Taso · 1h' },
-  { icon: '#i-wallet', title: '今日消费权益 HK$0.40 已入账', sub: '报销结算 · 3h' },
-  { icon: '#i-card', title: '会员卡充值 HK$10,000 已成功', sub: 'Taso Card · 昨天' },
+  { icon: '#i-wallet', title: '今日消费权益 US$0.40 已入账', sub: '报销结算 · 3h' },
+  { icon: '#i-card', title: '会员卡充值 US$10,000 已成功', sub: 'Taso Card · 昨天' },
   { icon: '#i-globe', title: '你的帖子已被翻译为日语', sub: '自动翻译 · 昨天' },
 ]
 </script>

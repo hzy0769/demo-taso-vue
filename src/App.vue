@@ -31,7 +31,6 @@ import ScreenWallet from './screens/ScreenWallet.vue'
 import ScreenTransactions from './screens/ScreenTransactions.vue'
 import ScreenReimburse from './screens/ScreenReimburse.vue'
 import ScreenReimburseDetail from './screens/ScreenReimburseDetail.vue'
-import ScreenWithdraw from './screens/ScreenWithdraw.vue'
 import ScreenReferral from './screens/ScreenReferral.vue'
 import ScreenCreator from './screens/ScreenCreator.vue'
 import ScreenMe from './screens/ScreenMe.vue'
@@ -106,7 +105,6 @@ onMounted(() => {
         <ScreenTransactions />
         <ScreenReimburse />
         <ScreenReimburseDetail />
-        <ScreenWithdraw />
         <ScreenReferral />
         <ScreenCreator />
         <ScreenMe />
