@@ -1,30 +1,45 @@
 <script setup lang="ts">
+import { computed } from 'vue'
 import { app } from '../store'
+import { t, languageName } from '../i18n'
+import { fmtMoney, relTime } from '../i18n/format'
 import PageHeader from '../components/PageHeader.vue'
 
-const items = [
-  { icon: '#i-heart', title: 'Alex 赞了你的帖子', sub: '「东京深夜拉面攻略」· 2m' },
-  { icon: '#i-user-plus', title: 'Sora 请求添加你为好友', sub: '好友申请 · 5m' },
-  { icon: '#i-check', title: 'Taso 消费凭证审核已通过', sub: '焼肉Taso · 1h' },
-  { icon: '#i-wallet', title: '今日消费权益 US$0.40 已入账', sub: '报销结算 · 3h' },
-  { icon: '#i-card', title: '会员卡充值 US$10,000 已成功', sub: 'Taso Card · 昨天' },
-  { icon: '#i-globe', title: '你的帖子已被翻译为日语', sub: '自动翻译 · 昨天' },
-]
+/** 通知项:事件数据 + 可本地化模板 key(§8.2),时间/金额为结构化参数 */
+const filterLabels = computed(() => ([
+  { k: 'all', label: t('notifications.all') },
+  { k: 'interact', label: t('notifications.interact') },
+  { k: 'follow', label: t('notifications.follow') },
+  { k: 'orders', label: t('notifications.orders') },
+  { k: 'review', label: t('notifications.review') },
+  { k: 'system', label: t('notifications.system') },
+] as const))
+
+const minutesAgo = (m: number) => new Date(Date.now() - m * 60_000).toISOString()
+
+const items = computed(() => ([
+  { icon: '#i-heart', title: t('notifications.like'), sub: t('notifications.likeSub'), at: minutesAgo(2), cat: 'interact' },
+  { icon: '#i-user-plus', title: t('notifications.friend'), sub: t('notifications.friendSub'), at: minutesAgo(5), cat: 'follow' },
+  { icon: '#i-check', title: t('notifications.receipt'), sub: t('notifications.receiptSub'), at: minutesAgo(61), cat: 'review' },
+  { icon: '#i-wallet', title: t('notifications.dailyBenefit', { money: fmtMoney({ amount: 0.4, currency: 'USD' }) }), sub: t('notifications.dailyBenefitSub'), at: minutesAgo(180), cat: 'orders' },
+  { icon: '#i-card', title: t('notifications.topup', { money: fmtMoney({ amount: 10000, currency: 'USD' }) }), sub: t('notifications.topupSub'), at: minutesAgo(1500), cat: 'orders' },
+  { icon: '#i-globe', title: t('notifications.translated', { language: languageName('ja') }), sub: t('notifications.translatedSub'), at: minutesAgo(1600), cat: 'system' },
+]))
 </script>
 
 <template>
   <section class="scr" :class="{ on: app.screen === 'notifications' }" data-screen="notifications">
-    <PageHeader title="通知中心" />
+    <PageHeader :title="t('notifications.title')" />
     <div class="chips" style="margin-top:8px">
-      <button class="chip on">全部</button><button class="chip">互动</button><button class="chip">关注</button><button class="chip">订单/权益</button><button class="chip">审核</button><button class="chip">系统</button>
+      <button v-for="f in filterLabels" :key="f.k" class="chip" :class="{ on: f.k === 'all' }">{{ f.label }}</button>
     </div>
     <div class="stack" style="margin-top:14px">
-      <div v-for="it in items" :key="it.title" class="card">
+      <div v-for="it in items" :key="it.title + it.at" class="card">
         <div class="row">
           <span class="li-ic"><svg class="ic"><use :href="it.icon"/></svg></span>
           <div style="flex:1">
             <b style="font-size:14px">{{ it.title }}</b>
-            <p class="meta">{{ it.sub }}</p>
+            <p class="meta">{{ it.sub }} · {{ relTime(it.at) }}</p>
           </div>
         </div>
       </div>

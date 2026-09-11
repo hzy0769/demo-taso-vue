@@ -1,43 +1,59 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import { app, show } from '../store'
-import { WALLET_TX, WALLET_TX_FILTERS } from '../data'
+import { WALLET_TX, WALLET_TX_FILTERS, type TxItem, type TxCat } from '../data'
+import { t } from '../i18n'
+import { fmtMoney, fmtDate } from '../i18n/format'
 import PageHeader from '../components/PageHeader.vue'
 
-const filter = ref<string>('全部')
-const list = computed(() => (filter.value === '全部' ? WALLET_TX : WALLET_TX.filter(t => t.cat === filter.value)))
+const filter = ref<string>('all')
+
+const chips = computed(() => WALLET_TX_FILTERS.map(k => ({ k, label: t(`tx.cat.${k}`) })))
+
+function match(tx: TxItem, f: string): boolean {
+  if (f === 'all') return true
+  if (f === 'fee') return !!tx.fee
+  return tx.cat === (f as TxCat)
+}
+const list = computed(() => WALLET_TX.filter(tx => match(tx, filter.value)))
+
+const title = (tx: TxItem) => t(tx.titleKey, tx.titleParams)
+const sub = (tx: TxItem) =>
+  tx.fee ? t('tx.sub.fee', { amount: fmtMoney(tx.fee) })
+  : tx.subKey ? t(tx.subKey, tx.subParams)
+  : ''
 </script>
 
 <template>
   <section class="scr" :class="{ on: app.screen === 'wallet-transactions' }" data-screen="wallet-transactions">
-    <PageHeader title="钱包明细">
+    <PageHeader :title="t('tx.titleWallet')">
       <template #right>
-        <span class="badge soft">收益账户</span>
+        <span class="badge soft">{{ t('wallet.accountBadge') }}</span>
       </template>
     </PageHeader>
-    <p class="meta" style="margin-top:6px">钱包账户流水：报销、创作、推广、分红等收益与提现；会员卡充值与消费请前往「会员卡 · 消费记录」查看。</p>
+    <p class="meta" style="margin-top:6px">{{ t('tx.introWallet') }}</p>
     <div class="chips" style="margin-top:10px">
       <button
-        v-for="f in WALLET_TX_FILTERS" :key="f"
-        class="chip" :class="{ on: filter === f }"
-        @click="filter = f"
-      >{{ f }}</button>
+        v-for="f in chips" :key="f.k"
+        class="chip" :class="{ on: filter === f.k }"
+        @click="filter = f.k"
+      >{{ f.label }}</button>
     </div>
     <div class="stack" style="margin-top:14px">
-      <div v-for="tx in list" :key="tx.meta" class="card">
+      <div v-for="tx in list" :key="tx.ref" class="card">
         <div class="row-b">
           <div>
-            <b style="font-size:14px">{{ tx.title }}</b>
-            <p class="meta">{{ tx.meta }}</p>
+            <b style="font-size:14px">{{ title(tx) }}</b>
+            <p class="meta">{{ fmtDate(tx.at) }} · {{ tx.ref }}</p>
           </div>
           <div style="text-align:right">
-            <div class="num" :class="{ ok: tx.amountOk }">{{ tx.amount }}</div>
-            <div class="meta">{{ tx.sub }}</div>
+            <div class="num" :class="{ ok: tx.sign === '+' }">{{ fmtMoney(tx.amount, { sign: tx.sign }) }}</div>
+            <div class="meta">{{ sub(tx) }}</div>
           </div>
         </div>
-        <span class="badge" :class="tx.badgeCls" style="margin-top:8px">{{ tx.badge }}</span>
+        <span class="badge" :class="tx.status === 'pending' ? 'warn' : 'ok'" style="margin-top:8px">{{ t(`tx.status.${tx.status}`) }}</span>
       </div>
     </div>
-    <button class="btn btn-p" style="margin-top:16px" @click="show('withdraw')">去提现</button>
+    <button class="btn btn-p" style="margin-top:16px" @click="show('withdraw')">{{ t('tx.goWithdraw') }}</button>
   </section>
 </template>

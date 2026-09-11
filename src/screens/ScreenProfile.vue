@@ -1,44 +1,54 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import { app, toast } from '../store'
+import { t, regionName } from '../i18n'
+import { compact } from '../i18n/format'
 import PageHeader from '../components/PageHeader.vue'
 
 const following = ref(false)
-const seg = ref('Posts')
+const seg = ref<'posts' | 'reviews' | 'media'>('posts')
+
+const segs = computed(() => ([
+  { k: 'posts', label: t('profile.segPosts') },
+  { k: 'reviews', label: t('profile.segReviews') },
+  { k: 'media', label: t('profile.segMedia') },
+] as const))
+
+const statsLine = computed(() => t('profile.followersLine', { followers: compact(12800), following: compact(1243) }))
 
 function toggleFollow() {
   following.value = !following.value
-  toast(following.value ? '已关注 @alex' : '已取消关注')
+  toast(t(following.value ? 'post.followedAuthor' : 'post.unfollowedAuthor', { name: '@alex' }))
 }
 </script>
 
 <template>
   <section class="scr" :class="{ on: app.screen === 'profile' }" data-screen="profile">
-    <PageHeader title="用户主页">
+    <PageHeader :title="t('profile.title')">
       <template #right>
-        <button class="bk" aria-label="更多" @click="toast('更多操作：不感兴趣 / 屏蔽 / 举报')"><svg class="ic"><use href="#i-more"/></svg></button>
+        <button class="bk" :aria-label="t('a11y.more')" @click="toast(t('profile.moreToast'))"><svg class="ic"><use href="#i-more"/></svg></button>
       </template>
     </PageHeader>
     <div style="text-align:center;margin-top:8px">
       <span class="avatar lg" style="margin:0 auto">A</span>
       <div class="row" style="justify-content:center;gap:6px;margin-top:10px">
-        <b style="font-size:18px">Alex · Tokyo</b>
-        <span class="vfy"><svg class="ic sm f"><use href="#i-check"/></svg>Creator</span>
+        <b style="font-size:18px">Alex · {{ regionName({ country: '', cityId: 'tokyo' }) }}</b>
+        <span class="vfy"><svg class="ic sm f"><use href="#i-check"/></svg>{{ t('verify.creator') }}</span>
       </div>
-      <p class="meta" style="margin-top:4px">12.8K Followers · 1,243 Following</p>
+      <p class="meta" style="margin-top:4px">{{ statsLine }}</p>
     </div>
     <div class="row" style="justify-content:center;gap:10px;margin-top:14px">
-      <button class="btn" :class="following ? 'btn-o' : 'btn-p'" style="width:auto" @click="toggleFollow">{{ following ? '已关注' : '关注' }}</button>
-      <button class="btn btn-o" style="width:auto" @click="toast('分享链接已复制')">分享主页</button>
+      <button class="btn" :class="following ? 'btn-o' : 'btn-p'" style="width:auto" @click="toggleFollow">{{ following ? t('post.following') : t('post.follow') }}</button>
+      <button class="btn btn-o" style="width:auto" @click="toast(t('post.shareCopied'))">{{ t('profile.shareProfile') }}</button>
     </div>
     <div class="seg" style="margin-top:16px">
-      <button v-for="s in ['Posts', 'Reviews', 'Media']" :key="s" :class="{ on: seg === s }" @click="seg = s">{{ s }}</button>
+      <button v-for="s in segs" :key="s.k" :class="{ on: seg === s.k }" @click="seg = s.k">{{ s.label }}</button>
     </div>
     <div class="masonry" style="margin-top:12px">
-      <div class="img-wrap"><img src="/assets/taso-ramen.jpg" width="720" height="720" alt="东京拉面" /></div>
-      <div class="img-wrap"><img src="/assets/taso-coffee.jpg" width="720" height="480" alt="香港手冲咖啡" /></div>
-      <div class="img-wrap"><img src="/assets/taso-sushi.jpg" width="720" height="480" alt="寿司" /></div>
-      <div class="img-wrap"><img src="/assets/taso-onsen.jpg" width="720" height="480" alt="温泉" /></div>
+      <div class="img-wrap"><img src="/assets/taso-ramen.jpg" width="720" height="720" :alt="t('img.ramen')" /></div>
+      <div class="img-wrap"><img src="/assets/taso-coffee.jpg" width="720" height="480" :alt="t('img.coffee')" /></div>
+      <div class="img-wrap"><img src="/assets/taso-sushi.jpg" width="720" height="480" :alt="t('img.sushi')" /></div>
+      <div class="img-wrap"><img src="/assets/taso-onsen.jpg" width="720" height="480" :alt="t('img.onsen')" /></div>
     </div>
   </section>
 </template>

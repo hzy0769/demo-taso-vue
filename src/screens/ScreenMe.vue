@@ -1,29 +1,32 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import { app, show, toast, toggleRole, fmt } from '../store'
+import { app, show, toast, toggleRole, roleLabel } from '../store'
 import { DIVIDEND_TOTAL } from '../data'
+import { t, regionName } from '../i18n'
+import { fmtMoney, compact } from '../i18n/format'
 import PageHeader from '../components/PageHeader.vue'
 
-const stats = [
-  { n: '86', label: 'Posts' },
-  { n: '42', label: 'Reviews' },
-  { n: '1.2K', label: 'Likes' },
-]
+const stats = computed(() => ([
+  { n: '86', label: t('me.statPosts') },
+  { n: '42', label: t('me.statReviews') },
+  { n: compact(1200), label: t('me.statLikes') },
+]))
 
 const msgUnread = computed(() => app.social.convs.reduce((n, c) => n + c.unread, 0))
-/** 登录账号昵称联动（AUTH PRD：完成认证后账号信息进入「我的」） */
+/** 登录账号昵称联动(AUTH PRD:完成认证后账号信息进入「我的」) */
 const name = computed(() => app.auth.user?.nickname ?? 'Alex')
 const initial = computed(() => name.value.trim().slice(0, 1).toUpperCase() || 'A')
-/** 账号级别:股东时展示金色标记与「股东分红」入口（V1.6） */
+/** 账号级别:股东时展示金色标记与「股东分红」入口(V1.6) */
 const isHolder = computed(() => app.auth.user?.role === 'shareholder')
+const followersLine = computed(() => t('me.followersLine', { city: regionName({ country: '', cityId: 'tokyo' }), count: compact(12800) }))
 </script>
 
 <template>
   <section class="scr" :class="{ on: app.screen === 'me' }" data-screen="me">
-    <PageHeader title="我的" :back-btn="false">
+    <PageHeader :title="t('me.title')" :back-btn="false">
       <template #right>
-        <button class="bk" aria-label="我的二维码" @click="show('my-qrcode')"><svg class="ic"><use href="#i-qrcode"/></svg></button>
-        <button class="bk" aria-label="设置" @click="show('settings')"><svg class="ic"><use href="#i-settings"/></svg></button>
+        <button class="bk" :aria-label="t('a11y.myQrcode')" @click="show('my-qrcode')"><svg class="ic"><use href="#i-qrcode"/></svg></button>
+        <button class="bk" :aria-label="t('a11y.settings')" @click="show('settings')"><svg class="ic"><use href="#i-settings"/></svg></button>
       </template>
     </PageHeader>
     <div class="card" style="margin-top:8px">
@@ -32,14 +35,14 @@ const isHolder = computed(() => app.auth.user?.role === 'shareholder')
         <div style="flex:1">
           <div class="row" style="gap:5px">
             <b style="font-size:17px">{{ name }}</b>
-            <span class="vfy"><svg class="ic sm f"><use href="#i-check"/></svg>Creator</span>
+            <span class="vfy"><svg class="ic sm f"><use href="#i-check"/></svg>{{ t('verify.creator') }}</span>
             <span
               class="role-tag" :class="isHolder ? 'holder' : 'member'"
-              role="button" tabindex="0" title="点击切换账号级别(演示)"
+              role="button" tabindex="0" :title="t('me.roleHint')"
               @click.stop="toggleRole" @keydown.enter.stop.prevent="toggleRole"
-            ><svg v-if="isHolder" class="ic sm f"><use href="#i-star"/></svg>{{ isHolder ? '股东' : '会员' }}</span>
+            ><svg v-if="isHolder" class="ic sm f"><use href="#i-star"/></svg>{{ roleLabel(isHolder ? 'shareholder' : 'member') }}</span>
           </div>
-          <p class="meta">Tokyo · 12.8K Followers</p>
+          <p class="meta">{{ followersLine }}</p>
         </div>
         <svg class="ic" style="color:var(--muted)"><use href="#i-right"/></svg>
       </button>
@@ -51,72 +54,72 @@ const isHolder = computed(() => app.auth.user?.role === 'shareholder')
       </div>
     </div>
     <div class="card" style="margin-top:14px;padding:4px 14px">
-      <button class="li" @click="toast('我的帖子')">
+      <button class="li" @click="toast(t('me.myPosts'))">
         <span class="li-ic"><svg class="ic"><use href="#i-image"/></svg></span>
-        <span class="li-title">我的帖子</span>
+        <span class="li-title">{{ t('me.myPosts') }}</span>
         <svg class="ic" style="color:var(--muted)"><use href="#i-right"/></svg>
       </button>
-      <button class="li" @click="toast('我的收藏')">
+      <button class="li" @click="toast(t('me.mySaves'))">
         <span class="li-ic"><svg class="ic"><use href="#i-bookmark"/></svg></span>
-        <span class="li-title">我的收藏</span>
+        <span class="li-title">{{ t('me.mySaves') }}</span>
         <svg class="ic" style="color:var(--muted)"><use href="#i-right"/></svg>
       </button>
-      <button class="li" @click="toast('我的关注')">
+      <button class="li" @click="toast(t('me.myFollows'))">
         <span class="li-ic"><svg class="ic"><use href="#i-user"/></svg></span>
-        <span class="li-title">我的关注</span>
+        <span class="li-title">{{ t('me.myFollows') }}</span>
         <svg class="ic" style="color:var(--muted)"><use href="#i-right"/></svg>
       </button>
-      <button class="li" @click="toast('我的足迹')">
+      <button class="li" @click="toast(t('me.myHistory'))">
         <span class="li-ic"><svg class="ic"><use href="#i-pin"/></svg></span>
-        <span class="li-title">我的足迹</span>
+        <span class="li-title">{{ t('me.myHistory') }}</span>
         <svg class="ic" style="color:var(--muted)"><use href="#i-right"/></svg>
       </button>
       <button class="li" @click="show('friends')">
         <span class="li-ic"><svg class="ic"><use href="#i-users"/></svg></span>
-        <span class="li-title">好友</span>
-        <span v-if="app.social.reqIn.length" class="li-val" style="color:var(--accent)">{{ app.social.reqIn.length }} 条新申请</span>
+        <span class="li-title">{{ t('me.friends') }}</span>
+        <span v-if="app.social.reqIn.length" class="li-val" style="color:var(--accent)">{{ t('me.newReqs', { n: app.social.reqIn.length }) }}</span>
         <svg class="ic" style="color:var(--muted)"><use href="#i-right"/></svg>
       </button>
       <button class="li" @click="show('messages')">
         <span class="li-ic"><svg class="ic"><use href="#i-chat"/></svg></span>
-        <span class="li-title">消息</span>
-        <span v-if="msgUnread" class="li-val" style="color:var(--danger)">{{ msgUnread }} 条未读</span>
+        <span class="li-title">{{ t('me.messages') }}</span>
+        <span v-if="msgUnread" class="li-val" style="color:var(--danger)">{{ t('me.unread', { n: msgUnread }) }}</span>
         <svg class="ic" style="color:var(--muted)"><use href="#i-right"/></svg>
       </button>
       <button class="li" @click="show('creator')">
         <span class="li-ic"><svg class="ic"><use href="#i-camera"/></svg></span>
-        <span class="li-title">创作中心</span>
+        <span class="li-title">{{ t('me.creator') }}</span>
         <svg class="ic" style="color:var(--muted)"><use href="#i-right"/></svg>
       </button>
       <button class="li" @click="show('my-card')">
         <span class="li-ic"><svg class="ic"><use href="#i-card"/></svg></span>
-        <span class="li-title">我的会员卡</span>
+        <span class="li-title">{{ t('me.myCard') }}</span>
         <svg class="ic" style="color:var(--muted)"><use href="#i-right"/></svg>
       </button>
       <button class="li" @click="show('wallet')">
         <span class="li-ic"><svg class="ic"><use href="#i-wallet"/></svg></span>
-        <span class="li-title">钱包</span>
+        <span class="li-title">{{ t('me.wallet') }}</span>
         <svg class="ic" style="color:var(--muted)"><use href="#i-right"/></svg>
       </button>
       <button v-if="isHolder" class="li" @click="show('dividend')">
         <span class="li-ic"><svg class="ic" style="color:var(--accent)"><use href="#i-star"/></svg></span>
-        <span class="li-title">股东分红</span>
-        <span class="li-val gold num">US${{ fmt(DIVIDEND_TOTAL) }}</span>
+        <span class="li-title">{{ t('me.dividend') }}</span>
+        <span class="li-val gold num">{{ fmtMoney({ amount: DIVIDEND_TOTAL, currency: 'USD' }) }}</span>
         <svg class="ic" style="color:var(--muted)"><use href="#i-right"/></svg>
       </button>
       <button class="li" @click="show('reimburse')">
         <span class="li-ic"><svg class="ic"><use href="#i-receipt"/></svg></span>
-        <span class="li-title">消费报销</span>
+        <span class="li-title">{{ t('me.reimburse') }}</span>
         <svg class="ic" style="color:var(--muted)"><use href="#i-right"/></svg>
       </button>
       <button class="li" @click="show('referral')">
         <span class="li-ic"><svg class="ic"><use href="#i-gift"/></svg></span>
-        <span class="li-title">推广中心</span>
+        <span class="li-title">{{ t('me.referral') }}</span>
         <svg class="ic" style="color:var(--muted)"><use href="#i-right"/></svg>
       </button>
       <button class="li" @click="show('settings')">
         <span class="li-ic"><svg class="ic"><use href="#i-settings"/></svg></span>
-        <span class="li-title">设置</span>
+        <span class="li-title">{{ t('me.settings') }}</span>
         <svg class="ic" style="color:var(--muted)"><use href="#i-right"/></svg>
       </button>
     </div>

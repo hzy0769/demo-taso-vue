@@ -1,24 +1,27 @@
 <script setup lang="ts">
+import { computed } from 'vue'
 import { app, toast } from '../store'
+import { t, countryName } from '../i18n'
 import PageHeader from '../components/PageHeader.vue'
 import ToggleSwitch from '../components/ToggleSwitch.vue'
 
-const items = [
-  { icon: '#i-refresh', title: '登录设备', msg: '当前设备：iPhone 16 Pro · 香港' },
-  { icon: '#i-lock', title: '修改密码', msg: '密码修改链接已发送' },
-  { icon: '#i-user', title: '手机 / 邮箱', msg: '手机 +852 9123 4567' },
-  { icon: '#i-wallet', title: '提现安全', msg: '提现安全：已开启高金额人工审核' },
-  { icon: '#i-copy', title: '钱包地址管理', msg: '已管理 2 个钱包地址' },
-  { icon: '#i-card', title: '银行卡管理', msg: '已绑定银行卡 · 尾号 2021' },
-  { icon: '#i-check', title: '授权管理', msg: '已授权 3 个第三方应用' },
-  { icon: '#i-x', title: '拉黑 / 屏蔽', msg: '拉黑 / 屏蔽列表' },
-  { icon: '#i-image', title: '下载个人数据', msg: '个人数据包将在 24 小时内生成' },
-]
+/** 安全与隐私:标题/提示走文案 key,地区类字段经 Intl 本地化 */
+const items = computed(() => ([
+  { icon: '#i-refresh', title: t('security.devices'), msg: t('security.devicesMsg', { region: countryName('HK') }) },
+  { icon: '#i-lock', title: t('security.password'), msg: t('security.passwordMsg') },
+  { icon: '#i-user', title: t('security.contact'), msg: t('security.contactMsg') },
+  { icon: '#i-wallet', title: t('security.withdraw'), msg: t('security.withdrawMsg') },
+  { icon: '#i-copy', title: t('security.walletAddr'), msg: t('security.walletAddrMsg') },
+  { icon: '#i-card', title: t('security.bankCard'), msg: t('security.bankCardMsg', { last4: '2021' }) },
+  { icon: '#i-check', title: t('security.auths'), msg: t('security.authsMsg') },
+  { icon: '#i-x', title: t('security.blocklist'), msg: t('security.blocklistMsg') },
+  { icon: '#i-image', title: t('security.downloadData'), msg: t('security.downloadDataMsg') },
+]))
 </script>
 
 <template>
   <section class="scr" :class="{ on: app.screen === 'security' }" data-screen="security">
-    <PageHeader title="安全与隐私" />
+    <PageHeader :title="t('security.title')" />
     <div class="card" style="margin-top:8px;padding:4px 14px">
       <button v-for="it in items" :key="it.title" class="li" style="border:0" @click="toast(it.msg)">
         <span class="li-ic"><svg class="ic"><use :href="it.icon"/></svg></span>
@@ -27,10 +30,10 @@ const items = [
       </button>
       <div class="li" style="border:0">
         <span class="li-ic"><svg class="ic"><use href="#i-shield"/></svg></span>
-        <span class="li-title">两步验证（2FA）</span>
-        <ToggleSwitch label="2FA" />
+        <span class="li-title">{{ t('security.twofa') }}</span>
+        <ToggleSwitch :label="t('security.twofa')" />
       </div>
     </div>
-    <button class="btn btn-danger" style="margin-top:20px" @click="toast('注销为不可逆操作，需人工确认')">注销账户</button>
+    <button class="btn btn-danger" style="margin-top:20px" @click="toast(t('security.deleteToast'))">{{ t('security.deleteAccount') }}</button>
   </section>
 </template>

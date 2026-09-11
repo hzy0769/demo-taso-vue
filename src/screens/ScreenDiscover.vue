@@ -1,41 +1,50 @@
 <script setup lang="ts">
+import { computed } from 'vue'
 import { app, show } from '../store'
+import { t, regionName } from '../i18n'
 import PageHeader from '../components/PageHeader.vue'
+
+/** 城市卡片:canonical 名 + 本地化热度(§8.3 双名展示) */
+const chips = computed(() => ([
+  { k: 'nearby', label: t('discover.nearby') },
+  { k: 'cities', label: t('discover.cities') },
+  { k: 'food', label: t('discover.food') },
+  { k: 'travel', label: t('discover.travel') },
+  { k: 'hot', label: t('discover.hot') },
+  { k: 'offers', label: t('discover.offers') },
+] as const))
+
+const CITIES = [
+  { id: 'tokyo', canonical: 'Tokyo', img: '/assets/taso-tokyo.jpg', w: 720, h: 467, heat: 98 },
+  { id: 'hong-kong', canonical: 'Hong Kong', img: '/assets/taso-hongkong.jpg', w: 720, h: 450, heat: 92 },
+  { id: 'bangkok', canonical: 'Bangkok', img: '/assets/taso-bangkok.jpg', w: 720, h: 557, heat: 91 },
+  { id: 'seoul', canonical: 'Seoul', img: '/assets/taso-seoul.jpg', w: 720, h: 1117, heat: 89 },
+] as const
+
+const cityOf = (cityId: string) => regionName({ country: '', cityId })
 </script>
 
 <template>
   <section class="scr" :class="{ on: app.screen === 'discover' }" data-screen="discover">
-    <PageHeader title="发现" :back-btn="false">
+    <PageHeader :title="t('discover.title')" :back-btn="false">
       <template #right>
-        <button class="bk" aria-label="通知" @click="show('notifications')"><svg class="ic"><use href="#i-bell"/></svg></button>
+        <button class="bk" :aria-label="t('a11y.notifications')" @click="show('notifications')"><svg class="ic"><use href="#i-bell"/></svg></button>
       </template>
     </PageHeader>
     <button class="row input" style="width:100%;text-align:left;color:var(--muted)" @click="show('search')">
-      <svg class="ic"><use href="#i-search"/></svg>搜索用户、商家、地点、话题…
+      <svg class="ic"><use href="#i-search"/></svg>{{ t('discover.searchHint') }}
     </button>
     <div class="chips" style="margin-top:12px">
-      <button class="chip on">附近</button><button class="chip">城市</button><button class="chip">美食</button><button class="chip">旅行</button><button class="chip">热门</button><button class="chip">商家优惠</button>
+      <button v-for="c in chips" :key="c.k" class="chip" :class="{ on: c.k === 'nearby' }">{{ c.label }}</button>
     </div>
-    <h3 style="font-size:15px;font-weight:600;margin:18px 0 10px">热门城市</h3>
+    <h3 style="font-size:15px;font-weight:600;margin:18px 0 10px">{{ t('discover.hotCities') }}</h3>
     <div class="grid-2">
-      <button class="tile img-wrap" @click="show('place')">
-        <img src="/assets/taso-tokyo.jpg" width="720" height="467" alt="东京" />
-        <span class="cap">Tokyo <span class="sub">热度 98</span></span>
-      </button>
-      <button class="tile img-wrap" @click="show('place')">
-        <img src="/assets/taso-hongkong.jpg" width="720" height="450" alt="香港" />
-        <span class="cap">Hong Kong <span class="sub">热度 92</span></span>
-      </button>
-      <button class="tile img-wrap" @click="show('place')">
-        <img src="/assets/taso-bangkok.jpg" width="720" height="557" alt="曼谷" />
-        <span class="cap">Bangkok <span class="sub">热度 91</span></span>
-      </button>
-      <button class="tile img-wrap" @click="show('place')">
-        <img src="/assets/taso-seoul.jpg" width="720" height="1117" alt="首尔" />
-        <span class="cap">Seoul <span class="sub">热度 89</span></span>
+      <button v-for="c in CITIES" :key="c.id" class="tile img-wrap" @click="show('place')">
+        <img :src="c.img" :width="c.w" :height="c.h" :alt="t(`img.${c.id === 'hong-kong' ? 'hongkong' : c.id}`)" />
+        <span class="cap">{{ cityOf(c.id) }} <span class="sub">{{ c.canonical }} · {{ t('discover.heat', { n: c.heat }) }}</span></span>
       </button>
     </div>
-    <h3 style="font-size:15px;font-weight:600;margin:18px 0 10px">今日热门</h3>
+    <h3 style="font-size:15px;font-weight:600;margin:18px 0 10px">{{ t('discover.todayHot') }}</h3>
     <div class="stack">
       <button class="li" @click="show('merchant')">
         <span class="li-ic"><svg class="ic"><use href="#i-store"/></svg></span>
@@ -49,13 +58,13 @@ import PageHeader from '../components/PageHeader.vue'
       </button>
       <button class="li" @click="show('merchant')">
         <span class="li-ic"><svg class="ic"><use href="#i-store"/></svg></span>
-        <span class="li-title">Taso Coffee</span><span class="li-sub">Hong Kong · ★4.6</span>
+        <span class="li-title">Taso Coffee</span><span class="li-sub">{{ cityOf('hong-kong') }} · ★4.6</span>
         <svg class="ic" style="color:var(--muted)"><use href="#i-right"/></svg>
       </button>
     </div>
-    <h3 style="font-size:15px;font-weight:600;margin:18px 0 10px">大家都在搜</h3>
+    <h3 style="font-size:15px;font-weight:600;margin:18px 0 10px">{{ t('discover.trendingSearches') }}</h3>
     <div class="chips">
-      <button class="chip">拉面</button><button class="chip">烧肉</button><button class="chip">酒店</button><button class="chip">温泉</button><button class="chip">咖啡</button>
+      <button class="chip">{{ t('interests.ramen') }}</button><button class="chip">{{ t('interests.yakiniku') }}</button><button class="chip">{{ t('interests.hotel') }}</button><button class="chip">{{ t('interests.onsen') }}</button><button class="chip">{{ t('interests.coffee') }}</button>
     </div>
   </section>
 </template>

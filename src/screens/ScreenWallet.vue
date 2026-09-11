@@ -1,34 +1,38 @@
 <script setup lang="ts">
-import { app, show, fmt } from '../store'
+import { app, show } from '../store'
+import { t } from '../i18n'
+import { fmtMoney } from '../i18n/format'
 import PageHeader from '../components/PageHeader.vue'
+
+const USD = (n: number) => fmtMoney({ amount: n, currency: 'USD' })
 </script>
 
 <template>
   <section class="scr" :class="{ on: app.screen === 'wallet' }" data-screen="wallet">
-    <PageHeader title="钱包">
+    <PageHeader :title="t('wallet.title')">
       <template #right>
-        <button class="bk" aria-label="明细" @click="show('wallet-transactions')"><svg class="ic"><use href="#i-receipt"/></svg></button>
+        <button class="bk" :aria-label="t('benefits.incomeRecords')" @click="show('wallet-transactions')"><svg class="ic"><use href="#i-receipt"/></svg></button>
       </template>
     </PageHeader>
     <div class="card" style="margin-top:8px">
       <div class="row-b" style="margin-bottom:6px">
-        <span class="meta">收益账户 · 与会员卡相互独立</span>
-        <span class="badge soft">可提现</span>
+        <span class="meta">{{ t('wallet.independent') }}</span>
+        <span class="badge soft">{{ t('benefits.withdrawableBadge') }}</span>
       </div>
-      <div class="kv"><span class="k">创作收益</span><span class="v num">US$ 620.00</span></div>
-      <div class="kv"><span class="k">推广奖励</span><span class="v num">US$ 180.00</span></div>
-      <div class="kv"><span class="k">股东分红</span><span class="v num">US$ 51,310.00</span></div>
-      <div class="kv"><span class="k">待结算报销</span><span class="v num warn">US$ 1,240.00</span></div>
-      <div class="kv"><span class="k">冻结金额</span><span class="v num">US$ 300.00</span></div>
+      <div class="kv"><span class="k">{{ t('wallet.creatorIncome') }}</span><span class="v num">{{ USD(620) }}</span></div>
+      <div class="kv"><span class="k">{{ t('wallet.referralReward') }}</span><span class="v num">{{ USD(180) }}</span></div>
+      <div class="kv"><span class="k">{{ t('wallet.shareholderDividend') }}</span><span class="v num">{{ USD(51310) }}</span></div>
+      <div class="kv"><span class="k">{{ t('wallet.pendingSettle') }}</span><span class="v num warn">{{ USD(1240) }}</span></div>
+      <div class="kv"><span class="k">{{ t('wallet.frozenAmount') }}</span><span class="v num">{{ USD(300) }}</span></div>
       <div class="kv" style="border-top:1px solid var(--fg);margin-top:4px">
-        <span class="k" style="font-weight:600">可提现余额</span>
-        <span class="v num" style="font-weight:700">US$ {{ fmt(app.wd) }}</span>
+        <span class="k" style="font-weight:600">{{ t('wallet.withdrawable') }}</span>
+        <span class="v num" style="font-weight:700">{{ USD(app.wd) }}</span>
       </div>
     </div>
-    <p class="meta" style="margin-top:10px">钱包汇集推广、创作、分红、报销等收益，不含会员卡余额；各账本独立管理、互不混用，可提现余额以入账状态为准。</p>
+    <p class="meta" style="margin-top:10px">{{ t('wallet.note') }}</p>
     <div class="row" style="margin-top:16px;gap:10px">
-      <button class="btn btn-p" style="flex:1" @click="show('withdraw')">提现</button>
-      <button class="btn btn-o" style="flex:1" @click="show('wallet-transactions')">交易明细</button>
+      <button class="btn btn-p" style="flex:1" @click="show('withdraw')">{{ t('benefits.withdraw') }}</button>
+      <button class="btn btn-o" style="flex:1" @click="show('wallet-transactions')">{{ t('wallet.txHistory') }}</button>
     </div>
   </section>
 </template>

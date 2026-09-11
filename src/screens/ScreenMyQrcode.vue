@@ -1,10 +1,11 @@
 <script setup lang="ts">
 import { app, toast } from '../store'
+import { t } from '../i18n'
 import PageHeader from '../components/PageHeader.vue'
 
 /**
- * 演示态二维码：按 Taso ID 确定性生成的二维码样式图形（含定位角 + 时序线），
- * 非可扫描编码，真实实现由客户端编码 `https://taso.app/u/{id}`（PRD §73.8）
+ * 演示态二维码:按 Taso ID 确定性生成的二维码样式图形(含定位角 + 时序线),
+ * 非可扫描编码,真实实现由客户端编码 `https://taso.app/u/{id}`(PRD §73.8)
  */
 const SIZE = 25
 
@@ -64,23 +65,23 @@ const qrPath = buildQrPath('@alex')
 
 <template>
   <section class="scr" :class="{ on: app.screen === 'my-qrcode' }" data-screen="my-qrcode">
-    <PageHeader title="我的二维码" />
+    <PageHeader :title="t('qrcode.title')" />
     <div class="card" style="margin-top:16px;padding:26px 20px;text-align:center">
       <span class="avatar lg" style="margin:0 auto">A</span>
       <div class="row" style="justify-content:center;gap:6px;margin-top:10px">
         <b style="font-size:17px">Alex</b>
-        <span class="vfy"><svg class="ic sm f"><use href="#i-check"/></svg>Creator</span>
+        <span class="vfy"><svg class="ic sm f"><use href="#i-check"/></svg>{{ t('verify.creator') }}</span>
       </div>
       <p class="meta" style="margin-top:2px">@alex · Tokyo</p>
-      <div class="qr" role="img" aria-label="我的二维码名片">
+      <div class="qr" role="img" :aria-label="t('qrcode.cardAlt')">
         <svg :viewBox="`0 0 ${SIZE} ${SIZE}`" shape-rendering="crispEdges"><path :d="qrPath" fill="currentColor" /></svg>
       </div>
-      <p class="meta">扫一扫上面的二维码名片，加我为好友</p>
+      <p class="meta">{{ t('qrcode.scanHint') }}</p>
     </div>
     <div class="row" style="margin-top:16px">
-      <button class="btn btn-o" @click="toast('扫一扫（演示：打开相机识别对方名片）')"><svg class="ic"><use href="#i-qrcode"/></svg>扫一扫</button>
-      <button class="btn btn-o" @click="toast('名片已保存到相册（演示）')"><svg class="ic"><use href="#i-image"/></svg>保存图片</button>
+      <button class="btn btn-o" @click="toast(t('qrcode.scanToast'))"><svg class="ic"><use href="#i-qrcode"/></svg>{{ t('qrcode.scan') }}</button>
+      <button class="btn btn-o" @click="toast(t('qrcode.savedToast'))"><svg class="ic"><use href="#i-image"/></svg>{{ t('qrcode.saveImg') }}</button>
     </div>
-    <p class="meta" style="margin-top:14px;text-align:center">二维码内容：https://taso.app/u/alex（演示）</p>
+    <p class="meta" style="margin-top:14px;text-align:center">{{ t('qrcode.urlNote', { url: 'https://taso.app/u/alex' }) }}</p>
   </section>
 </template>

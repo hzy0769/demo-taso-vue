@@ -1,25 +1,27 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import { app, fmt, show, toast } from '../store'
-import { CARD_FEE_HKD, METHODS, card, countryOf, etaRange, etaText, methodOf, phoneText, addrLines } from '../card'
+import { app, show, toast } from '../store'
+import { CARD_FEE_HKD, METHODS, card, countryOf, etaRange, etaText, methodOf, methodName, phoneText, addrLines } from '../card'
+import { t } from '../i18n'
+import { fmtMoney } from '../i18n/format'
 import PageHeader from '../components/PageHeader.vue'
 
-/** P03 配送方式（全球配送 PRD §10）：地址摘要 + Standard/Express + 费用汇总 */
+/** P03 配送方式(全球配送 PRD §10):地址摘要 + Standard/Express + 费用汇总 */
 
 const country = computed(() => countryOf(card.draft.countryCode))
 const lines = computed(() => addrLines(card.draft))
 const method = computed(() => methodOf(card.method))
 
-const feeText = (fee: number) => (fee ? `US$ ${fmt(fee)}` : '免费')
+/** 配送费(US$)与办理费(HK$)不同币种,分开列示、不静默相加(§9.1) */
+const feeText = (fee: number) => (fee ? fmtMoney({ amount: fee, currency: 'USD' }) : t('common.free'))
 const etaOf = (days: [number, number]) => { const [a, b] = etaRange(days); return etaText(a, b) }
-/** 合计：办理费 HK$（唯一非美元金额）+ 配送费 US$（§23 费用透明原则） */
+const hkdFee = computed(() => fmtMoney({ amount: CARD_FEE_HKD, currency: 'HKD' }))
 const total = computed(() =>
-  method.value.fee ? `HK$ ${fmt(CARD_FEE_HKD)} ＋ US$ ${fmt(method.value.fee)}` : `HK$ ${fmt(CARD_FEE_HKD)}`,
-)
+  method.value.fee ? t('card.ship.totalSplit', { a: hkdFee.value, b: fmtMoney({ amount: method.value.fee, currency: 'USD' }) }) : hkdFee.value)
 
 function setMethod(code: 'standard' | 'express') {
   if (code === 'express' && country.value && !country.value.express) {
-    toast('该地址暂不支持特快配送，请选择标准配送')
+    toast(t('card.ship.expressUnavailable'))
     return
   }
   card.method = code
@@ -28,11 +30,11 @@ function setMethod(code: 'standard' | 'express') {
 
 <template>
   <section class="scr" :class="{ on: app.screen === 'card-shipping' }" data-screen="card-shipping">
-    <PageHeader title="配送方式" />
+    <PageHeader :title="t('card.ship.title')" />
     <div class="card" style="margin-top:8px">
       <div class="row-b" style="align-items:flex-start">
-        <span class="meta">配送至 / Deliver to</span>
-        <button class="edit-btn" @click="show('card-address')">编辑</button>
+        <span class="meta">{{ t('addr.deliverTo') }}</span>
+        <button class="edit-btn" @click="show('card-address')">{{ t('common.edit') }}</button>
       </div>
       <div style="margin-top:6px">
         <b style="font-size:14px">{{ lines[0] }}</b>
@@ -42,7 +44,7 @@ function setMethod(code: 'standard' | 'express') {
     </div>
 
     <div class="field" style="margin-top:16px">
-      <label>配送方式 Shipping options</label>
+      <label>{{ t('card.ship.options') }}</label>
       <button
         v-for="m in METHODS" :key="m.code"
         class="opt"
@@ -51,21 +53,21 @@ function setMethod(code: 'standard' | 'express') {
       >
         <span class="dot"></span>
         <span style="flex:1;min-width:0">
-          <b style="font-size:14px">{{ m.name }}</b>
-          <p class="meta" style="margin-top:3px">预计送达 {{ etaOf(m.days) }} · <span style="white-space:nowrap">{{ m.days[0] }}–{{ m.days[1] }} 天</span></p>
-          <p v-if="m.code === 'express' && !country?.express" class="ferr" style="margin-top:3px">Express Shipping is not available for this address.</p>
+          <b style="font-size:14px">{{ methodName(m) }}</b>
+          <p class="meta" style="margin-top:3px">{{ t('card.ship.eta') }} {{ etaOf(m.days) }} · <span style="white-space:nowrap">{{ t('card.ship.days', { a: m.days[0], b: m.days[1] }) }}</span></p>
+          <p v-if="m.code === 'express' && !country?.express" class="ferr" style="margin-top:3px">{{ t('card.ship.expressInline') }}</p>
         </span>
         <b class="num" style="flex:none;font-size:14px">{{ feeText(m.fee) }}</b>
       </button>
     </div>
 
     <div class="card" style="margin-top:16px">
-      <div class="kv"><span class="k">实体会员卡办理费</span><span class="v num">HK$ {{ fmt(CARD_FEE_HKD) }}</span></div>
-      <div class="kv"><span class="k">配送费（{{ method.name }}）</span><span class="v num">{{ feeText(method.fee) }}</span></div>
-      <div class="kv"><span class="k" style="font-weight:600;color:var(--fg)">合计</span><span class="v num" style="font-weight:700">{{ total }}</span></div>
+      <div class="kv"><span class="k">{{ t('card.ship.cardFee') }}</span><span class="v num">{{ hkdFee }}</span></div>
+      <div class="kv"><span class="k">{{ t('card.ship.shippingFeeMethod', { method: methodName(method) }) }}</span><span class="v num">{{ feeText(method.fee) }}</span></div>
+      <div class="kv"><span class="k" style="font-weight:600;color:var(--fg)">{{ t('card.ship.total') }}</span><span class="v num" style="font-weight:700">{{ total }}</span></div>
     </div>
 
-    <button class="btn btn-gold" style="margin-top:16px" @click="show('card-review')">继续 Continue</button>
-    <p class="meta" style="margin-top:12px">预计送达为承运商参考时效，可能因当地物流状况顺延；偏远地区仅提供标准配送。</p>
+    <button class="btn btn-gold" style="margin-top:16px" @click="show('card-review')">{{ t('common.continue') }}</button>
+    <p class="meta" style="margin-top:12px">{{ t('card.ship.note') }}</p>
   </section>
 </template>

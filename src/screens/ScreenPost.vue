@@ -1,11 +1,14 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import { app, show, toast, openSheet, openPost } from '../store'
-import { followingPosts, foryouSeed } from '../data'
+import { foryouSeed, followingPosts } from '../data'
+import { t, prefs } from '../i18n'
+import { fmtMoney, compact, fmtMoneyEstimate } from '../i18n/format'
+import { postMeta } from '../i18n/content'
 import PageHeader from '../components/PageHeader.vue'
 import PostText from '../components/PostText.vue'
 
-/** 详情页展示 openPost 设置的帖子，未知 id（刷新恢复等）回退热帖 */
+/** 详情页展示 openPost 设置的帖子,未知 id(刷新恢复等)回退热帖 */
 const post = computed(() =>
   [...app.foryou, ...app.following].find(p => p.id === app.postId) ?? foryouSeed[0],
 )
@@ -14,25 +17,28 @@ const following = ref(false)
 const liked = ref(false)
 const saved = ref(false)
 
+const priceText = computed(() => (post.value.merchant ? t('money.perPerson', { price: fmtMoney(post.value.merchant.price) }) : ''))
+const priceEst = computed(() => (post.value.merchant ? fmtMoneyEstimate(post.value.merchant.price, prefs.displayCurrency) : null))
+
 function toggleFollow() {
   following.value = !following.value
-  toast(following.value ? `已关注 ${post.value.author}` : '已取消关注')
+  toast(t(following.value ? 'post.followedAuthor' : 'post.unfollowedAuthor', { name: post.value.author }))
 }
 function toggleLike() {
   liked.value = !liked.value
-  toast(liked.value ? '已点赞' : '已取消点赞')
+  toast(t(liked.value ? 'post.liked' : 'post.unliked'))
 }
 function toggleBookmark() {
   saved.value = !saved.value
-  toast(saved.value ? '已收藏' : '已取消收藏')
+  toast(t(saved.value ? 'post.saved' : 'post.unsaved'))
 }
 </script>
 
 <template>
   <section class="scr" :class="{ on: app.screen === 'post' }" data-screen="post">
-    <PageHeader title="帖子">
+    <PageHeader :title="t('post.title')">
       <template #right>
-        <button class="bk" aria-label="分享" @click="toast('分享链接已复制')"><svg class="ic"><use href="#i-share"/></svg></button>
+        <button class="bk" :aria-label="t('a11y.share')" @click="toast(t('post.shareCopied'))"><svg class="ic"><use href="#i-share"/></svg></button>
       </template>
     </PageHeader>
     <div class="row-b">
@@ -41,16 +47,16 @@ function toggleBookmark() {
         <div>
           <div class="row" style="gap:5px">
             <b>{{ post.author }}</b>
-            <span class="vfy"><svg class="ic sm f"><use href="#i-check"/></svg>{{ post.verify }}</span>
+            <span class="vfy"><svg class="ic sm f"><use href="#i-check"/></svg>{{ t(`verify.${post.verifyKey}`) }}</span>
           </div>
-          <span class="meta">{{ post.meta }}</span>
+          <span class="meta">{{ postMeta(post) }}</span>
         </div>
       </div>
       <button
         class="btn" :class="following ? 'btn-o' : 'btn-p'"
         style="width:auto;min-height:40px;padding:7px 14px;font-size:13px"
         @click="toggleFollow"
-      >{{ following ? '已关注' : '关注' }}</button>
+      >{{ following ? t('post.following') : t('post.follow') }}</button>
     </div>
     <PostText :post="post" lg />
     <div class="img-wrap" style="margin-top:12px">
@@ -61,39 +67,39 @@ function toggleBookmark() {
         <span class="li-ic"><svg class="ic"><use href="#i-store"/></svg></span>
         <div>
           <div style="font-weight:600">{{ post.merchant.title }}</div>
-          <div class="meta">{{ post.merchant.meta }}</div>
+          <div class="meta">{{ priceText }} · ★{{ post.merchant.rating }}<template v-if="priceEst"> · ≈{{ priceEst.text }}({{ priceEst.rateNote }})</template></div>
         </div>
       </div>
-      <span class="badge soft">合作商家</span>
+      <span class="badge soft">{{ t('post.partnerMerchant') }}</span>
     </button>
     <div class="row-b" style="margin-top:14px">
       <button class="row" style="gap:6px;min-height:44px" @click="toggleLike">
         <svg class="ic" :class="{ f: liked }" :style="liked ? 'color:var(--danger)' : ''"><use href="#i-heart"/></svg>
-        <span class="num">{{ post.likeCount }}</span>
+        <span class="num">{{ compact(post.likes) }}</span>
       </button>
       <button class="row" style="gap:6px;min-height:44px" @click="openSheet('comments')">
         <svg class="ic"><use href="#i-comment"/></svg>
-        <span class="num">{{ post.commentCount }}</span>
+        <span class="num">{{ compact(post.comments) }}</span>
       </button>
-      <button class="row" style="gap:6px;min-height:44px" @click="toast('分享链接已复制')">
+      <button class="row" style="gap:6px;min-height:44px" @click="toast(t('post.shareCopied'))">
         <svg class="ic"><use href="#i-share"/></svg>
-        <span v-if="post.shareCount" class="num">{{ post.shareCount }}</span>
+        <span v-if="post.shares" class="num">{{ compact(post.shares) }}</span>
       </button>
       <button class="row" style="gap:6px;min-height:44px" @click="toggleBookmark">
         <svg class="ic" :class="{ f: saved }"><use href="#i-bookmark"/></svg>
       </button>
     </div>
     <hr style="border:0;border-top:1px solid var(--border);margin:16px 0" />
-    <h3 style="font-size:15px;font-weight:600">评论 {{ post.commentCount }}</h3>
+    <h3 style="font-size:15px;font-weight:600">{{ t('post.commentsCount', { count: post.comments }) }}</h3>
     <div class="card" style="margin-top:10px">
       <div class="row">
         <span class="avatar">A</span>
         <div style="flex:1">
           <b style="font-size:13px">@alex</b>
-          <p style="font-size:14px;margin-top:2px">这里排队多久？</p>
+          <p style="font-size:14px;margin-top:2px">{{ t('comments.q1') }}</p>
           <div class="row" style="margin-top:6px;gap:14px">
-            <span class="meta">大概30分钟</span>
-            <button class="tag" style="border:0;padding:0" @click="toast('已点赞')">赞 23</button>
+            <span class="meta">{{ t('comments.a1') }}</span>
+            <button class="tag" style="border:0;padding:0" @click="toast(t('comments.liked'))">{{ t('comments.likeCount', { n: 23 }) }}</button>
           </div>
         </div>
       </div>
@@ -103,20 +109,20 @@ function toggleBookmark() {
         <span class="avatar">M</span>
         <div style="flex:1">
           <b style="font-size:13px">@mia</b>
-          <p style="font-size:14px;margin-top:2px">人均大概多少？</p>
-          <div class="row" style="margin-top:6px;gap:14px"><span class="meta">作者回复：3800日元</span></div>
+          <p style="font-size:14px;margin-top:2px">{{ t('comments.q2') }}</p>
+          <div class="row" style="margin-top:6px;gap:14px"><span class="meta">{{ t('comments.a2') }}</span></div>
         </div>
       </div>
     </div>
-    <button class="btn btn-o" style="margin-top:14px" @click="openSheet('comments')">查看全部 {{ post.commentCount }} 条评论</button>
-    <h3 style="font-size:15px;font-weight:600;margin-top:20px">相关推荐</h3>
+    <button class="btn btn-o" style="margin-top:14px" @click="openSheet('comments')">{{ t('post.viewAllComments', { count: post.comments }) }}</button>
+    <h3 style="font-size:15px;font-weight:600;margin-top:20px">{{ t('post.related') }}</h3>
     <div class="grid-2" style="margin-top:10px">
       <button class="tile img-wrap" @click="openPost(followingPosts[0])">
-        <img src="/assets/taso-ramen.jpg" width="720" height="720" alt="东京拉面" />
-        <span class="cap">深夜拉面 <span class="sub">★4.8</span></span>
+        <img src="/assets/taso-ramen.jpg" width="720" height="720" :alt="t('img.ramen')" />
+        <span class="cap">{{ t('post.tileLateRamen') }} <span class="sub">★4.8</span></span>
       </button>
-      <button class="tile img-wrap" @click="toast('相关帖子（演示）')">
-        <img src="/assets/taso-sushi.jpg" width="720" height="480" alt="寿司" />
+      <button class="tile img-wrap" @click="toast(t('post.related'))">
+        <img src="/assets/taso-sushi.jpg" width="720" height="480" :alt="t('img.sushi')" />
         <span class="cap">鮨 Taso <span class="sub">★4.8</span></span>
       </button>
     </div>

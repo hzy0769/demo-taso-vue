@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
-import { app, showDialog, save, toast, fmt } from '../store'
+import { app, showDialog, save, toast } from '../store'
+import { t } from '../i18n'
+import { fmtMoney } from '../i18n/format'
 import PageHeader from '../components/PageHeader.vue'
 
 const cur = ref('USD')
@@ -8,19 +10,26 @@ const currencies = ['USD', 'USDT', 'USDC']
 const amt = ref('10,000.00')
 
 const parsed = computed(() => parseFloat(amt.value.replace(/,/g, '')) || 0)
+const FEE_RATE = 0.16
+const USD = (n: number) => fmtMoney({ amount: n, currency: 'USD' })
 
 function confirm() {
   if (!parsed.value || parsed.value <= 0) {
-    toast('请输入有效金额')
+    toast(t('topup.invalid'))
     return
   }
   showDialog(
-    '确认充值',
-    `充值 US$${fmt(parsed.value)}，手续费 16% US$${fmt(parsed.value * 0.16)}，预计支付 US$${fmt(parsed.value * 1.16)}。`,
+    t('topup.confirmTitle'),
+    t('topup.confirmBody', {
+      amount: USD(parsed.value),
+      rate: 16,
+      fee: USD(parsed.value * FEE_RATE),
+      total: USD(parsed.value * 1.16),
+    }),
     () => {
       app.bal += parsed.value
       save()
-      toast('充值成功，余额已更新')
+      toast(t('topup.success'))
     },
   )
 }
@@ -28,9 +37,9 @@ function confirm() {
 
 <template>
   <section class="scr" :class="{ on: app.screen === 'topup' }" data-screen="topup">
-    <PageHeader title="充值" />
+    <PageHeader :title="t('topup.title')" />
     <div class="field" style="margin-top:8px">
-      <label>选择币种</label>
+      <label>{{ t('topup.currency') }}</label>
       <div class="chips">
         <button
           v-for="c in currencies" :key="c"
@@ -40,15 +49,15 @@ function confirm() {
       </div>
     </div>
     <div class="field" style="margin-top:16px">
-      <label>充值金额</label>
+      <label>{{ t('topup.amount') }}</label>
       <input v-model="amt" class="input num" inputmode="decimal" />
     </div>
     <div class="card" style="margin-top:16px">
-      <div class="kv"><span class="k">充值金额</span><span class="v num">US$ {{ fmt(parsed) }}</span></div>
-      <div class="kv"><span class="k">手续费 16%</span><span class="v num">US$ {{ fmt(parsed * 0.16) }}</span></div>
-      <div class="kv"><span class="k">预计支付</span><span class="v num" style="font-weight:700">US$ {{ fmt(parsed * 1.16) }}</span></div>
+      <div class="kv"><span class="k">{{ t('topup.amount') }}</span><span class="v num">{{ USD(parsed) }}</span></div>
+      <div class="kv"><span class="k">{{ t('topup.fee', { rate: 16 }) }}</span><span class="v num">{{ USD(parsed * FEE_RATE) }}</span></div>
+      <div class="kv"><span class="k">{{ t('topup.estPay') }}</span><span class="v num" style="font-weight:700">{{ USD(parsed * 1.16) }}</span></div>
     </div>
-    <p class="meta" style="margin-top:12px">充值入会员卡账户，仅限消费使用、不可提现。到账规则以合作金融机构实际处理结果为准；手续费用途由法务/财务确认后展示。</p>
-    <button class="btn btn-p" style="margin-top:20px" @click="confirm">确认充值</button>
+    <p class="meta" style="margin-top:12px">{{ t('topup.note') }}</p>
+    <button class="btn btn-p" style="margin-top:20px" @click="confirm">{{ t('topup.btn') }}</button>
   </section>
 </template>

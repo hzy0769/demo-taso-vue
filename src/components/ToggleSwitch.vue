@@ -1,13 +1,20 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
+import { t } from '../i18n'
 import { toast } from '../store'
 
-defineProps<{ label: string }>()
-const on = ref(true)
+const props = defineProps<{ label: string; modelValue?: boolean }>()
+const emit = defineEmits<{ 'update:modelValue': [value: boolean] }>()
+
+/** 未受控时的内部状态 */
+const inner = ref(true)
+const on = computed(() => (props.modelValue == null ? inner.value : props.modelValue))
 
 function toggle() {
-  on.value = !on.value
-  toast(on.value ? '已开启' : '已关闭')
+  const next = !on.value
+  if (props.modelValue == null) inner.value = next
+  emit('update:modelValue', next)
+  toast(next ? t('common.switchOn') : t('common.switchOff'))
 }
 </script>
 

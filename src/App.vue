@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
 import { app, ROOTS, show, openSheet, closeSheets, closeDialog, dialogOk, bootstrap } from './store'
+import { t, prefs } from './i18n'
 import IconSprite from './components/IconSprite.vue'
 import ComposerSheet from './components/ComposerSheet.vue'
 import CommentsSheet from './components/CommentsSheet.vue'
@@ -81,7 +82,7 @@ onMounted(() => {
 
 <template>
   <div class="stage">
-    <div class="phone">
+    <div class="phone" :lang="prefs.uiLocale" :dir="prefs.uiLocale.startsWith('he') || prefs.uiLocale.startsWith('ar') ? 'rtl' : 'ltr'">
       <div class="statusbar">
         <span>{{ clock }}</span>
         <span class="sb-icons">
@@ -144,11 +145,11 @@ onMounted(() => {
       </div>
 
       <nav class="tabbar" v-show="isRoot">
-        <button class="tab" :class="{ on: app.screen === 'home' }" @click="show('home')"><svg class="ic"><use href="#i-home"/></svg>首页</button>
-        <button class="tab" :class="{ on: app.screen === 'discover' }" @click="show('discover')"><svg class="ic"><use href="#i-compass"/></svg>发现</button>
-        <button class="tab-plus" aria-label="发布" @click="openSheet('composer')"><svg class="ic"><use href="#i-plus"/></svg></button>
-        <button class="tab" :class="{ on: app.screen === 'benefits' }" @click="show('benefits')"><svg class="ic"><use href="#i-card"/></svg>权益</button>
-        <button class="tab" :class="{ on: app.screen === 'me' }" @click="show('me')"><svg class="ic"><use href="#i-user"/></svg>我的</button>
+        <button class="tab" :class="{ on: app.screen === 'home' }" @click="show('home')"><svg class="ic"><use href="#i-home"/></svg>{{ t('nav.home') }}</button>
+        <button class="tab" :class="{ on: app.screen === 'discover' }" @click="show('discover')"><svg class="ic"><use href="#i-compass"/></svg>{{ t('nav.discover') }}</button>
+        <button class="tab-plus" :aria-label="t('nav.post')" @click="openSheet('composer')"><svg class="ic"><use href="#i-plus"/></svg></button>
+        <button class="tab" :class="{ on: app.screen === 'benefits' }" @click="show('benefits')"><svg class="ic"><use href="#i-card"/></svg>{{ t('nav.benefits') }}</button>
+        <button class="tab" :class="{ on: app.screen === 'me' }" @click="show('me')"><svg class="ic"><use href="#i-user"/></svg>{{ t('nav.me') }}</button>
       </nav>
 
       <div class="veil" :class="{ on: veilOn }" @click="veilClick"></div>
@@ -160,10 +161,10 @@ onMounted(() => {
 
       <div class="dialog" :class="{ on: !!app.dialog }" role="alertdialog">
         <b style="font-size:16px">{{ app.dialog?.title }}</b>
-        <p style="color:var(--muted);font-size:14px;margin-top:8px">{{ app.dialog?.text }}</p>
+        <p style="color:var(--muted);font-size:14px;margin-top:8px;white-space:pre-line">{{ app.dialog?.text }}</p>
         <div class="row" style="margin-top:18px;gap:10px">
-          <button class="btn btn-o" @click="closeDialog()">取消</button>
-          <button class="btn btn-p" @click="dialogOk()">{{ app.dialog?.okText ?? '确认' }}</button>
+          <button class="btn btn-o" @click="closeDialog()">{{ t('common.cancel') }}</button>
+          <button class="btn btn-p" @click="dialogOk()">{{ app.dialog?.okText ?? t('common.ok') }}</button>
         </div>
       </div>
 

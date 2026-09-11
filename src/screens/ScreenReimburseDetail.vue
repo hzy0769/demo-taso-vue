@@ -1,41 +1,46 @@
 <script setup lang="ts">
 import { app, toast } from '../store'
+import { t } from '../i18n'
+import { fmtMoney, fmtLocalDate } from '../i18n/format'
 import PageHeader from '../components/PageHeader.vue'
 
+const USD = (n: number) => fmtMoney({ amount: n, currency: 'USD' })
+
+/** 結算記錄:自然日 + 金額結構化 */
 const records = [
-  { date: '09/09', amount: 'US$ 0.40' },
-  { date: '09/08', amount: 'US$ 0.40' },
-  { date: '09/07', amount: 'US$ 0.40' },
+  { date: '2026-09-09', amount: 0.4 },
+  { date: '2026-09-08', amount: 0.4 },
+  { date: '2026-09-07', amount: 0.4 },
 ]
 </script>
 
 <template>
   <section class="scr" :class="{ on: app.screen === 'reimburse-detail' }" data-screen="reimburse-detail">
-    <PageHeader title="消费报销 #R202609081288" />
+    <PageHeader :title="t('reimburse.detailTitle', { id: 'R202609081288' })" />
     <div class="card" style="margin-top:8px">
-      <div class="kv"><span class="k">商家</span><span class="v">焼肉Taso</span></div>
-      <div class="kv"><span class="k">消费日期</span><span class="v num">2026-09-08</span></div>
-      <div class="kv"><span class="k">原始消费</span><span class="v num">US$800.00</span></div>
-      <div class="kv"><span class="k">审核金额</span><span class="v num">US$800.00</span></div>
-      <div class="kv"><span class="k">权益上限</span><span class="v num gold">US$928.00</span></div>
+      <div class="kv"><span class="k">{{ t('reimburse.merchant') }}</span><span class="v">焼肉Taso</span></div>
+      <div class="kv"><span class="k">{{ t('reimburse.spendDate') }}</span><span class="v num">{{ fmtLocalDate('2026-09-08') }}</span></div>
+      <div class="kv"><span class="k">{{ t('reimburse.originalSpend') }}</span><span class="v num">{{ USD(800) }}</span></div>
+      <div class="kv"><span class="k">{{ t('reimburse.auditedAmount') }}</span><span class="v num">{{ USD(800) }}</span></div>
+      <div class="kv"><span class="k">{{ t('reimburse.benefitCap') }}</span><span class="v num gold">{{ USD(928) }}</span></div>
     </div>
     <div class="card" style="margin-top:12px">
-      <div class="row-b"><span class="meta">结算进度</span><span class="num">62%</span></div>
+      <div class="row-b"><span class="meta">{{ t('reimburse.progress') }}</span><span class="num">62%</span></div>
       <div class="prog" style="margin-top:8px"><i style="width:62%"></i></div>
       <div class="row" style="margin-top:12px;gap:8px">
-        <div style="flex:1"><div class="meta">已结算</div><div class="num" style="font-weight:600">US$ 120.00</div></div>
-        <div style="flex:1"><div class="meta">今日预计</div><div class="num" style="font-weight:600">US$ 0.40</div></div>
-        <div style="flex:1"><div class="meta">剩余</div><div class="num" style="font-weight:600">US$ 808.00</div></div>
+        <div style="flex:1"><div class="meta">{{ t('reimburse.settled') }}</div><div class="num" style="font-weight:600">{{ USD(120) }}</div></div>
+        <div style="flex:1"><div class="meta">{{ t('reimburse.todayExpected') }}</div><div class="num" style="font-weight:600">{{ USD(0.4) }}</div></div>
+        <div style="flex:1"><div class="meta">{{ t('reimburse.remain') }}</div><div class="num" style="font-weight:600">{{ USD(808) }}</div></div>
       </div>
     </div>
-    <h3 style="font-size:15px;font-weight:600;margin:18px 0 10px">结算记录</h3>
+    <h3 style="font-size:15px;font-weight:600;margin:18px 0 10px">{{ t('reimburse.records') }}</h3>
     <div class="card" style="padding:4px 14px">
       <div v-for="r in records" :key="r.date" class="li" style="border:0">
-        <span class="meta">{{ r.date }}</span>
-        <span class="li-title num">{{ r.amount }}</span>
-        <span class="badge ok">已入账</span>
+        <span class="meta">{{ fmtLocalDate(r.date) }}</span>
+        <span class="li-title num">{{ USD(r.amount) }}</span>
+        <span class="badge ok">{{ t('reimburse.credited') }}</span>
       </div>
     </div>
-    <button class="btn btn-o" style="margin-top:16px" @click="toast('原始凭证为隐私数据，仅审核员可见')">查看原始凭证</button>
+    <button class="btn btn-o" style="margin-top:16px" @click="toast(t('reimburse.receiptToast'))">{{ t('reimburse.viewReceipt') }}</button>
   </section>
 </template>
