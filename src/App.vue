@@ -24,6 +24,7 @@ import ScreenSearch from './screens/ScreenSearch.vue'
 import ScreenMerchant from './screens/ScreenMerchant.vue'
 import ScreenPlace from './screens/ScreenPlace.vue'
 import ScreenBenefits from './screens/ScreenBenefits.vue'
+import ScreenMyCard from './screens/ScreenMyCard.vue'
 import ScreenCardApply from './screens/ScreenCardApply.vue'
 import ScreenCardAddress from './screens/ScreenCardAddress.vue'
 import ScreenCardCountry from './screens/ScreenCardCountry.vue'
@@ -107,6 +108,7 @@ onMounted(() => {
         <ScreenMerchant />
         <ScreenPlace />
         <ScreenBenefits />
+        <ScreenMyCard />
         <ScreenCardApply />
         <ScreenCardAddress />
         <ScreenCardCountry />

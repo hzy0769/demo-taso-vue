@@ -88,9 +88,9 @@ const isHolder = computed(() => app.auth.user?.role === 'shareholder')
         <span class="li-title">创作中心</span>
         <svg class="ic" style="color:var(--muted)"><use href="#i-right"/></svg>
       </button>
-      <button class="li" @click="show('benefits')">
+      <button class="li" @click="show('my-card')">
         <span class="li-ic"><svg class="ic"><use href="#i-card"/></svg></span>
-        <span class="li-title">会员卡</span>
+        <span class="li-title">我的会员卡</span>
         <svg class="ic" style="color:var(--muted)"><use href="#i-right"/></svg>
       </button>
       <button class="li" @click="show('wallet')">

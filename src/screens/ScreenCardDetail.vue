@@ -56,6 +56,5 @@ function toggleFreeze() {
         <svg class="ic" style="color:var(--muted)"><use href="#i-right"/></svg>
       </button>
     </div>
-    <p class="meta" style="margin-top:14px">会员卡与钱包为独立账户：卡内余额仅限消费、不可提现；消费记录由平台对接 Visa 网络查询同步，以发卡机构账单为准。完整卡信息仅由符合 PCI DSS 与发卡行安全规范的卡组件提供。</p>
   </section>
 </template>

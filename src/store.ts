@@ -8,7 +8,7 @@ export type ScreenId =
   | 'home' | 'post' | 'profile' | 'discover' | 'search'
   | 'merchant' | 'place'
   | 'benefits' | 'card-apply' | 'card-address' | 'card-country' | 'card-shipping' | 'card-review' | 'card-success' | 'card-tracking'
-  | 'card-detail' | 'topup' | 'wallet' | 'dividend'
+  | 'my-card' | 'card-detail' | 'topup' | 'wallet' | 'dividend'
   | 'transactions' | 'wallet-transactions' | 'reimburse' | 'reimburse-detail' | 'withdraw'
   | 'referral' | 'creator'
   | 'me' | 'settings' | 'language' | 'security' | 'kyc' | 'notifications'

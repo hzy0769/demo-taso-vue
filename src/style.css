@@ -131,6 +131,10 @@ a{color:inherit;text-decoration:none}
 .taso-card .brand{font-family:var(--font-mono);font-weight:700;letter-spacing:.16em;font-size:13px}
 .taso-card .visa{font-style:italic;font-weight:800;letter-spacing:.04em;font-size:16px}
 .taso-card .pan{font-family:var(--font-mono);font-size:19px;letter-spacing:.12em}
+/* ── 权益页分区标题（V1.9）────────────────────────────────────────── */
+.sec-h{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin:18px 2px 8px}
+.sec-h>span{font-size:13px;font-weight:700;letter-spacing:.02em}
+.sec-more{font-size:12px;font-weight:600;color:var(--accent);flex:none}
 /* ── 弹层 / Toast / 对话框 ────────────────────────────────────────────── */
 .veil{position:absolute;inset:0;background:color-mix(in oklch,var(--fg) 40%,transparent);z-index:20;opacity:0;pointer-events:none;transition:opacity .2s}
 .veil.on{opacity:1;pointer-events:auto}
