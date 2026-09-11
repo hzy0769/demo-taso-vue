@@ -2,7 +2,7 @@
 import { app } from '../store'
 import PageHeader from '../components/PageHeader.vue'
 
-const unlocked = ['会员卡', '充值', '报销']
+const unlocked = ['会员卡', '充值', '报销', '提现']
 </script>
 
 <template>

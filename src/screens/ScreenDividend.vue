@@ -4,9 +4,9 @@ import { app, fmt } from '../store'
 import { DIVIDEND_PERIODS, DIVIDEND_RATE } from '../data'
 import PageHeader from '../components/PageHeader.vue'
 
-/** 每期按公式现算:分红 = 会员卡销售总额 × 14% × (关联销售总额(下 3 级) ÷ 平台总销售额) */
+/** 每期按公式现算:分红 = 平台总销售额 × 14% × (关联销售总额(下 3 级) ÷ 平台总销售额) */
 const rows = computed(() => DIVIDEND_PERIODS.map(p => {
-  const pool = p.cardSales * DIVIDEND_RATE
+  const pool = p.platformSales * DIVIDEND_RATE
   const ratio = p.relatedSales / p.platformSales
   return { ...p, pool, ratio, dividend: pool * ratio }
 }))
@@ -44,7 +44,7 @@ const pct = (r: number) => (r * 100).toFixed(2) + '%'
     </div>
     <div class="card" style="margin-top:14px">
       <div class="row-b"><b style="font-size:14px">分红计算公式</b><span class="badge soft">按月结算</span></div>
-      <div class="formula">股东分红 = 平台会员卡销售总额 × 14% × (股东关联销售总额 ÷ 平台总销售额)</div>
+      <div class="formula">股东分红 = 平台总销售额 × 14% × (股东关联销售总额 ÷ 平台总销售额)</div>
       <p class="meta" style="margin-top:10px">「股东关联销售总额」仅统计该股东下面 3 级产生的销售总额;股东身份由平台后台审核开通。</p>
     </div>
     <div class="stack" style="margin-top:14px">
@@ -61,10 +61,9 @@ const pct = (r: number) => (r * 100).toFixed(2) + '%'
           </div>
         </div>
         <div style="margin-top:10px">
-          <div class="kv"><span class="k">平台会员卡销售总额</span><span class="v num">US${{ fmt(r.cardSales) }}</span></div>
+          <div class="kv"><span class="k">平台总销售额</span><span class="v num">US${{ fmt(r.platformSales) }}</span></div>
           <div class="kv"><span class="k">分红池(×14%)</span><span class="v num">US${{ fmt(r.pool) }}</span></div>
           <div class="kv"><span class="k">我的关联销售(下 3 级)</span><span class="v num">US${{ fmt(r.relatedSales) }}</span></div>
-          <div class="kv"><span class="k">平台总销售额</span><span class="v num">US${{ fmt(r.platformSales) }}</span></div>
           <div class="kv"><span class="k">分红池占比</span><span class="v num gold">{{ pct(r.ratio) }}</span></div>
         </div>
       </div>

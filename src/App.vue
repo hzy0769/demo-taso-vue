@@ -25,13 +25,16 @@ import ScreenMerchant from './screens/ScreenMerchant.vue'
 import ScreenPlace from './screens/ScreenPlace.vue'
 import ScreenBenefits from './screens/ScreenBenefits.vue'
 import ScreenCardApply from './screens/ScreenCardApply.vue'
+import ScreenCardStatus from './screens/ScreenCardStatus.vue'
 import ScreenCardDetail from './screens/ScreenCardDetail.vue'
 import ScreenTopup from './screens/ScreenTopup.vue'
 import ScreenWallet from './screens/ScreenWallet.vue'
 import ScreenDividend from './screens/ScreenDividend.vue'
 import ScreenTransactions from './screens/ScreenTransactions.vue'
+import ScreenWalletTransactions from './screens/ScreenWalletTransactions.vue'
 import ScreenReimburse from './screens/ScreenReimburse.vue'
 import ScreenReimburseDetail from './screens/ScreenReimburseDetail.vue'
+import ScreenWithdraw from './screens/ScreenWithdraw.vue'
 import ScreenReferral from './screens/ScreenReferral.vue'
 import ScreenCreator from './screens/ScreenCreator.vue'
 import ScreenMe from './screens/ScreenMe.vue'
@@ -100,13 +103,16 @@ onMounted(() => {
         <ScreenPlace />
         <ScreenBenefits />
         <ScreenCardApply />
+        <ScreenCardStatus />
         <ScreenCardDetail />
         <ScreenTopup />
         <ScreenWallet />
         <ScreenDividend />
         <ScreenTransactions />
+        <ScreenWalletTransactions />
         <ScreenReimburse />
         <ScreenReimburseDetail />
+        <ScreenWithdraw />
         <ScreenReferral />
         <ScreenCreator />
         <ScreenMe />

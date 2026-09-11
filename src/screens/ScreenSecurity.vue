@@ -7,6 +7,7 @@ const items = [
   { icon: '#i-refresh', title: '登录设备', msg: '当前设备：iPhone 16 Pro · 香港' },
   { icon: '#i-lock', title: '修改密码', msg: '密码修改链接已发送' },
   { icon: '#i-user', title: '手机 / 邮箱', msg: '手机 +852 9123 4567' },
+  { icon: '#i-wallet', title: '提现安全', msg: '提现安全：已开启高金额人工审核' },
   { icon: '#i-copy', title: '钱包地址管理', msg: '已管理 2 个钱包地址' },
   { icon: '#i-card', title: '银行卡管理', msg: '已绑定银行卡 · 尾号 2021' },
   { icon: '#i-check', title: '授权管理', msg: '已授权 3 个第三方应用' },

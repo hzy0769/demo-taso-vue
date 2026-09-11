@@ -55,12 +55,7 @@ import TasoCard from '../components/TasoCard.vue'
         <span class="li-title">创作收益</span>
         <svg class="ic" style="color:var(--muted)"><use href="#i-right"/></svg>
       </button>
-      <button class="li" @click="show('wallet')">
-        <span class="li-ic"><svg class="ic"><use href="#i-wallet"/></svg></span>
-        <span class="li-title">钱包</span><span class="li-val">多账户</span>
-        <svg class="ic" style="color:var(--muted)"><use href="#i-right"/></svg>
-      </button>
     </div>
-    <p class="meta" style="margin-top:14px">会员卡由持牌发卡机构提供，Taso 仅提供体验层与权益层。储值与报销规则以合作机构实际处理为准。</p>
+    <p class="meta" style="margin-top:14px">会员卡与钱包为独立账户：会员卡由持牌发卡机构提供，卡内余额仅限消费、不可提现；推广、创作、分红、报销等收益进入钱包，可申请提现。</p>
   </section>
 </template>

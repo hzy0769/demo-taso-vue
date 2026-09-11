@@ -205,10 +205,11 @@ export interface TxItem {
   badge: string
   badgeCls: 'ok' | 'warn'
   /** 分类筛选关键字 */
-  cat: '充值' | '消费' | '报销' | '创作' | '推广'
+  cat: '充值' | '消费' | '报销' | '创作' | '推广' | '分红' | '提现'
 }
 
-export const TX_LIST: TxItem[] = [
+/** 会员卡账户流水：充值 / 消费（Visa 网络同步），不含钱包收益 */
+export const CARD_TX: TxItem[] = [
   {
     title: '会员卡充值', meta: '2026-09-08 · TOPUP-09081234',
     amount: '+US$10,000', amountOk: true, sub: '手续费 US$1,600',
@@ -216,26 +217,47 @@ export const TX_LIST: TxItem[] = [
   },
   {
     title: '焼肉Taso 消费', meta: '2026-09-08 · PAY-09081930',
-    amount: '−US$800', amountOk: false, sub: '会员 95 折',
+    amount: '−US$800', amountOk: false, sub: 'Visa 网络同步 · 会员 95 折',
     badge: '交易完成', badgeCls: 'ok', cat: '消费',
   },
+]
+
+export const CARD_TX_FILTERS = ['全部', '充值', '消费', '手续费'] as const
+
+/** 钱包收益账户流水：报销 / 创作 / 推广 / 分红 / 提现，不含会员卡余额 */
+export const WALLET_TX: TxItem[] = [
   {
     title: '报销结算入账', meta: '2026-09-09 · USD-09090012',
     amount: '+US$0.40', amountOk: true, sub: '日结 0.05%',
     badge: '已入账', badgeCls: 'ok', cat: '报销',
   },
   {
+    title: '推广奖励', meta: '2026-09-08 · RFL-09080045',
+    amount: '+US$35', amountOk: true, sub: '二级邀请消费返佣',
+    badge: '已入账', badgeCls: 'ok', cat: '推广',
+  },
+  {
+    title: '第 12 期股东分红', meta: '2026-09-05 · DVD-20260805',
+    amount: '+US$12,096', amountOk: true, sub: '分红池占比 4.80%',
+    badge: '已入账', badgeCls: 'ok', cat: '分红',
+  },
+  {
     title: '创作收益', meta: '2026-09-07 · CRT-09070088',
     amount: '+US$120', amountOk: true, sub: '内容激励',
     badge: '已入账', badgeCls: 'ok', cat: '创作',
   },
+  {
+    title: '提现', meta: '2026-09-05 · WDR-09050021',
+    amount: '−US$500', amountOk: false, sub: '银行卡尾号 2021',
+    badge: '处理中', badgeCls: 'warn', cat: '提现',
+  },
 ]
 
-export const TX_FILTERS = ['全部', '充值', '消费', '报销', '创作', '推广', '手续费'] as const
+export const WALLET_TX_FILTERS = ['全部', '报销', '创作', '推广', '分红', '提现', '手续费'] as const
 
 /* ── 股东分红（V1.6）────────────────────────────────────────────── */
 
-/** 分红池比例:平台会员卡销售总额 × 14% */
+/** 分红池比例:平台总销售额 × 14% */
 export const DIVIDEND_RATE = 0.14
 
 export interface DividendPeriod {
@@ -245,26 +267,24 @@ export interface DividendPeriod {
   range: string
   /** 发放日期 */
   paidAt: string
-  /** 平台会员卡销售总额 */
-  cardSales: number
-  /** 股东关联销售总额(仅统计该股东下 3 级) */
-  relatedSales: number
   /** 平台总销售额 */
   platformSales: number
+  /** 股东关联销售总额(仅统计该股东下 3 级) */
+  relatedSales: number
 }
 
 export const DIVIDEND_PERIODS: DividendPeriod[] = [
-  { no: 12, range: '2026-08-01 ~ 2026-08-31', paidAt: '2026-09-05', cardSales: 2400000, relatedSales: 86400, platformSales: 1800000 },
-  { no: 11, range: '2026-07-01 ~ 2026-07-31', paidAt: '2026-08-05', cardSales: 2150000, relatedSales: 76500, platformSales: 1700000 },
-  { no: 10, range: '2026-06-01 ~ 2026-06-30', paidAt: '2026-07-05', cardSales: 1980000, relatedSales: 60000, platformSales: 1500000 },
-  { no: 9, range: '2026-05-01 ~ 2026-05-31', paidAt: '2026-06-05', cardSales: 1860000, relatedSales: 52000, platformSales: 1600000 },
-  { no: 8, range: '2026-04-01 ~ 2026-04-30', paidAt: '2026-05-06', cardSales: 1720000, relatedSales: 49000, platformSales: 1400000 },
-  { no: 7, range: '2026-03-01 ~ 2026-03-31', paidAt: '2026-04-06', cardSales: 1600000, relatedSales: 42000, platformSales: 1200000 },
+  { no: 12, range: '2026-08-01 ~ 2026-08-31', paidAt: '2026-09-05', platformSales: 1800000, relatedSales: 86400 },
+  { no: 11, range: '2026-07-01 ~ 2026-07-31', paidAt: '2026-08-05', platformSales: 1700000, relatedSales: 76500 },
+  { no: 10, range: '2026-06-01 ~ 2026-06-30', paidAt: '2026-07-05', platformSales: 1500000, relatedSales: 60000 },
+  { no: 9, range: '2026-05-01 ~ 2026-05-31', paidAt: '2026-06-05', platformSales: 1600000, relatedSales: 52000 },
+  { no: 8, range: '2026-04-01 ~ 2026-04-30', paidAt: '2026-05-06', platformSales: 1400000, relatedSales: 49000 },
+  { no: 7, range: '2026-03-01 ~ 2026-03-31', paidAt: '2026-04-06', platformSales: 1200000, relatedSales: 42000 },
 ]
 
-/** 累计已发放分红(供「我的」入口展示):Σ 会员卡销售总额 × 14% × (关联销售总额 ÷ 平台总销售额) */
+/** 累计已发放分红(供「我的」入口展示):Σ 平台总销售额 × 14% × (关联销售总额 ÷ 平台总销售额) */
 export const DIVIDEND_TOTAL = DIVIDEND_PERIODS.reduce(
-  (sum, p) => sum + p.cardSales * DIVIDEND_RATE * (p.relatedSales / p.platformSales), 0,
+  (sum, p) => sum + p.platformSales * DIVIDEND_RATE * (p.relatedSales / p.platformSales), 0,
 )
 
 /* ── 好友与消息（PRD §73）────────────────────────────────────────── */

@@ -48,7 +48,7 @@ function confirm() {
       <div class="kv"><span class="k">手续费 16%</span><span class="v num">US$ {{ fmt(parsed * 0.16) }}</span></div>
       <div class="kv"><span class="k">预计支付</span><span class="v num" style="font-weight:700">US$ {{ fmt(parsed * 1.16) }}</span></div>
     </div>
-    <p class="meta" style="margin-top:12px">到账规则：以合作金融机构实际处理结果为准。手续费用途由法务/财务确认后展示。</p>
+    <p class="meta" style="margin-top:12px">充值入会员卡账户，仅限消费使用、不可提现。到账规则以合作金融机构实际处理结果为准；手续费用途由法务/财务确认后展示。</p>
     <button class="btn btn-p" style="margin-top:20px" @click="confirm">确认充值</button>
   </section>
 </template>

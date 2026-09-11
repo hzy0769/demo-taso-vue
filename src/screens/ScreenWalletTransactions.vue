@@ -1,24 +1,24 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
-import { app } from '../store'
-import { CARD_TX, CARD_TX_FILTERS } from '../data'
+import { app, show } from '../store'
+import { WALLET_TX, WALLET_TX_FILTERS } from '../data'
 import PageHeader from '../components/PageHeader.vue'
 
 const filter = ref<string>('全部')
-const list = computed(() => (filter.value === '全部' ? CARD_TX : CARD_TX.filter(t => t.cat === filter.value)))
+const list = computed(() => (filter.value === '全部' ? WALLET_TX : WALLET_TX.filter(t => t.cat === filter.value)))
 </script>
 
 <template>
-  <section class="scr" :class="{ on: app.screen === 'transactions' }" data-screen="transactions">
-    <PageHeader title="会员卡明细">
+  <section class="scr" :class="{ on: app.screen === 'wallet-transactions' }" data-screen="wallet-transactions">
+    <PageHeader title="钱包明细">
       <template #right>
-        <span class="badge soft">不可提现</span>
+        <span class="badge soft">收益账户</span>
       </template>
     </PageHeader>
-    <p class="meta" style="margin-top:6px">会员卡账户流水：充值与消费记录（由 Visa 网络同步）；钱包收益请前往「钱包 · 明细」查看。</p>
+    <p class="meta" style="margin-top:6px">钱包账户流水：报销、创作、推广、分红等收益与提现；会员卡充值与消费请前往「会员卡 · 消费记录」查看。</p>
     <div class="chips" style="margin-top:10px">
       <button
-        v-for="f in CARD_TX_FILTERS" :key="f"
+        v-for="f in WALLET_TX_FILTERS" :key="f"
         class="chip" :class="{ on: filter === f }"
         @click="filter = f"
       >{{ f }}</button>
@@ -38,5 +38,6 @@ const list = computed(() => (filter.value === '全部' ? CARD_TX : CARD_TX.filte
         <span class="badge" :class="tx.badgeCls" style="margin-top:8px">{{ tx.badge }}</span>
       </div>
     </div>
+    <button class="btn btn-p" style="margin-top:16px" @click="show('withdraw')">去提现</button>
   </section>
 </template>
