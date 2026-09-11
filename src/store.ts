@@ -1,12 +1,14 @@
 import { nextTick, reactive } from 'vue'
 import { foryouSeed, followingPosts, MEMBERS, REPLIES, SOCIAL_SEED, type Post, type Social } from './data'
+import { resetCard } from './card'
 
 export type ScreenId =
   | 'splash' | 'welcome' | 'login' | 'interests'
   | 'auth-oauth' | 'auth-entry' | 'auth-otp' | 'auth-error' | 'auth-nickname'
   | 'home' | 'post' | 'profile' | 'discover' | 'search'
   | 'merchant' | 'place'
-  | 'benefits' | 'card-apply' | 'card-status' | 'card-detail' | 'topup' | 'wallet' | 'dividend'
+  | 'benefits' | 'card-apply' | 'card-address' | 'card-country' | 'card-shipping' | 'card-review' | 'card-success' | 'card-tracking'
+  | 'card-detail' | 'topup' | 'wallet' | 'dividend'
   | 'transactions' | 'wallet-transactions' | 'reimburse' | 'reimburse-detail' | 'withdraw'
   | 'referral' | 'creator'
   | 'me' | 'settings' | 'language' | 'security' | 'kyc' | 'notifications'
@@ -646,7 +648,7 @@ export function toggleRole() {
 
 /** 删除账号（AUTH-016/017）：清空全部本地状态，回到首次启动 */
 export function deleteAccount() {
-  for (const k of ['taso-auth', 'taso-visited', 'taso-screen', 'taso-social', 'taso-bal', 'taso-wd', 'taso-follows']) {
+  for (const k of ['taso-auth', 'taso-visited', 'taso-screen', 'taso-social', 'taso-bal', 'taso-wd', 'taso-follows', 'taso-card']) {
     localStorage.removeItem(k)
   }
   app.auth.user = null
@@ -656,6 +658,7 @@ export function deleteAccount() {
   app.wd = 800
   app.follows = []
   app.morePost = null
+  resetCard()
   app.social = JSON.parse(JSON.stringify(SOCIAL_SEED))
   app.stack = ['splash']
   show('splash', false)

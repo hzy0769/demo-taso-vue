@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { app, show, fmt } from '../store'
+import { card } from '../card'
 import PageHeader from '../components/PageHeader.vue'
 import TasoCard from '../components/TasoCard.vue'
 </script>
@@ -40,6 +41,16 @@ import TasoCard from '../components/TasoCard.vue'
       </div>
     </div>
     <div class="card" style="margin-top:14px;padding:4px 14px">
+      <button class="li" @click="show('card-apply')">
+        <span class="li-ic"><svg class="ic"><use href="#i-card"/></svg></span>
+        <span class="li-title">申请实体卡</span><span class="li-val num">HK$1,000/张</span>
+        <svg class="ic" style="color:var(--muted)"><use href="#i-right"/></svg>
+      </button>
+      <button v-if="card.order" class="li" @click="show('card-tracking')">
+        <span class="li-ic"><svg class="ic"><use href="#i-send"/></svg></span>
+        <span class="li-title">配送追踪</span><span class="badge warn">制作 / 配送中</span>
+        <svg class="ic" style="color:var(--muted)"><use href="#i-right"/></svg>
+      </button>
       <button class="li" @click="show('reimburse')">
         <span class="li-ic"><svg class="ic"><use href="#i-receipt"/></svg></span>
         <span class="li-title">报销中心</span><span class="badge warn">8 结算中</span>

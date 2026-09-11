@@ -25,7 +25,12 @@ import ScreenMerchant from './screens/ScreenMerchant.vue'
 import ScreenPlace from './screens/ScreenPlace.vue'
 import ScreenBenefits from './screens/ScreenBenefits.vue'
 import ScreenCardApply from './screens/ScreenCardApply.vue'
-import ScreenCardStatus from './screens/ScreenCardStatus.vue'
+import ScreenCardAddress from './screens/ScreenCardAddress.vue'
+import ScreenCardCountry from './screens/ScreenCardCountry.vue'
+import ScreenCardShipping from './screens/ScreenCardShipping.vue'
+import ScreenCardReview from './screens/ScreenCardReview.vue'
+import ScreenCardSuccess from './screens/ScreenCardSuccess.vue'
+import ScreenCardTracking from './screens/ScreenCardTracking.vue'
 import ScreenCardDetail from './screens/ScreenCardDetail.vue'
 import ScreenTopup from './screens/ScreenTopup.vue'
 import ScreenWallet from './screens/ScreenWallet.vue'
@@ -103,7 +108,12 @@ onMounted(() => {
         <ScreenPlace />
         <ScreenBenefits />
         <ScreenCardApply />
-        <ScreenCardStatus />
+        <ScreenCardAddress />
+        <ScreenCardCountry />
+        <ScreenCardShipping />
+        <ScreenCardReview />
+        <ScreenCardSuccess />
+        <ScreenCardTracking />
         <ScreenCardDetail />
         <ScreenTopup />
         <ScreenWallet />
