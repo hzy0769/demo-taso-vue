@@ -24,7 +24,7 @@ const el = ref<HTMLElement | null>(null)
 const truncated = ref(false)
 
 const sameLanguage = computed(() =>
-  !!props.post.original.locale && localeMatches(prefs.translationLocale, props.post.original.locale))
+  !!props.post.original.locale && localeMatches(prefs.uiLocale, props.post.original.locale))
 const hasTranslation = computed(() => !!pickTranslation(props.post) && !sameLanguage.value)
 const view = computed(() => postView(props.post, manualTranslated.value, showOriginal.value))
 /** 金色话题/落地链接只在主视图追加:译文视图追加;原文视图若已内含落地链接则不重复 */
@@ -45,7 +45,7 @@ function measure() {
   truncated.value = !!props.clamp && !expanded.value && !!node && node.scrollHeight > node.clientHeight + 1
 }
 
-watch([showOriginal, expanded, () => prefs.uiLocale, () => prefs.translationLocale], () => nextTick(measure))
+watch([showOriginal, expanded, () => prefs.uiLocale], () => nextTick(measure))
 onMounted(() => {
   nextTick(measure)
   document.fonts?.ready.then(() => nextTick(measure))

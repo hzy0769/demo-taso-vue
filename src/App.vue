@@ -47,6 +47,7 @@ import ScreenCreator from './screens/ScreenCreator.vue'
 import ScreenMe from './screens/ScreenMe.vue'
 import ScreenSettings from './screens/ScreenSettings.vue'
 import ScreenLanguage from './screens/ScreenLanguage.vue'
+import ScreenContentRegion from './screens/ScreenContentRegion.vue'
 import ScreenSecurity from './screens/ScreenSecurity.vue'
 import ScreenKyc from './screens/ScreenKyc.vue'
 import ScreenNotifications from './screens/ScreenNotifications.vue'
@@ -131,6 +132,7 @@ onMounted(() => {
         <ScreenMe />
         <ScreenSettings />
         <ScreenLanguage />
+        <ScreenContentRegion />
         <ScreenSecurity />
         <ScreenKyc />
         <ScreenNotifications />

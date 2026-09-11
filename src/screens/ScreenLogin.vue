@@ -26,10 +26,6 @@ const langName = computed(() => uiLocaleLabel(prefs.uiLocale))
 function pickLang(code: string) {
   prefs.uiLocale = code
   prefs.sources.uiLocale = 'user'
-  if (prefs.translationLocale === prefs.uiLocale || prefs.sources.translationLocale !== 'user') {
-    prefs.translationLocale = code
-    prefs.sources.translationLocale = 'user'
-  }
   syncAccountPrefs()
   langSheetOpen.value = false
 }

@@ -12,7 +12,7 @@ export type ScreenId =
   | 'my-card' | 'card-detail' | 'topup' | 'wallet' | 'dividend'
   | 'transactions' | 'wallet-transactions' | 'reimburse' | 'reimburse-detail' | 'withdraw'
   | 'referral' | 'creator'
-  | 'me' | 'settings' | 'language' | 'security' | 'kyc' | 'notifications'
+  | 'me' | 'settings' | 'language' | 'content-region' | 'security' | 'kyc' | 'notifications'
   | 'friends' | 'messages' | 'chat' | 'my-qrcode'
   | 'account' | 'auth-methods' | 'auth-sessions' | 'auth-delete'
 

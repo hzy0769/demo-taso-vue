@@ -1,8 +1,9 @@
 /**
  * 全球多语言与本地化核心(设计方案 v1.0 §3–§5、§11)
  *
- * 关键解耦字段(§3):界面语言 / 翻译目标 / 内容语言 / 内容地区 / 时区 / 展示货币
- * 各自独立保存于 LocalizationPreferences,互相不得推导覆盖。
+ * 面向用户的设置仅保留:界面语言 / 内容地区 / 自动翻译。
+ * 翻译目标始终跟随界面语言,内容语言默认覆盖全部语言的内容候选;
+ * 时区与展示货币保留为格式化基础配置,暂不在原型设置页暴露。
  * 存储值使用 BCP 47 语言标签与 IANA 时区,不存显示字符串。
  */
 import { reactive, watch } from 'vue'
@@ -16,32 +17,38 @@ import koKR from './locales/ko-KR'
 
 export type PrefSource = 'user' | 'migration' | 'default' | 'channel'
 
+export type ContentRegionScope = 'global' | 'country' | 'city'
+
+export interface ContentRegion {
+  scope: ContentRegionScope
+  /** ISO 3166-1 alpha-2;全球范围时为空字符串 */
+  country: string
+  /** 城市范围时为 REGIONS 中的城市 id */
+  cityId?: string
+}
+
 export interface LocalizationPreferences {
   uiLocale: string
-  translationLocale: string
-  contentLocales: string[]
-  contentRegion: { country: string; cityId?: string }
+  contentRegion: ContentRegion
+  /** 最近使用過的內容地區(快捷入口痕跡,非顯式偏好,不參與 sources) */
+  recentRegions: ContentRegion[]
   timeZone: string
   displayCurrency: string
   autoTranslate: boolean
-  localContentPriority: 'high' | 'medium' | 'low'
   sources: Partial<Record<string, PrefSource>>
   updatedAt: string
 }
 
-/** 全球默认值(§4.1):新会话 / 未保存偏好一律为繁体中文(香港)+ 香港配置 */
+/** 全球默认值:新会话 / 未保存偏好一律为繁体中文(香港)+ 香港内容 */
 export const DEFAULT_PREFS: LocalizationPreferences = {
   uiLocale: 'zh-Hant-HK',
-  translationLocale: 'zh-Hant-HK',
-  contentLocales: ['zh-Hant', 'en'],
-  contentRegion: { country: 'HK', cityId: 'hong-kong' },
+  contentRegion: { scope: 'city', country: 'HK', cityId: 'hong-kong' },
+  recentRegions: [],
   timeZone: 'Asia/Hong_Kong',
   displayCurrency: 'HKD',
   autoTranslate: true,
-  localContentPriority: 'high',
   sources: {
-    uiLocale: 'default', translationLocale: 'default', contentLocales: 'default',
-    contentRegion: 'default', timeZone: 'default', displayCurrency: 'default',
+    uiLocale: 'default', contentRegion: 'default', timeZone: 'default', displayCurrency: 'default', autoTranslate: 'default',
   },
   updatedAt: '',
 }
@@ -65,18 +72,21 @@ function loadPrefs(): LocalizationPreferences {
     const raw = localStorage.getItem(STORAGE_KEY)
     if (raw) {
       const s = JSON.parse(raw) as Partial<LocalizationPreferences>
-      if (typeof s.uiLocale === 'string' && Array.isArray(s.contentLocales)) {
+      if (typeof s.uiLocale === 'string') {
+        // 舊版的翻譯目標、內容語言與本地優先級不再提供設定。
+        // 刻意丟棄它們，讓譯文改為跟隨 App 語言、內容候選改為全語言。
+        const legacy = s as Partial<LocalizationPreferences> & Record<string, unknown>
+        const { translationLocale: _translationLocale, contentLocales: _contentLocales, localContentPriority: _localContentPriority, ...kept } = legacy
         const p: LocalizationPreferences = {
           ...DEFAULT_PREFS,
-          ...s,
-          contentRegion: s.contentRegion ?? DEFAULT_PREFS.contentRegion,
-          sources: s.sources ?? {},
+          ...kept,
+          contentRegion: normalizeContentRegion(s.contentRegion),
+          recentRegions: normalizeRecentRegions(kept.recentRegions),
+          sources: kept.sources ?? {},
         }
-        for (const k of ['uiLocale', 'translationLocale'] as const) {
-          const m = migrateLocale(p[k])
-          p[k] = m.locale
-          if (p.sources[k] !== 'user') p.sources[k] = m.source
-        }
+        const m = migrateLocale(p.uiLocale)
+        p.uiLocale = m.locale
+        if (p.sources.uiLocale !== 'user') p.sources.uiLocale = m.source
         return p
       }
     }
@@ -97,11 +107,13 @@ document.documentElement.lang = prefs.uiLocale
 
 /** 匿名偏好與帳號偏好合併(§4.3):帳號已有顯式偏好時以帳號為準 */
 export function applyAccountPrefs(saved: Partial<LocalizationPreferences> | undefined): boolean {
-  if (!saved?.uiLocale || !Array.isArray(saved.contentLocales)) return false
+  if (!saved?.uiLocale) return false
   const changed = saved.uiLocale !== prefs.uiLocale
     || saved.timeZone !== prefs.timeZone
     || saved.contentRegion?.country !== prefs.contentRegion.country
-  Object.assign(prefs, JSON.parse(JSON.stringify(saved)))
+  const { translationLocale: _translationLocale, contentLocales: _contentLocales, localContentPriority: _localContentPriority, ...kept } = saved as Partial<LocalizationPreferences> & Record<string, unknown>
+  Object.assign(prefs, JSON.parse(JSON.stringify(kept)))
+  prefs.contentRegion = normalizeContentRegion(saved.contentRegion)
   return changed
 }
 
@@ -192,15 +204,6 @@ export const UI_LANGS: NamedOption[] = [
   { code: 'ko-KR', name: '한국어' },
 ]
 
-/** 內容語言按語言/文字選擇,不含地區(§3) */
-export const CONTENT_LANGS: NamedOption[] = [
-  { code: 'zh-Hant', name: '繁體中文' },
-  { code: 'zh-Hans', name: '简体中文' },
-  { code: 'en', name: 'English' },
-  { code: 'ja', name: '日本語' },
-  { code: 'ko', name: '한국어' },
-]
-
 export interface RegionOption {
   id: string
   country: string
@@ -216,6 +219,8 @@ export const REGIONS: RegionOption[] = [
   { id: 'osaka', country: 'JP', names: { 'zh-Hant': '大阪', 'zh-Hans': '大阪', en: 'Osaka', ja: '大阪', ko: '오사카' }, aliases: [] },
   { id: 'seoul', country: 'KR', names: { 'zh-Hant': '首爾', 'zh-Hans': '首尔', en: 'Seoul', ja: 'ソウル', ko: '서울' }, aliases: ['漢城', '首尔'] },
   { id: 'bangkok', country: 'TH', names: { 'zh-Hant': '曼谷', 'zh-Hans': '曼谷', en: 'Bangkok', ja: 'バンコク', ko: '방콕' }, aliases: [] },
+  { id: 'chiang-mai', country: 'TH', names: { 'zh-Hant': '清邁', 'zh-Hans': '清迈', en: 'Chiang Mai', ja: 'チェンマイ', ko: '치앙마이' }, aliases: [] },
+  { id: 'phuket', country: 'TH', names: { 'zh-Hant': '布吉', 'zh-Hans': '普吉', en: 'Phuket', ja: 'プーケット', ko: '푸껫' }, aliases: [] },
   { id: 'singapore', country: 'SG', names: { 'zh-Hant': '新加坡', 'zh-Hans': '新加坡', en: 'Singapore', ja: 'シンガポール', ko: '싱가포르' }, aliases: ['狮城', '獅城'] },
   { id: 'shanghai', country: 'CN', names: { 'zh-Hant': '上海', 'zh-Hans': '上海', en: 'Shanghai', ja: '上海', ko: '상하이' }, aliases: [] },
   { id: 'taipei', country: 'TW', names: { 'zh-Hant': '台北', 'zh-Hans': '台北', en: 'Taipei', ja: 'タイペイ', ko: '타이베이' }, aliases: [] },
@@ -223,12 +228,99 @@ export const REGIONS: RegionOption[] = [
   { id: 'new-york', country: 'US', names: { 'zh-Hant': '紐約', 'zh-Hans': '纽约', en: 'New York', ja: 'ニューヨーク', ko: '뉴욕' }, aliases: ['NYC'] },
 ]
 
-/** 內容地區顯示名:精確 → 語言 → en(與文案回退一致的呈現層規則) */
-export function regionName(r: { cityId?: string; country: string }): string {
+/** ISO 3166-1 alpha-2 完整國家 / 地區清單；內容地區不再只限原型城市。 */
+export const COUNTRY_CODES = `
+AD AE AF AG AI AL AM AO AQ AR AS AT AU AW AX AZ
+BA BB BD BE BF BG BH BI BJ BL BM BN BO BQ BR BS BT BV BW BY BZ
+CA CC CD CF CG CH CI CK CL CM CN CO CR CU CV CW CX CY CZ
+DE DJ DK DM DO DZ
+EC EE EG EH ER ES ET
+FI FJ FK FM FO FR
+GA GB GD GE GF GG GH GI GL GM GN GP GQ GR GS GT GU GW GY
+HK HM HN HR HT HU
+ID IE IL IM IN IO IQ IR IS IT
+JE JM JO JP
+KE KG KH KI KM KN KP KR KW KY KZ
+LA LB LC LI LK LR LS LT LU LV LY
+MA MC MD ME MF MG MH MK ML MM MN MO MP MQ MR MS MT MU MV MW MX MY MZ
+NA NC NE NF NG NI NL NO NP NR NU NZ
+OM
+PA PE PF PG PH PK PL PM PN PR PS PT PW PY
+QA
+RE RO RS RU RW
+SA SB SC SD SE SG SH SI SJ SK SL SM SN SO SR SS ST SV SX SY SZ
+TC TD TF TG TH TJ TK TL TM TN TO TR TT TV TW TZ
+UA UG UM US UY UZ
+VA VC VE VG VI VN VU
+WF WS XK
+YE YT
+ZA ZM ZW
+`.trim().split(/\s+/)
+
+/** 國旗僅作為國家名稱的輔助視覺，永不單獨表達地區。 */
+export function countryFlag(code: string): string {
+  return code.length === 2
+    ? String.fromCodePoint(...[...code.toUpperCase()].map(c => 0x1F1E6 + c.charCodeAt(0) - 65))
+    : '🌐'
+}
+
+export const citiesForCountry = (code: string) => REGIONS.filter(r => r.country === code)
+
+/**
+ * 首頁「為你推薦」的地區排序規則：
+ * 全球不加地理篩選；選城市時優先精確城市；選國家時優先該國所有已標記城市。
+ * 沒有地點標記的內容不會被誤判為本地內容，但仍可作為興趣 / 追蹤的全局補位。
+ */
+export function isInContentRegion(cityId?: string): boolean {
+  const region = prefs.contentRegion
+  if (region.scope === 'global') return true
+  if (!cityId) return false
+  const city = REGIONS.find(item => item.id === cityId)
+  if (!city) return false
+  return region.scope === 'city' ? city.id === region.cityId : city.country === region.country
+}
+
+function normalizeContentRegion(region: Partial<ContentRegion> | undefined): ContentRegion {
+  if (!region || region.scope === 'global' || !region.country) return { scope: 'global', country: '' }
+  if (region.cityId && REGIONS.some(r => r.id === region.cityId && r.country === region.country)) {
+    return { scope: 'city', country: region.country, cityId: region.cityId }
+  }
+  return { scope: 'country', country: region.country }
+}
+
+const regionKey = (r: ContentRegion) => `${r.scope}:${r.country}:${r.cityId ?? ''}`
+
+/** 最近使用僅收國家 / 城市;全球是常駐入口,不佔最近名額,上限 4 條。 */
+function normalizeRecentRegions(list: unknown): ContentRegion[] {
+  if (!Array.isArray(list)) return []
+  const seen = new Set<string>()
+  const out: ContentRegion[] = []
+  for (const item of list) {
+    const region = normalizeContentRegion(item)
+    if (region.scope === 'global') continue
+    const key = regionKey(region)
+    if (seen.has(key)) continue
+    seen.add(key)
+    out.push(region)
+  }
+  return out.slice(0, 4)
+}
+
+/** 選中國家 / 城市後記為最近使用(置頂去重),全球不記錄。 */
+export function rememberRegion(region: ContentRegion): void {
+  if (region.scope === 'global') return
+  const list = prefs.recentRegions.filter(r => regionKey(r) !== regionKey(region))
+  list.unshift({ ...region })
+  prefs.recentRegions = list.slice(0, 4)
+}
+
+/** 內容地區顯示名：城市 → 國家 / 地區 → 全球。 */
+export function regionName(r: { scope?: ContentRegionScope; cityId?: string; country: string }): string {
   if (r.cityId) {
     const hit = REGIONS.find(x => x.id === r.cityId)
     if (hit) return localName(hit.names)
   }
+  if (r.scope === 'global' || !r.country) return t('contentRegion.global')
   return countryName(r.country)
 }
 
@@ -247,8 +339,7 @@ export function localName(map: Record<string, string>, fallback = ''): string {
 
 const dnCache = new Map<string, Intl.DisplayNames>()
 
-function displayNames(type: 'region' | 'language' | 'currency'): Intl.DisplayNames {
-  const locale = prefs.uiLocale
+function displayNames(type: 'region' | 'language' | 'currency', locale = prefs.uiLocale): Intl.DisplayNames {
   const k = `${locale}:${type}`
   let dn = dnCache.get(k)
   if (!dn) {
@@ -259,6 +350,12 @@ function displayNames(type: 'region' | 'language' | 'currency'): Intl.DisplayNam
 }
 
 export const countryName = (code: string) => (code ? displayNames('region').of(code) ?? code : '')
+
+/** 國家選擇器同時匹配目前 UI 語言、英文、繁中 / 簡中與 ISO 代碼。 */
+export function countrySearchNames(code: string): string[] {
+  const locales = [prefs.uiLocale, 'en', 'zh-Hant', 'zh-Hans']
+  return [...new Set(locales.map(locale => displayNames('region', locale).of(code) ?? '').filter(Boolean))]
+}
 
 export const languageName = (tag: string) => displayNames('language').of(tag) ?? tag
 
@@ -274,14 +371,6 @@ export function timeZoneLabel(tz: string): string {
 /** 語言/時區等偏好項的顯示名(設置頁六項右側值,§6) */
 export const uiLocaleLabel = (code: string) =>
   UI_LANGS.find(l => l.code === code)?.name ?? languageName(code)
-
-export const contentLocaleLabel = (code: string) =>
-  CONTENT_LANGS.find(l => l.code === code)?.name ?? languageName(code)
-
-export function contentLocalesLabel(): string {
-  const names = prefs.contentLocales.map(contentLocaleLabel)
-  return names.join(t('common.listSeparator'))
-}
 
 export const TIMEZONES = [
   'Asia/Hong_Kong', 'Asia/Tokyo', 'Asia/Seoul', 'Asia/Shanghai', 'Asia/Taipei',

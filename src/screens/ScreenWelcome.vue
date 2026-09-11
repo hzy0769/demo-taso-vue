@@ -1,44 +1,27 @@
 <script setup lang="ts">
-import { reactive } from 'vue'
 import { app, show, syncAccountPrefs } from '../store'
-import { t, prefs, UI_LANGS, CONTENT_LANGS, REGIONS, uiLocaleLabel, contentLocaleLabel, type PrefSource } from '../i18n'
+import { t, prefs, UI_LANGS, regionName } from '../i18n'
+import ToggleSwitch from '../components/ToggleSwitch.vue'
 
 /**
  * 歡迎頁(§4.3):首屏直接以繁體中文(香港)呈現,不阻塞註冊;
- * 提供緊湊的「語言與地區」入口;跳過 = 沿用默認值,繼續 = 保存為顯式用戶偏好。
+ * 提供緊湊的三項設定;跳過 = 沿用默認值。
+ * 翻譯內容跟隨 App 語言，所有語言內容皆可進入推薦候選。
  */
-const draft = reactive({
-  uiLocale: prefs.uiLocale,
-  translationLocale: prefs.translationLocale,
-  contentLocales: [...prefs.contentLocales],
-  regionId: prefs.contentRegion.cityId ?? 'hong-kong',
-})
-
-const contentOptions = CONTENT_LANGS
-
-/** 地区选项显示名跟随草稿 UI 语言即时预览(§6 即时预览) */
-const langKey = (locale: string) =>
-  locale.startsWith('zh-Hant') ? 'zh-Hant' : locale.startsWith('zh-Hans') ? 'zh-Hans' : locale.split('-')[0]
-const regionOptLabel = (r: { names: Record<string, string> }) => r.names[langKey(draft.uiLocale)] ?? r.names.en
-
-function toggleContent(code: string) {
-  const i = draft.contentLocales.indexOf(code)
-  if (i >= 0) {
-    if (draft.contentLocales.length > 1) draft.contentLocales.splice(i, 1)
-  } else {
-    draft.contentLocales.push(code)
-  }
+function setUiLocale(code: string) {
+  prefs.uiLocale = code
+  prefs.sources.uiLocale = 'user'
+  syncAccountPrefs()
 }
 
-const setSource = (k: string, s: PrefSource = 'user') => { prefs.sources[k] = s }
+function setAutoTranslate(v: boolean) {
+  prefs.autoTranslate = v
+  prefs.sources.autoTranslate = 'user'
+  syncAccountPrefs()
+}
 
 function commit() {
-  const region = REGIONS.find(r => r.id === draft.regionId)
-  prefs.uiLocale = draft.uiLocale
-  prefs.translationLocale = draft.translationLocale
-  prefs.contentLocales = [...draft.contentLocales]
-  prefs.contentRegion = region ? { country: region.country, cityId: region.id } : { country: 'HK', cityId: 'hong-kong' }
-  for (const k of ['uiLocale', 'translationLocale', 'contentLocales', 'contentRegion']) setSource(k)
+  prefs.sources.contentRegion = 'user'
   syncAccountPrefs()
   show('login')
 }
@@ -58,38 +41,23 @@ function commit() {
       </div>
       <div class="field" style="margin-top:10px">
         <label>{{ t('lang.uiLanguage') }}</label>
-        <select v-model="draft.uiLocale" class="input">
+        <select :value="prefs.uiLocale" class="input" @change="setUiLocale(($event.target as HTMLSelectElement).value)">
           <option v-for="l in UI_LANGS" :key="l.code" :value="l.code">{{ l.name }}</option>
         </select>
       </div>
-      <div class="field" style="margin-top:12px">
-        <label>{{ t('lang.contentLanguages') }}</label>
-        <div class="chips">
-          <button
-            v-for="lang in contentOptions" :key="lang.code"
-            class="chip" :class="{ on: draft.contentLocales.includes(lang.code) }"
-            @click="toggleContent(lang.code)"
-          >{{ lang.name }}</button>
-        </div>
-      </div>
-      <div class="field" style="margin-top:12px">
-        <label>{{ t('lang.translateTo') }}</label>
-        <select v-model="draft.translationLocale" class="input">
-          <option v-for="l in UI_LANGS" :key="l.code" :value="l.code">{{ l.name }}</option>
-        </select>
-      </div>
-      <div class="field" style="margin-top:12px">
-        <label>{{ t('lang.contentRegion') }}</label>
-        <select v-model="draft.regionId" class="input">
-          <option v-for="r in REGIONS" :key="r.id" :value="r.id">{{ regionOptLabel(r) }}</option>
-        </select>
+      <button class="li" style="margin-top:12px;width:100%;border:0" @click="show('content-region')">
+        <span class="li-ic"><svg class="ic"><use href="#i-pin"/></svg></span>
+        <span class="li-title">{{ t('lang.contentRegion') }}</span>
+        <span class="li-val">{{ regionName(prefs.contentRegion) }}</span>
+        <svg class="ic" style="color:var(--muted)"><use href="#i-right"/></svg>
+      </button>
+      <div class="li" style="margin-top:4px;border:0">
+        <span class="li-title">{{ t('lang.autoTranslate') }}</span>
+        <ToggleSwitch :model-value="prefs.autoTranslate" :label="t('lang.autoTranslate')" @update:model-value="setAutoTranslate" />
       </div>
     </div>
 
     <button class="btn btn-p" style="margin-top:22px" @click="commit">{{ t('welcome.start') }}</button>
     <p class="meta" style="margin-top:10px;font-size:11px;text-align:center">{{ t('welcome.nextHint') }}</p>
-    <p class="meta" style="margin-top:14px;font-size:11px;text-align:center">
-      {{ t('lang.uiLanguage') }}:{{ uiLocaleLabel(draft.uiLocale) }} · {{ t('lang.translateTo') }}:{{ uiLocaleLabel(draft.translationLocale) }} · {{ t('lang.contentLanguages') }}:{{ draft.contentLocales.map(contentLocaleLabel).join(t('common.listSeparator')) }}
-    </p>
   </section>
 </template>

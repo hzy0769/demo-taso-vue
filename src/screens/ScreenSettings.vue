@@ -1,14 +1,8 @@
 <script setup lang="ts">
-import { app, logout, showDialog, show, syncAccountPrefs } from '../store'
+import { app, logout, showDialog, show } from '../store'
 import { t, prefs, uiLocaleLabel, regionName } from '../i18n'
 import PageHeader from '../components/PageHeader.vue'
 import ToggleSwitch from '../components/ToggleSwitch.vue'
-
-function setAutoTranslate(v: boolean) {
-  prefs.autoTranslate = v
-  prefs.sources.autoTranslate = 'user'
-  syncAccountPrefs()
-}
 </script>
 
 <template>
@@ -42,11 +36,6 @@ function setAutoTranslate(v: boolean) {
         <span class="li-title">{{ t('settings.notifications') }}</span>
         <svg class="ic" style="color:var(--muted)"><use href="#i-right"/></svg>
       </button>
-      <div class="li" style="border:0">
-        <span class="li-ic"><svg class="ic"><use href="#i-globe"/></svg></span>
-        <span class="li-title">{{ t('settings.autoTranslate') }}</span>
-        <ToggleSwitch :model-value="prefs.autoTranslate" :label="t('settings.autoTranslate')" @update:model-value="setAutoTranslate" />
-      </div>
       <div class="li" style="border:0">
         <span class="li-ic"><svg class="ic"><use href="#i-bell"/></svg></span>
         <span class="li-title">{{ t('settings.push') }}</span>

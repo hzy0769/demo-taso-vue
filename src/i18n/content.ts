@@ -2,7 +2,7 @@
  * UGC 呈現層(設計方案 §8.1)
  *
  * 規則:
- * - 原文優先保真:original 永遠可顯示,譯文按 translationLocale 作為派生資源;
+ * - 原文優先保真:original 永遠可顯示,譯文按 App 顯示語言作為派生資源;
  * - 原文語言與翻譯目標相同 → 直接顯示原文,不出現「由 X 翻譯」行;
  * - 自動翻譯開啟且譯文可用 → 預設顯示譯文 + 「由{語言}翻譯」+ 「顯示原文」;
  * - 自動翻譯關閉 → 顯示原文 + 手動「翻譯」;
@@ -22,11 +22,11 @@ export function localeMatches(target: string, available: string): boolean {
   return true
 }
 
-/** 按當前翻譯目標語言挑選譯文(精確 → 語言/文字) */
+/** 翻譯目標固定跟隨 App 顯示語言(精確 → 語言/文字)。 */
 export function pickTranslation(post: Post): PostTranslation | null {
   return (
-    post.translations.find(tr => tr.locale === prefs.translationLocale) ??
-    post.translations.find(tr => localeMatches(prefs.translationLocale, tr.locale)) ??
+    post.translations.find(tr => tr.locale === prefs.uiLocale) ??
+    post.translations.find(tr => localeMatches(prefs.uiLocale, tr.locale)) ??
     null
   )
 }
@@ -48,7 +48,7 @@ export interface PostView {
 export function postView(post: Post, manualTranslated = false, forceOriginal = false): PostView {
   const originalLocale = post.original.locale
   const tr = pickTranslation(post)
-  const sameLanguage = originalLocale ? localeMatches(prefs.translationLocale, originalLocale) : false
+  const sameLanguage = originalLocale ? localeMatches(prefs.uiLocale, originalLocale) : false
   const available = !!tr && !sameLanguage
   const showingTranslation = available && !forceOriginal && (prefs.autoTranslate || manualTranslated)
   return {
