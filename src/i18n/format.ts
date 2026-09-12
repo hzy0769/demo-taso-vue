@@ -121,3 +121,8 @@ export function chatDayLabel(iso: string): string {
 export function compact(n: number): string {
   return new Intl.NumberFormat(prefs.uiLocale, { notation: 'compact', maximumFractionDigits: 1 }).format(n)
 }
+
+/** 比例(雙軌傭金/費率):0.3 → 30%、0.0005 → 0.05%(最多兩位小數) */
+export function fmtRate(r: number): string {
+  return new Intl.NumberFormat(prefs.uiLocale, { style: 'percent', maximumFractionDigits: 2 }).format(r)
+}

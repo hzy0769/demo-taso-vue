@@ -1,8 +1,16 @@
 <script setup lang="ts">
-import { app, toast } from '../store'
+import { app, toast, show } from '../store'
+import { REFERRAL_PLAN, type ReferralTrack } from '../data'
 import { t } from '../i18n'
-import { fmtMoney } from '../i18n/format'
+import { fmtMoney, fmtRate } from '../i18n/format'
 import PageHeader from '../components/PageHeader.vue'
+
+/** 演示方案固定 3 级;层级数与比例均为后台可配(§79) */
+const LEVEL_KEYS = ['refRules.lv1', 'refRules.lv2', 'refRules.lv3']
+const tracks: { key: ReferralTrack; icon: string }[] = [
+  { key: 'purchase', icon: '#i-card' },
+  { key: 'topup', icon: '#i-wallet' },
+]
 
 function copyLink() {
   if (navigator.clipboard) {
@@ -29,12 +37,24 @@ function copyLink() {
         <button class="btn btn-p" style="flex:1" @click="toast(t('post.shareCopied'))">{{ t('common.share') }}</button>
       </div>
     </div>
+
+    <!-- 双轨佣金结构(V2.2):购卡 30/5/1 + 充值 0.5/0.1/0.05,独立计佣 -->
     <div class="card" style="margin-top:14px">
-      <div class="row-b"><b style="font-size:14px">{{ t('referral.structure') }}</b><span class="badge soft">{{ t('referral.currentRules') }}</span></div>
-      <div class="kv" style="margin-top:6px"><span class="k">{{ t('referral.l1') }}</span><span class="v num">{{ t('referral.byRegion') }}</span></div>
-      <div class="kv"><span class="k">{{ t('referral.l2') }}</span><span class="v num">{{ t('referral.byRegion') }}</span></div>
-      <div class="kv"><span class="k">{{ t('referral.l3') }}</span><span class="v num">{{ t('referral.byRegion') }}</span></div>
-      <button class="btn btn-o" style="margin-top:12px" @click="toast(t('referral.rulesToast'))">{{ t('referral.viewRules') }}</button>
+      <div class="row-b"><b style="font-size:14px">{{ t('referral.structure') }}</b><span class="badge soft">{{ t('referral.demoPlan') }}</span></div>
+      <div v-for="tr in tracks" :key="tr.key" style="margin-top:12px">
+        <div class="row" style="gap:8px">
+          <svg class="ic" style="color:var(--muted)"><use :href="tr.icon"/></svg>
+          <b style="font-size:13px">{{ t(`refRules.${tr.key}Title`) }}</b>
+        </div>
+        <div style="margin-top:4px">
+          <div v-for="(rate, i) in REFERRAL_PLAN[tr.key].rates" :key="i" class="kv">
+            <span class="k">{{ t(LEVEL_KEYS[i]) }}</span>
+            <span class="v num" style="font-weight:700">{{ fmtRate(rate) }}</span>
+          </div>
+        </div>
+      </div>
+      <p class="meta" style="margin-top:10px">{{ t('referral.trackNote') }}</p>
+      <button class="btn btn-o" style="margin-top:12px" @click="show('referral-rules')">{{ t('referral.viewRules') }}</button>
     </div>
     <p class="meta" style="margin-top:12px">{{ t('referral.note') }}</p>
   </section>

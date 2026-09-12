@@ -43,6 +43,7 @@ import ScreenReimburse from './screens/ScreenReimburse.vue'
 import ScreenReimburseDetail from './screens/ScreenReimburseDetail.vue'
 import ScreenWithdraw from './screens/ScreenWithdraw.vue'
 import ScreenReferral from './screens/ScreenReferral.vue'
+import ScreenReferralRules from './screens/ScreenReferralRules.vue'
 import ScreenCreator from './screens/ScreenCreator.vue'
 import ScreenMe from './screens/ScreenMe.vue'
 import ScreenSettings from './screens/ScreenSettings.vue'
@@ -128,6 +129,7 @@ onMounted(() => {
         <ScreenReimburseDetail />
         <ScreenWithdraw />
         <ScreenReferral />
+        <ScreenReferralRules />
         <ScreenCreator />
         <ScreenMe />
         <ScreenSettings />

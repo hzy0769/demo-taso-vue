@@ -11,7 +11,7 @@ export type ScreenId =
   | 'benefits' | 'card-apply' | 'card-address' | 'card-country' | 'card-shipping' | 'card-review' | 'card-success' | 'card-tracking'
   | 'my-card' | 'card-detail' | 'topup' | 'wallet' | 'dividend'
   | 'transactions' | 'wallet-transactions' | 'reimburse' | 'reimburse-detail' | 'withdraw'
-  | 'referral' | 'creator'
+  | 'referral' | 'referral-rules' | 'creator'
   | 'me' | 'settings' | 'language' | 'content-region' | 'security' | 'kyc' | 'notifications'
   | 'friends' | 'messages' | 'chat' | 'my-qrcode'
   | 'account' | 'auth-methods' | 'auth-sessions' | 'auth-delete'

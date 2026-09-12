@@ -327,24 +327,59 @@ export const WALLET_TX: TxItem[] = [
     cat: 'reimburse',
   },
   {
-    titleKey: 'tx.referralReward',
-    at: '2026-09-08T15:20:00+08:00',
-    ref: 'RFL-09080045',
-    amount: { amount: 35, currency: 'USD' },
+    titleKey: 'tx.referralBuy',
+    at: '2026-09-08T16:05:00+08:00',
+    ref: 'RFL-09080112',
+    amount: { amount: 38.46, currency: 'USD' },
     sign: '+',
-    subKey: 'tx.sub.l2Reward',
+    subKey: 'tx.sub.referralBuy',
+    subParams: { rate: '30%', base: 'HK$1,000' },
     status: 'credited',
     cat: 'referral',
   },
   {
-    titleKey: 'tx.dividend',
+    titleKey: 'tx.referralTopup',
+    at: '2026-09-08T15:20:00+08:00',
+    ref: 'RFL-09080045',
+    amount: { amount: 50, currency: 'USD' },
+    sign: '+',
+    subKey: 'tx.sub.referralTopup',
+    subParams: { rate: '0.5%', base: 'US$10,000' },
+    status: 'credited',
+    cat: 'referral',
+  },
+  {
+    titleKey: 'tx.referralTopup',
+    at: '2026-09-07T11:40:00+08:00',
+    ref: 'RFL-09070083',
+    amount: { amount: 10, currency: 'USD' },
+    sign: '+',
+    subKey: 'tx.sub.referralTopupL2',
+    subParams: { rate: '0.1%', base: 'US$10,000' },
+    status: 'credited',
+    cat: 'referral',
+  },
+  {
+    titleKey: 'tx.dividendSales',
     titleParams: { no: 12 },
     at: '2026-09-05T10:00:00+08:00',
-    ref: 'DVD-20260805',
+    ref: 'DVD-20260805-S',
     amount: { amount: 12096, currency: 'USD' },
     sign: '+',
-    subKey: 'tx.sub.poolRatio',
+    subKey: 'tx.sub.salesPoolRatio',
     subParams: { ratio: '4.80%' },
+    status: 'credited',
+    cat: 'dividend',
+  },
+  {
+    titleKey: 'tx.dividendRecharge',
+    titleParams: { no: 12 },
+    at: '2026-09-05T10:00:00+08:00',
+    ref: 'DVD-20260805-R',
+    amount: { amount: 1540, currency: 'USD' },
+    sign: '+',
+    subKey: 'tx.sub.rechargePoolRatio',
+    subParams: { ratio: '4.58%' },
     status: 'credited',
     cat: 'dividend',
   },
@@ -373,10 +408,25 @@ export const WALLET_TX: TxItem[] = [
 
 export const WALLET_TX_FILTERS = ['all', 'reimburse', 'creator', 'referral', 'dividend', 'withdraw', 'fee'] as const
 
-/* ── 股東分紅(V1.6;週期/發放日為自然日 LocalDate,§9.2)────────────── */
+/* ── 推廣雙軌佣金(V2.2;比例與層數均為演示值,後台運營可配)────────── */
 
-/** 分紅池比例:平台總銷售額 × 14% */
+export type ReferralTrack = 'purchase' | 'topup'
+
+/** rates 按一/二/三級順序;levels 為分傭層數(演示 3 級) */
+export const REFERRAL_PLAN: Record<ReferralTrack, { levels: number; rates: [number, number, number] }> = {
+  purchase: { levels: 3, rates: [0.30, 0.05, 0.01] },
+  topup: { levels: 3, rates: [0.005, 0.001, 0.0005] },
+}
+
+/** 錢包「推廣獎勵」賬本按軌道拆分的演示值(合計 US$180,與權益頁入口一致) */
+export const WALLET_REFERRAL: Record<ReferralTrack, number> = { purchase: 126, topup: 54 }
+
+/* ── 股東分紅(V1.6 起銷售軌道,V2.2 增充值軌道; LocalDate 週期,§9.2)── */
+
+/** 銷售分紅池比例:平台總銷售額 × 14% */
 export const DIVIDEND_RATE = 0.14
+/** 充值分紅池比例:會員總充值額 × 0.35% */
+export const DIVIDEND_RECHARGE_RATE = 0.0035
 
 export interface DividendPeriod {
   no: number
@@ -385,21 +435,31 @@ export interface DividendPeriod {
   paidAt: string
   platformSales: number
   relatedSales: number
+  platformRecharge: number
+  relatedRecharge: number
 }
 
 export const DIVIDEND_PERIODS: DividendPeriod[] = [
-  { no: 12, from: '2026-08-01', to: '2026-08-31', paidAt: '2026-09-05', platformSales: 1800000, relatedSales: 86400 },
-  { no: 11, from: '2026-07-01', to: '2026-07-31', paidAt: '2026-08-05', platformSales: 1700000, relatedSales: 76500 },
-  { no: 10, from: '2026-06-01', to: '2026-06-30', paidAt: '2026-07-05', platformSales: 1500000, relatedSales: 60000 },
-  { no: 9, from: '2026-05-01', to: '2026-05-31', paidAt: '2026-06-05', platformSales: 1600000, relatedSales: 52000 },
-  { no: 8, from: '2026-04-01', to: '2026-04-30', paidAt: '2026-05-06', platformSales: 1400000, relatedSales: 49000 },
-  { no: 7, from: '2026-03-01', to: '2026-03-31', paidAt: '2026-04-06', platformSales: 1200000, relatedSales: 42000 },
+  { no: 12, from: '2026-08-01', to: '2026-08-31', paidAt: '2026-09-05', platformSales: 1800000, relatedSales: 86400, platformRecharge: 9600000, relatedRecharge: 440000 },
+  { no: 11, from: '2026-07-01', to: '2026-07-31', paidAt: '2026-08-05', platformSales: 1700000, relatedSales: 76500, platformRecharge: 9000000, relatedRecharge: 396000 },
+  { no: 10, from: '2026-06-01', to: '2026-06-30', paidAt: '2026-07-05', platformSales: 1500000, relatedSales: 60000, platformRecharge: 8400000, relatedRecharge: 320000 },
+  { no: 9, from: '2026-05-01', to: '2026-05-31', paidAt: '2026-06-05', platformSales: 1600000, relatedSales: 52000, platformRecharge: 8800000, relatedRecharge: 280000 },
+  { no: 8, from: '2026-04-01', to: '2026-04-30', paidAt: '2026-05-06', platformSales: 1400000, relatedSales: 49000, platformRecharge: 8200000, relatedRecharge: 260000 },
+  { no: 7, from: '2026-03-01', to: '2026-03-31', paidAt: '2026-04-06', platformSales: 1200000, relatedSales: 42000, platformRecharge: 7600000, relatedRecharge: 230000 },
 ]
 
-/** 累計已發放分紅:Σ 平台總銷售額 × 14% × (關聯銷售總額 ÷ 平台總銷售額) */
-export const DIVIDEND_TOTAL = DIVIDEND_PERIODS.reduce(
-  (sum, p) => sum + p.platformSales * DIVIDEND_RATE * (p.relatedSales / p.platformSales), 0,
-)
+/** 期銷售分紅 = 平台總銷售額 × 14% × (關聯銷售總額 ÷ 平台總銷售額) */
+export const dividendSalesOf = (p: DividendPeriod) =>
+  p.platformSales * DIVIDEND_RATE * (p.relatedSales / p.platformSales)
+
+/** 期充值分紅 = 會員總充值額 × 0.35% × (關聯充值額 ÷ 會員總充值額) */
+export const dividendRechargeOf = (p: DividendPeriod) =>
+  p.platformRecharge * DIVIDEND_RECHARGE_RATE * (p.relatedRecharge / p.platformRecharge)
+
+/** 累計已發放分紅(雙軌合計):銷售 US$51,226 + 充值 US$6,741 = US$57,967 */
+export const DIVIDEND_SALES_TOTAL = DIVIDEND_PERIODS.reduce((sum, p) => sum + dividendSalesOf(p), 0)
+export const DIVIDEND_RECHARGE_TOTAL = DIVIDEND_PERIODS.reduce((sum, p) => sum + dividendRechargeOf(p), 0)
+export const DIVIDEND_TOTAL = DIVIDEND_SALES_TOTAL + DIVIDEND_RECHARGE_TOTAL
 
 /* ── 好友與消息(PRD §73;時間為 ISO instant,「今天/昨天」即時計算)── */
 
