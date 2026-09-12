@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import { app, show, toast, toggleRole, roleLabel } from '../store'
+import { app, show, showRoleStatus, roleLabel, toast } from '../store'
 import { DIVIDEND_TOTAL } from '../data'
 import { t, regionName } from '../i18n'
 import { fmtMoney, compact } from '../i18n/format'
@@ -16,7 +16,7 @@ const msgUnread = computed(() => app.social.convs.reduce((n, c) => n + c.unread,
 /** 登录账号昵称联动(AUTH PRD:完成认证后账号信息进入「我的」) */
 const name = computed(() => app.auth.user?.nickname ?? 'Alex')
 const initial = computed(() => name.value.trim().slice(0, 1).toUpperCase() || 'A')
-/** 账号级别:股东时展示金色标记与「股东分红」入口(V1.6) */
+/** 账号级别:由后台审核开通,前台不可切换(评审 §3.5);点击仅查看审核状态示例 */
 const isHolder = computed(() => app.auth.user?.role === 'shareholder')
 const followersLine = computed(() => t('me.followersLine', { city: regionName({ country: '', cityId: 'tokyo' }), count: compact(12800) }))
 </script>
@@ -39,7 +39,7 @@ const followersLine = computed(() => t('me.followersLine', { city: regionName({ 
             <span
               class="role-tag" :class="isHolder ? 'holder' : 'member'"
               role="button" tabindex="0" :title="t('me.roleHint')"
-              @click.stop="toggleRole" @keydown.enter.stop.prevent="toggleRole"
+              @click.stop="showRoleStatus" @keydown.enter.stop.prevent="showRoleStatus"
             ><svg v-if="isHolder" class="ic sm f"><use href="#i-star"/></svg>{{ roleLabel(isHolder ? 'shareholder' : 'member') }}</span>
           </div>
           <p class="meta">{{ followersLine }}</p>
@@ -101,10 +101,12 @@ const followersLine = computed(() => t('me.followersLine', { city: regionName({ 
         <span class="li-title">{{ t('me.wallet') }}</span>
         <svg class="ic" style="color:var(--muted)"><use href="#i-right"/></svg>
       </button>
-      <button v-if="isHolder" class="li" @click="show('dividend')">
-        <span class="li-ic"><svg class="ic" style="color:var(--accent)"><use href="#i-star"/></svg></span>
+      <!-- 股东分红:会员亦可见示例数据(原型边界说明);真实上线按能力矩阵仅对审核通过的股东开放 -->
+      <button class="li" @click="show('dividend')">
+        <span class="li-ic"><svg class="ic" style="color:var(--accent-ink)"><use href="#i-star"/></svg></span>
         <span class="li-title">{{ t('me.dividend') }}</span>
-        <span class="li-val gold num">{{ fmtMoney({ amount: DIVIDEND_TOTAL, currency: 'USD' }) }}</span>
+        <span v-if="!isHolder" class="badge warn">{{ t('demo.tag') }}</span>
+        <span v-else class="li-val num gold">{{ fmtMoney({ amount: DIVIDEND_TOTAL, currency: 'USD' }) }}</span>
         <svg class="ic" style="color:var(--muted)"><use href="#i-right"/></svg>
       </button>
       <button class="li" @click="show('reimburse')">

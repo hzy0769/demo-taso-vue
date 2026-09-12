@@ -39,18 +39,88 @@ export interface LocalizationPreferences {
   updatedAt: string
 }
 
-/** 全球默认值:新会话 / 未保存偏好一律为繁体中文(香港)+ 香港内容 */
+/**
+ * 全球回退默认值(评审 §1:香港不得作为全球默认)。
+ * 仅在设备信号完全不可用时使用;首启实际取 suggestPrefs() 的建议值。
+ */
 export const DEFAULT_PREFS: LocalizationPreferences = {
-  uiLocale: 'zh-Hant-HK',
-  contentRegion: { scope: 'city', country: 'HK', cityId: 'hong-kong' },
+  uiLocale: 'en',
+  contentRegion: { scope: 'global', country: '' },
   recentRegions: [],
-  timeZone: 'Asia/Hong_Kong',
-  displayCurrency: 'HKD',
+  timeZone: 'UTC',
+  displayCurrency: 'USD',
   autoTranslate: true,
   sources: {
     uiLocale: 'default', contentRegion: 'default', timeZone: 'default', displayCurrency: 'default', autoTranslate: 'default',
   },
   updatedAt: '',
+}
+
+/* ── 冷启动建议(评审 §1:设备语言 → 设备时区/粗粒度地区 → English)────
+   注意:本段在模块初始化早期被 loadPrefs() 调用,须自包含,
+   不得引用文件后部才声明的 UI_LANGS / REGIONS(TDZ)。 */
+
+/** 建议可映射的 UI 语言主标签(与 UI_LANGS 保持同步) */
+const SUGGEST_LANGS: Record<string, string> = { en: 'en', ja: 'ja-JP', ko: 'ko-KR' }
+
+/** 浏览器语言 → 已收录 UI 语言;zh 按文字系统分流,未收录语言回退 English */
+export function suggestUiLocale(): string {
+  const candidates = [...(navigator.languages ?? []), navigator.language].filter(Boolean)
+  for (const raw of candidates) {
+    const l = raw.toLowerCase()
+    if (l.startsWith('zh')) {
+      // zh-Hant* / zh-TW / zh-HK / zh-MO → 繁體(香港);zh-Hans* / zh-CN / zh-SG → 简体
+      return /hant|tw|hk|mo/.test(l) ? 'zh-Hant-HK' : 'zh-Hans-CN'
+    }
+    const hit = SUGGEST_LANGS[l.split('-')[0]]
+    if (hit) return hit
+  }
+  return DEFAULT_PREFS.uiLocale
+}
+
+/** 设备时区(不申请定位权限;粗粒度地区信号) */
+export function suggestTimeZone(): string {
+  try {
+    return Intl.DateTimeFormat().resolvedOptions().timeZone || DEFAULT_PREFS.timeZone
+  } catch {
+    return DEFAULT_PREFS.timeZone
+  }
+}
+
+/** 时区 → 内容地区建议(城市 + ISO 国家);未覆盖时区回退全球(不虚构位置) */
+const TZ_CITY: Record<string, { cityId: string; country: string }> = {
+  'Asia/Hong_Kong': { cityId: 'hong-kong', country: 'HK' },
+  'Asia/Tokyo': { cityId: 'tokyo', country: 'JP' },
+  'Asia/Seoul': { cityId: 'seoul', country: 'KR' },
+  'Asia/Bangkok': { cityId: 'bangkok', country: 'TH' },
+  'Asia/Singapore': { cityId: 'singapore', country: 'SG' },
+  'Asia/Shanghai': { cityId: 'shanghai', country: 'CN' },
+  'Asia/Taipei': { cityId: 'taipei', country: 'TW' },
+  'Europe/London': { cityId: 'london', country: 'GB' },
+  'America/New_York': { cityId: 'new-york', country: 'US' },
+}
+
+function suggestRegion(tz: string): ContentRegion {
+  const hit = TZ_CITY[tz]
+  return hit ? { scope: 'city', country: hit.country, cityId: hit.cityId } : { scope: 'global', country: '' }
+}
+
+const COUNTRY_CURRENCY: Record<string, string> = {
+  HK: 'HKD', JP: 'JPY', KR: 'KRW', TH: 'THB', SG: 'SGD',
+}
+
+/** 首启建议偏好:全部标记 default,可跳过 / 可修改;显式保存后永不自动重置 */
+export function suggestPrefs(): LocalizationPreferences {
+  const uiLocale = suggestUiLocale()
+  const timeZone = suggestTimeZone()
+  const contentRegion = suggestRegion(timeZone)
+  return {
+    ...JSON.parse(JSON.stringify(DEFAULT_PREFS)),
+    uiLocale,
+    timeZone,
+    contentRegion,
+    displayCurrency: COUNTRY_CURRENCY[contentRegion.country] ?? DEFAULT_PREFS.displayCurrency,
+  }
 }
 
 const STORAGE_KEY = 'taso-locale'
@@ -66,6 +136,30 @@ function migrateLocale(v: string): { locale: string; source: PrefSource } {
   if (MIGRATE_LANG[v]) return { locale: MIGRATE_LANG[v], source: 'migration' }
   return { locale: v, source: 'user' }
 }
+
+export interface RegionOption {
+  id: string
+  country: string
+  /** 各 UI 語言下的顯示名(§9.3:由 locale catalog 格式化,不混用) */
+  names: Record<string, string>
+  /** 檢索別名(§8.3) */
+  aliases: string[]
+}
+
+export const REGIONS: RegionOption[] = [
+  { id: 'hong-kong', country: 'HK', names: { 'zh-Hant': '香港', 'zh-Hans': '香港', en: 'Hong Kong', ja: '香港', ko: '홍콩' }, aliases: ['HK', 'HongKong', '香港島'] },
+  { id: 'tokyo', country: 'JP', names: { 'zh-Hant': '東京', 'zh-Hans': '东京', en: 'Tokyo', ja: '東京', ko: '도쿄' }, aliases: ['Dongjing', 'トウキョウ'] },
+  { id: 'osaka', country: 'JP', names: { 'zh-Hant': '大阪', 'zh-Hans': '大阪', en: 'Osaka', ja: '大阪', ko: '오사카' }, aliases: [] },
+  { id: 'seoul', country: 'KR', names: { 'zh-Hant': '首爾', 'zh-Hans': '首尔', en: 'Seoul', ja: 'ソウル', ko: '서울' }, aliases: ['漢城', '首尔'] },
+  { id: 'bangkok', country: 'TH', names: { 'zh-Hant': '曼谷', 'zh-Hans': '曼谷', en: 'Bangkok', ja: 'バンコク', ko: '방콕' }, aliases: [] },
+  { id: 'chiang-mai', country: 'TH', names: { 'zh-Hant': '清邁', 'zh-Hans': '清迈', en: 'Chiang Mai', ja: 'チェンマイ', ko: '치앙마이' }, aliases: [] },
+  { id: 'phuket', country: 'TH', names: { 'zh-Hant': '布吉', 'zh-Hans': '普吉', en: 'Phuket', ja: 'プーケット', ko: '푸껫' }, aliases: [] },
+  { id: 'singapore', country: 'SG', names: { 'zh-Hant': '新加坡', 'zh-Hans': '新加坡', en: 'Singapore', ja: 'シンガポール', ko: '싱가포르' }, aliases: ['狮城', '獅城'] },
+  { id: 'shanghai', country: 'CN', names: { 'zh-Hant': '上海', 'zh-Hans': '上海', en: 'Shanghai', ja: '上海', ko: '상하이' }, aliases: [] },
+  { id: 'taipei', country: 'TW', names: { 'zh-Hant': '台北', 'zh-Hans': '台北', en: 'Taipei', ja: 'タイペイ', ko: '타이베이' }, aliases: [] },
+  { id: 'london', country: 'GB', names: { 'zh-Hant': '倫敦', 'zh-Hans': '伦敦', en: 'London', ja: 'ロンドン', ko: '런던' }, aliases: [] },
+  { id: 'new-york', country: 'US', names: { 'zh-Hant': '紐約', 'zh-Hans': '纽约', en: 'New York', ja: 'ニューヨーク', ko: '뉴욕' }, aliases: ['NYC'] },
+]
 
 function loadPrefs(): LocalizationPreferences {
   try {
@@ -90,8 +184,8 @@ function loadPrefs(): LocalizationPreferences {
         return p
       }
     }
-  } catch { /* 損壞時回落全球默認值 */ }
-  return JSON.parse(JSON.stringify(DEFAULT_PREFS))
+  } catch { /* 損壞時回落設備建議 */ }
+  return suggestPrefs()
 }
 
 export const prefs = reactive<LocalizationPreferences>(loadPrefs())
@@ -121,8 +215,9 @@ export function snapshotPrefs(): LocalizationPreferences {
   return JSON.parse(JSON.stringify(prefs))
 }
 
+/** 删除账号等回到首启:重新按设备信号建议(评审 §1),不回到写死的默认地区 */
 export function resetPrefs() {
-  Object.assign(prefs, JSON.parse(JSON.stringify(DEFAULT_PREFS)))
+  Object.assign(prefs, suggestPrefs())
 }
 
 /* ── 文案資源與回退(§5.2、§7.1)────────────────────────────────── */
@@ -204,29 +299,9 @@ export const UI_LANGS: NamedOption[] = [
   { code: 'ko-KR', name: '한국어' },
 ]
 
-export interface RegionOption {
-  id: string
-  country: string
-  /** 各 UI 語言下的顯示名(§9.3:由 locale catalog 格式化,不混用) */
-  names: Record<string, string>
-  /** 檢索別名(§8.3) */
-  aliases: string[]
-}
-
-export const REGIONS: RegionOption[] = [
-  { id: 'hong-kong', country: 'HK', names: { 'zh-Hant': '香港', 'zh-Hans': '香港', en: 'Hong Kong', ja: '香港', ko: '홍콩' }, aliases: ['HK', 'HongKong', '香港島'] },
-  { id: 'tokyo', country: 'JP', names: { 'zh-Hant': '東京', 'zh-Hans': '东京', en: 'Tokyo', ja: '東京', ko: '도쿄' }, aliases: ['Dongjing', 'トウキョウ'] },
-  { id: 'osaka', country: 'JP', names: { 'zh-Hant': '大阪', 'zh-Hans': '大阪', en: 'Osaka', ja: '大阪', ko: '오사카' }, aliases: [] },
-  { id: 'seoul', country: 'KR', names: { 'zh-Hant': '首爾', 'zh-Hans': '首尔', en: 'Seoul', ja: 'ソウル', ko: '서울' }, aliases: ['漢城', '首尔'] },
-  { id: 'bangkok', country: 'TH', names: { 'zh-Hant': '曼谷', 'zh-Hans': '曼谷', en: 'Bangkok', ja: 'バンコク', ko: '방콕' }, aliases: [] },
-  { id: 'chiang-mai', country: 'TH', names: { 'zh-Hant': '清邁', 'zh-Hans': '清迈', en: 'Chiang Mai', ja: 'チェンマイ', ko: '치앙마이' }, aliases: [] },
-  { id: 'phuket', country: 'TH', names: { 'zh-Hant': '布吉', 'zh-Hans': '普吉', en: 'Phuket', ja: 'プーケット', ko: '푸껫' }, aliases: [] },
-  { id: 'singapore', country: 'SG', names: { 'zh-Hant': '新加坡', 'zh-Hans': '新加坡', en: 'Singapore', ja: 'シンガポール', ko: '싱가포르' }, aliases: ['狮城', '獅城'] },
-  { id: 'shanghai', country: 'CN', names: { 'zh-Hant': '上海', 'zh-Hans': '上海', en: 'Shanghai', ja: '上海', ko: '상하이' }, aliases: [] },
-  { id: 'taipei', country: 'TW', names: { 'zh-Hant': '台北', 'zh-Hans': '台北', en: 'Taipei', ja: 'タイペイ', ko: '타이베이' }, aliases: [] },
-  { id: 'london', country: 'GB', names: { 'zh-Hant': '倫敦', 'zh-Hans': '伦敦', en: 'London', ja: 'ロンドン', ko: '런던' }, aliases: [] },
-  { id: 'new-york', country: 'US', names: { 'zh-Hant': '紐約', 'zh-Hans': '纽约', en: 'New York', ja: 'ニューヨーク', ko: '뉴욕' }, aliases: ['NYC'] },
-]
+/* 地區元數據(REGIONS)已提升至 loadPrefs 之前:loadPrefs 在模塊初始化時經
+   normalizeContentRegion 讀取 REGIONS,若聲明在後會因 TDZ 拋錯並被靜默
+   吞掉,導致已存偏好每次冷啟動都被丟棄、回落默認值。 */
 
 /** ISO 3166-1 alpha-2 完整國家 / 地區清單；內容地區不再只限原型城市。 */
 export const COUNTRY_CODES = `

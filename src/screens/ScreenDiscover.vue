@@ -1,12 +1,16 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { app, show } from '../store'
-import { t, regionName } from '../i18n'
+import { t, prefs, regionName } from '../i18n'
 import PageHeader from '../components/PageHeader.vue'
 
-/** 城市卡片:canonical 名 + 本地化热度(§8.3 双名展示) */
+/**
+ * 城市卡片:canonical 名 + 本地化热度(§8.3 双名展示)。
+ * 首个筛选位为「所选地区精选」而非「附近」(评审 §2):
+ * 未接入定位权限时不得暗示真实距离,排序依据是内容地区,不是设备位置。
+ */
 const chips = computed(() => ([
-  { k: 'nearby', label: t('discover.nearby') },
+  { k: 'region', label: t('discover.regionPicks', { region: regionName(prefs.contentRegion) }) },
   { k: 'cities', label: t('discover.cities') },
   { k: 'food', label: t('discover.food') },
   { k: 'travel', label: t('discover.travel') },
@@ -35,7 +39,7 @@ const cityOf = (cityId: string) => regionName({ country: '', cityId })
       <svg class="ic"><use href="#i-search"/></svg>{{ t('discover.searchHint') }}
     </button>
     <div class="chips" style="margin-top:12px">
-      <button v-for="c in chips" :key="c.k" class="chip" :class="{ on: c.k === 'nearby' }">{{ c.label }}</button>
+      <button v-for="c in chips" :key="c.k" class="chip" :class="{ on: c.k === 'region' }">{{ c.label }}</button>
     </div>
     <h3 style="font-size:15px;font-weight:600;margin:18px 0 10px">{{ t('discover.hotCities') }}</h3>
     <div class="grid-2">

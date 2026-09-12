@@ -15,9 +15,22 @@ export interface Money {
 
 export const money = (amount: number, currency: string): Money => ({ amount, currency })
 
-/** 交易金額:符號與金額分離,+/− 在各語言下一致 */
+/**
+ * 全球通用货币前缀(评审 §3.4):金额不得只用易歧义的 $ / ¥,
+ * 统一展示为 US$、HK$、JP¥、NT$…(品牌化前缀与 Intl 一致的沿用 Intl)。
+ */
+const CUR_PREFIX: Record<string, string> = {
+  USD: 'US$', HKD: 'HK$', JPY: 'JP¥', CNY: 'CN¥', TWD: 'NT$', SGD: 'S$', THB: '฿',
+}
+const BARE_SYMBOL = new Set(['$', '¥', '￥', 'US', 'NT'])
+
+/** 交易金額:符號與金額分離,+/− 在各語言下一致;符号无歧义化后输出 */
 export function fmtMoney(m: Money, opts: { sign?: '+' | '-' } = {}): string {
-  const s = new Intl.NumberFormat(prefs.uiLocale, { style: 'currency', currency: m.currency }).format(m.amount)
+  const parts = new Intl.NumberFormat(prefs.uiLocale, { style: 'currency', currency: m.currency }).formatToParts(m.amount)
+  // 本地化符号是裸符号时(如 en 下的 $、ja 下的 ￥),替换为无歧义前缀
+  const curPart = parts.find(p => p.type === 'currency')
+  if (curPart && BARE_SYMBOL.has(curPart.value) && CUR_PREFIX[m.currency]) curPart.value = CUR_PREFIX[m.currency]
+  const s = parts.map(p => p.value).join('')
   return opts.sign ? (opts.sign === '+' ? `+${s}` : `−${s}`) : s
 }
 

@@ -19,6 +19,35 @@ export interface PayLine {
   money: string
 }
 
+/**
+ * 支付披露報價(評審 §3.4 / 平台化基礎卡 Quote):
+ * 每次付款前固定展示 —— 計價幣種、扣款幣種、匯率來源與有效時間、
+ * 平台費 / 網絡費 / 稅費、到賬金額、退款規則、收款主體與客服入口。
+ * 字段為已本地化的展示文本;金額構造統一走 i18n/format(無歧義貨幣符號)。
+ */
+export interface Quote {
+  /** 計價幣種(ISO 4217;加密為 USDT / USDC) */
+  priceCurrency: string
+  /** 扣款幣種 */
+  chargeCurrency: string
+  /** 非同幣種時的換算說明(演示匯率 + 時點;見 i18n FX_RATES) */
+  fxNote?: string
+  /** 平台費 */
+  platformFee: PayLine
+  /** 網絡費(僅加密方式;由發起方錢包承擔) */
+  networkFee?: PayLine
+  /** 稅費 */
+  tax: PayLine
+  /** 到賬金額 */
+  arrival: PayLine
+  /** 退款規則說明 */
+  refund: string
+  /** 收款主體 */
+  payee: string
+  /** 客服入口 */
+  support: string
+}
+
 export interface PayRequest {
   purpose: PayPurpose
   /** 商家支付單明細行(不含合計,合計由 totalText 展示) */
@@ -27,6 +56,8 @@ export interface PayRequest {
   totalText: string
   /** USDT/USDC 實際需支付的 USD 金額(含手續費;穩定幣按 ≈1:1 結算) */
   amountUSD: number
+  /** 付款前披露(評審 §3.4:確認頁與錢包支付單複述同一份 Quote) */
+  quote?: Quote
   onSuccess: () => void
 }
 

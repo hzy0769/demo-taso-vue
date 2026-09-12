@@ -1,10 +1,24 @@
 <script setup lang="ts">
-import { app, isFollowed, toggleFollowAuthor, notInterested, reportPost, dislikeAd, whyThisAd, muteAdAuthor, blockAdAuthor, reportAd } from '../store'
+import { computed, ref, watch } from 'vue'
+import { app, isFollowed, toggleFollowAuthor, notInterested, reportPost, dislikeAd, whyThisAd, muteAdAuthor, blockAdAuthor, reportAd, overlayFocusIn, overlayFocusOut } from '../store'
 import { t } from '../i18n'
+
+const open = computed(() => app.sheet === 'post-more')
+/** 弹层无障碍(评审 §6.4):关闭态 inert;打开焦点进入,关闭焦点复位 */
+const root = ref<HTMLElement | null>(null)
+watch(open, v => {
+  if (v) overlayFocusIn(root.value)
+  else overlayFocusOut(root.value)
+})
 </script>
 
 <template>
-  <div class="sheet" :class="{ on: app.sheet === 'post-more' }" role="dialog" :aria-label="app.morePost?.ad ? t('postMore.ad.report') : t('postMore.report')">
+  <div
+    ref="root"
+    class="sheet" :class="{ on: open }"
+    :inert="!open" tabindex="-1"
+    role="dialog" aria-modal="true" :aria-label="app.morePost?.ad ? t('postMore.ad.report') : t('postMore.report')"
+  >
     <div class="grip"></div>
     <template v-if="app.morePost">
       <!-- 广告帖:参考 X 的广告菜单 -->

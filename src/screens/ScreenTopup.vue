@@ -3,13 +3,15 @@ import { computed, ref } from 'vue'
 import { app, save, show, toast } from '../store'
 import { t, prefs } from '../i18n'
 import { fmtMoney } from '../i18n/format'
-import { PAY_METHODS, pay, payMethodName, startCard, startCrypto, startWallet, lastPaidText, type PayRequest } from '../pay'
+import { PAY_METHODS, pay, payMethodName, startCard, startCrypto, startWallet, lastPaidText, type PayRequest, type Quote } from '../pay'
 import PageHeader from '../components/PageHeader.vue'
+import QuoteDisclosure from '../components/QuoteDisclosure.vue'
 
 /**
  * 会员卡充值(Stripe Express Checkout 模式):
- * 金额 → 费用摘要 → 钱包快捷按钮(Apple Pay 仅苹果设备,点击即付)
- * → 其他方式单选列表 → 吸底支付栏。入账一律 USD 记账,支付币种由方式决定。
+ * 金额 → 费用摘要 + 付款前固定披露(Quote,评审 §3.4)→ 钱包快捷按钮
+ * (Apple Pay 仅苹果设备,点击即付)→ 其他方式单选列表 → 吸底支付栏。
+ * 入账一律 USD 记账,支付币种由方式决定;加密方式带「地区相关」演示标签(评审 §3.2)。
  */
 
 const amt = ref('1,000.00')
@@ -24,6 +26,27 @@ const USD = (n: number) => fmtMoney({ amount: n, currency: 'USD' })
 const methods = computed(() => PAY_METHODS.filter(m => m.available))
 const wallets = computed(() => methods.value.filter(m => m.kind === 'wallet'))
 const others = computed(() => methods.value.filter(m => m.kind !== 'wallet'))
+
+const isCrypto = computed(() => pay.method === 'usdt' || pay.method === 'usdc')
+const cryptoAsset = computed(() => (pay.method === 'usdt' ? 'USDT' : 'USDC'))
+
+/** 付款前披露:随所选支付方式实时更新扣款币种与网络费(评审 §3.4) */
+const quote = computed<Quote>(() => ({
+  priceCurrency: 'USD',
+  chargeCurrency: isCrypto.value ? cryptoAsset.value : 'USD',
+  fxNote: isCrypto.value
+    ? t('pay.crypto.rateNote', { asset: cryptoAsset.value })
+    : t('quote.fxNone'),
+  platformFee: { label: t('topup.fee', { rate: 16 }), money: USD(fee.value) },
+  networkFee: isCrypto.value
+    ? { label: t('quote.networkFee'), money: t('quote.borneBySender') }
+    : undefined,
+  tax: { label: t('quote.tax'), money: t('quote.taxIncluded') },
+  arrival: { label: t('topup.creditAmount'), money: USD(parsed.value) },
+  refund: t('quote.refundTopup'),
+  payee: t('quote.payee'),
+  support: t('quote.support'),
+}))
 
 /** 支付完成展示态:到账金额 + 支付方式 */
 const done = ref<{ credit: number; via: string } | null>(null)
@@ -41,6 +64,7 @@ function buildRequest(): PayRequest {
     ],
     totalText: USD(total.value),
     amountUSD: total.value,
+    quote: quote.value,
     onSuccess: () => {
       app.bal += parsed.value
       save()
@@ -114,6 +138,9 @@ function again() {
         <div class="kv"><span class="k">{{ t('topup.estPay') }}</span><span class="v num" style="font-weight:700">{{ USD(total) }}</span></div>
       </div>
 
+      <!-- 付款前固定披露(评审 §3.4) -->
+      <QuoteDisclosure :quote="quote" style="margin-top:10px" />
+
       <!-- 支付方式 -->
       <div class="sec-h" style="margin-top:18px"><span>{{ t('topup.payWith') }}</span></div>
       <div class="wrow" :class="{ single: wallets.length === 1 }">
@@ -142,6 +169,8 @@ function again() {
         <span style="flex:1;min-width:0">
           <span class="pm-name">{{ t(m.nameKey) }}</span>
           <span v-if="m.subKey" class="pm-sub">{{ t(m.subKey) }}</span>
+          <!-- 加密方式:能力矩阵演示标签(评审 §3.2,原型不隐藏入口) -->
+          <span v-if="m.kind === 'crypto'" class="pm-sub">{{ t('capability.regionTag') }}</span>
         </span>
         <span class="ckdot" :class="{ on: pay.method === m.id }"></span>
       </button>

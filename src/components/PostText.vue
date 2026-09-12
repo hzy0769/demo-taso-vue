@@ -67,19 +67,28 @@ function toggleTranslation() {
 function requestTranslation() {
   toast(t('post.translateUnavailable'))
 }
+
+/** 报告译文问题(评审 §5.2:机翻内容可反馈,演示态仅提示) */
+function reportTranslation() {
+  toast(t('post.reportTranslationDone'))
+}
 </script>
 
 <template>
   <div class="post-body" :class="{ lg }">
     <div v-if="hasTranslation" class="tr-ln">
-      <svg class="ic"><use href="#i-translate"/></svg>
+      <svg class="ic" aria-hidden="true"><use href="#i-translate"/></svg>
       <span v-if="view.showingTranslation">{{ t('post.translatedFrom', { language: view.fromLanguage }) }}</span>
       <button class="tr-link" @click.stop="toggleTranslation">
         {{ view.showingTranslation ? t('post.showOriginal') : showOriginal ? t('post.showTranslation') : t('post.translate') }}
       </button>
+      <button v-if="view.showingTranslation" class="tr-report" @click.stop="reportTranslation">
+        {{ t('post.reportTranslation') }}
+      </button>
     </div>
     <div v-else-if="!sameLanguage" class="tr-ln">
-      <svg class="ic"><use href="#i-translate"/></svg>
+      <svg class="ic" aria-hidden="true"><use href="#i-translate"/></svg>
+      <span>{{ t('post.translationUnavailable') }}</span>
       <button class="tr-link" @click.stop="requestTranslation">{{ t('post.translate') }}</button>
     </div>
     <p ref="el" class="post-text" :class="{ clamp: clamp && !expanded }">

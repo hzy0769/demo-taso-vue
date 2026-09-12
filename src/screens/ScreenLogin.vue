@@ -2,9 +2,15 @@
 import { computed, ref } from 'vue'
 import { app, oauthBegin, show, showDialog, syncAccountPrefs } from '../store'
 import { t, prefs, UI_LANGS, uiLocaleLabel } from '../i18n'
+import { APPLE_DEVICE } from '../pay'
 
-/** AUTH-002 注册登录首页:注册与登录统一为「继续使用 TASO」(AUTH PRD §2.1) */
+/** AUTH-002 注册登录首页:注册与登录统一为「继续使用 TASO」(AUTH PRD §2.1)。
+ *  排序按平台(评审 §4.2):iOS 苹果在前,其余 Google 在前;X 恒居第三,
+ *  避免与系统身份服务争夺首要层级。产品化时替换为官方登录组件。 */
 const busy = ref<'' | 'apple' | 'google' | 'x'>('')
+const providers = computed(() => APPLE_DEVICE
+  ? (['apple', 'google', 'x'] as const)
+  : (['google', 'apple', 'x'] as const))
 
 function go(p: 'apple' | 'google' | 'x') {
   if (busy.value) return
@@ -42,20 +48,13 @@ function pickLang(code: string) {
       <div style="flex:1"></div>
 
       <div class="stack">
-        <button class="oauth-btn apple" :disabled="!!busy" @click="go('apple')">
-          <span v-if="busy === 'apple'" class="spin"></span>
-          <svg v-else class="logo"><use href="#logo-apple"/></svg>
-          <span>{{ t('auth.continueWith', { provider: 'Apple' }) }}</span>
-        </button>
-        <button class="oauth-btn google" :disabled="!!busy" @click="go('google')">
-          <span v-if="busy === 'google'" class="spin"></span>
-          <svg v-else class="logo"><use href="#logo-google"/></svg>
-          <span>{{ t('auth.continueWith', { provider: 'Google' }) }}</span>
-        </button>
-        <button class="oauth-btn x" :disabled="!!busy" @click="go('x')">
-          <span v-if="busy === 'x'" class="spin"></span>
-          <svg v-else class="logo"><use href="#logo-x"/></svg>
-          <span>{{ t('auth.continueWith', { provider: 'X' }) }}</span>
+        <button
+          v-for="p in providers" :key="p"
+          class="oauth-btn" :class="p" :disabled="!!busy" @click="go(p)"
+        >
+          <span v-if="busy === p" class="spin"></span>
+          <svg v-else class="logo"><use :href="p === 'apple' ? '#logo-apple' : p === 'google' ? '#logo-google' : '#logo-x'"/></svg>
+          <span>{{ t('auth.continueWith', { provider: p === 'x' ? 'X' : p.charAt(0).toUpperCase() + p.slice(1) }) }}</span>
         </button>
       </div>
 

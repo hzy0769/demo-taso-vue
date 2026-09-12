@@ -1,10 +1,18 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
-import { app, closeSheets, show, toast, sendReq, revokeReq, reqState } from '../store'
+import { computed, ref, watch } from 'vue'
+import { app, closeSheets, show, toast, sendReq, revokeReq, reqState, overlayFocusIn, overlayFocusOut } from '../store'
 import { MEMBERS } from '../data'
 import { t, localName, regionName } from '../i18n'
 
 const q = ref('')
+
+const open = computed(() => app.sheet === 'add-friend')
+/** 弹层无障碍(评审 §6.4):关闭态 inert;打开焦点进入,关闭焦点复位 */
+const root = ref<HTMLElement | null>(null)
+watch(open, v => {
+  if (v) overlayFocusIn(root.value)
+  else overlayFocusOut(root.value)
+})
 
 const found = computed(() => {
   const k = q.value.trim().replace(/^@/, '').toLowerCase()
@@ -20,7 +28,12 @@ const cityOf = (cityId: string) => regionName({ country: '', cityId })
 </script>
 
 <template>
-  <div class="sheet" :class="{ on: app.sheet === 'add-friend' }" role="dialog" :aria-label="t('addFriend.title')">
+  <div
+    ref="root"
+    class="sheet" :class="{ on: open }"
+    :inert="!open" tabindex="-1"
+    role="dialog" aria-modal="true" :aria-label="t('addFriend.title')"
+  >
     <div class="grip"></div>
     <div class="row-b">
       <b style="font-size:17px">{{ t('addFriend.title') }}</b>

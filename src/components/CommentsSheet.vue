@@ -1,10 +1,18 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
-import { app, closeSheets, toast } from '../store'
+import { computed, ref, watch } from 'vue'
+import { app, closeSheets, toast, overlayFocusIn, overlayFocusOut } from '../store'
 import { t } from '../i18n'
 
 const order = ref<'hot' | 'latest' | 'author'>('hot')
 const draft = ref('')
+
+const open = computed(() => app.sheet === 'comments')
+/** 弹层无障碍(评审 §6.4):关闭态 inert;打开焦点进入,关闭焦点复位 */
+const root = ref<HTMLElement | null>(null)
+watch(open, v => {
+  if (v) overlayFocusIn(root.value)
+  else overlayFocusOut(root.value)
+})
 
 /** 演示种子评论(§8.2:评论保持原文,不假装翻译) */
 const orders = computed(() => ([
@@ -15,7 +23,12 @@ const orders = computed(() => ([
 </script>
 
 <template>
-  <div class="sheet" :class="{ on: app.sheet === 'comments' }" role="dialog" :aria-label="t('comments.hot')">
+  <div
+    ref="root"
+    class="sheet" :class="{ on: open }"
+    :inert="!open" tabindex="-1"
+    role="dialog" aria-modal="true" :aria-label="t('comments.title')"
+  >
     <div class="grip"></div>
     <div class="row-b">
       <b style="font-size:17px">{{ t('post.commentsCount', { count: 82 }) }}</b>

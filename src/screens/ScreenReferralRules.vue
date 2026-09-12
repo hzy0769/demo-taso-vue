@@ -25,6 +25,11 @@ const rules = [
 <template>
   <section class="scr" :class="{ on: app.screen === 'referral-rules' }" data-screen="referral-rules">
     <PageHeader :title="t('refRules.title')" />
+    <!-- 示例方案披露(评审 §3.6:市场资格、反作弊与税务提示上线前须逐市场确认) -->
+    <div class="demo-bar" role="note">
+      <svg class="ic sm" style="flex:none;margin-top:1px"><use href="#i-alert"/></svg>
+      <span>{{ t('referral.demoBanner') }}</span>
+    </div>
     <div class="card" style="margin-top:8px">
       <div class="row-b">
         <b style="font-size:14px">{{ t('refRules.overview') }}</b>

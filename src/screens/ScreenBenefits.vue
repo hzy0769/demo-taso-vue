@@ -80,9 +80,10 @@ const USD = (n: number) => fmtMoney({ amount: n, currency: 'USD' })
         <span class="li-title">{{ t('benefits.reimburse') }}</span><span class="badge warn">{{ t('benefits.settlingCount', { n: 8 }) }}</span>
         <svg class="ic" style="color:var(--muted)"><use href="#i-right"/></svg>
       </button>
-      <button v-if="isHolder" class="li" @click="show('dividend')">
-        <span class="li-ic"><svg class="ic" style="color:var(--accent)"><use href="#i-star"/></svg></span>
-        <span class="li-title">{{ t('benefits.dividend') }}</span><span class="li-val num gold">{{ USD(DIVIDEND_TOTAL) }}</span>
+      <!-- 股东分红:原型保留示例入口(评审 P0 + 原型边界说明);真实上线仅对审核通过的股东展示 -->
+      <button class="li" @click="show('dividend')">
+        <span class="li-ic"><svg class="ic" style="color:var(--accent-ink)"><use href="#i-star"/></svg></span>
+        <span class="li-title">{{ t('benefits.dividend') }}</span><span v-if="!isHolder" class="badge warn">{{ t('demo.tag') }}</span><span v-else class="li-val num gold">{{ USD(DIVIDEND_TOTAL) }}</span>
         <svg class="ic" style="color:var(--muted)"><use href="#i-right"/></svg>
       </button>
     </div>

@@ -2,6 +2,9 @@
 :root{
   --bg:#F7F7F5; --surface:#FFFFFF; --fg:#111111; --muted:#666666;
   --border:#E8E8E8; --accent:#C8A96B; --ok:#16803C; --warn:#B7791F; --danger:#C53030;
+  /* 金色文字专用墨色:白底 4.93:1 / 页面底 4.60:1,通过 WCAG AA(评审 §6.2);
+     --accent 仅用于底色、边框等装饰,不再直接作浅底文字色 */
+  --accent-ink:#8A6C2B;
   --accent-soft:color-mix(in oklch, var(--accent) 18%, transparent);
   --ok-soft:color-mix(in oklch, var(--ok) 12%, transparent);
   --warn-soft:color-mix(in oklch, var(--warn) 14%, transparent);
@@ -41,7 +44,7 @@ a{color:inherit;text-decoration:none}
 .ic.sm{width:16px;height:16px}
 /* ── 底部 Tab ─────────────────────────────────────────────────────────── */
 .tabbar{display:flex;border-top:1px solid var(--border);background:color-mix(in oklch,var(--surface) 90%,transparent);backdrop-filter:blur(14px);padding:6px 6px 8px;flex:none}
-.tab{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;font-size:10px;color:var(--muted);padding:6px 0;min-height:44px;border-radius:12px}
+.tab{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;font-size:11px;color:var(--muted);padding:6px 0;min-height:44px;border-radius:12px}
 .tab.on{color:var(--fg)}
 .tab .ic{width:22px;height:22px}
 .tab-plus{width:46px;height:46px;border-radius:50%;background:var(--fg);color:var(--surface);display:grid;place-items:center;margin:-16px 2px 0;box-shadow:0 8px 20px color-mix(in oklch,var(--fg) 28%,transparent);flex:none}
@@ -81,11 +84,12 @@ a{color:inherit;text-decoration:none}
 .li-val{font-size:13px;color:var(--muted)}
 .meta{font-family:var(--font-mono);font-size:12px;color:var(--muted)}
 .num{font-family:var(--font-mono);font-variant-numeric:tabular-nums}
-.gold{color:var(--accent)}
+/* 金色文字统一走 --accent-ink(白底 AA);--accent 仅作装饰底色 */
+.gold{color:var(--accent-ink)}
 .ok{color:var(--ok)}
 .warn{color:var(--warn)}
 .danger{color:var(--danger)}
-.vfy{display:inline-flex;align-items:center;gap:3px;color:var(--accent);font-weight:600;font-size:11px;white-space:nowrap}
+.vfy{display:inline-flex;align-items:center;gap:3px;color:var(--accent-ink);font-weight:600;font-size:12px;white-space:nowrap}
 .tag{display:inline-flex;align-items:center;padding:3px 8px;border-radius:999px;border:1px solid var(--border);color:var(--muted);font-size:11px}
 .badge{display:inline-flex;align-items:center;gap:4px;padding:3px 8px;border-radius:999px;font-size:11px;font-weight:600}
 .badge.ok{background:var(--ok-soft)}
@@ -106,7 +110,7 @@ a{color:inherit;text-decoration:none}
 .switch.on::after{left:23px}
 .rate{display:flex;gap:4px}
 .rate button{width:40px;height:44px;display:grid;place-items:center;color:var(--border)}
-.rate button.on{color:var(--accent)}
+.rate button.on{color:var(--accent-ink)}
 .kv{display:flex;justify-content:space-between;gap:12px;padding:8px 0;font-size:14px}
 .kv+.kv{border-top:1px solid var(--border)}
 .kv .k{color:var(--muted)}
@@ -125,7 +129,7 @@ a{color:inherit;text-decoration:none}
 .masonry .img-wrap{margin-bottom:10px;break-inside:avoid}
 .tile{position:relative}
 .tile .cap{position:absolute;left:8px;right:8px;bottom:8px;padding:6px 10px;border-radius:10px;background:color-mix(in oklch,var(--fg) 70%,transparent);backdrop-filter:blur(6px);color:var(--surface);font-size:12px;font-weight:600}
-.tile .cap .sub{font-size:10px;font-weight:400;opacity:.85}
+.tile .cap .sub{font-size:11px;font-weight:400;opacity:.85}
 /* ── 会员卡 ───────────────────────────────────────────────────────────── */
 .taso-card{background:linear-gradient(135deg,color-mix(in oklch,var(--accent) 88%,white),var(--accent) 55%,color-mix(in oklch,var(--accent) 78%,var(--fg)));border-radius:20px;padding:20px;color:var(--fg);box-shadow:0 16px 34px color-mix(in oklch,var(--accent) 32%,transparent);min-height:190px;display:flex;flex-direction:column;justify-content:space-between}
 .taso-card .brand{font-family:var(--font-mono);font-weight:700;letter-spacing:.16em;font-size:13px}
@@ -134,7 +138,7 @@ a{color:inherit;text-decoration:none}
 /* ── 权益页分区标题（V1.9）────────────────────────────────────────── */
 .sec-h{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin:18px 2px 8px}
 .sec-h>span{font-size:13px;font-weight:700;letter-spacing:.02em}
-.sec-more{font-size:12px;font-weight:600;color:var(--accent);flex:none}
+.sec-more{font-size:12px;font-weight:600;color:var(--accent-ink);flex:none}
 /* ── 弹层 / Toast / 对话框 ────────────────────────────────────────────── */
 .veil{position:absolute;inset:0;background:color-mix(in oklch,var(--fg) 40%,transparent);z-index:20;opacity:0;pointer-events:none;transition:opacity .2s}
 .veil.on{opacity:1;pointer-events:auto}
@@ -161,12 +165,14 @@ a{color:inherit;text-decoration:none}
 .post-body.lg{margin-top:12px;font-size:16px}
 .post-text{white-space:pre-line;word-break:break-word}
 .post-text.clamp{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:8;overflow:hidden}
-.tr-ln{display:flex;align-items:center;gap:5px;margin-bottom:6px;font-size:12px;color:var(--muted)}
+.tr-ln{display:flex;align-items:center;gap:5px;margin-bottom:6px;font-size:12px;color:var(--muted);flex-wrap:wrap}
 .tr-ln .ic{width:14px;height:14px}
-.tr-link{font-size:12px;font-weight:600;color:var(--accent)}
+.tr-link{font-size:12px;font-weight:600;color:var(--accent-ink)}
 .tr-link:active{opacity:.7}
-/* ── 信息流广告（参考 X：Ad 标签 / 落地页域名归属） ───────────────────── */
-.ad-tag{font-size:13px;color:var(--muted);padding-right:4px}
+.tr-report{font-size:12px;font-weight:500;color:var(--muted);text-decoration:underline;text-underline-offset:2px}
+.tr-report:active{opacity:.7}
+/* ── 信息流广告(参考 X:Ad 标签 / 落地页域名归属;评审 §5.3 要求醒目标识) ── */
+.ad-tag{display:inline-flex;align-items:center;padding:2px 7px;border-radius:6px;border:1px solid var(--border);font-size:11px;font-weight:700;letter-spacing:.04em;color:var(--muted);text-transform:uppercase}
 .ad-from{margin-top:8px;font-size:12px;color:var(--muted)}
 /* ── 好友与消息（V1.2 · PRD §73） ─────────────────────────────────────── */
 .bk{position:relative}
@@ -249,7 +255,7 @@ a{color:inherit;text-decoration:none}
 .ckrow{display:flex;align-items:center;gap:10px;min-height:44px;font-size:14px;text-align:left}
 .ckbox{width:22px;height:22px;border:1.5px solid var(--border);border-radius:7px;background:var(--surface);flex:none;display:grid;place-items:center;transition:.15s}
 .ckbox.on{background:var(--fg);border-color:var(--fg)}
-.edit-btn{font-size:13px;font-weight:600;color:var(--accent);flex:none}
+.edit-btn{font-size:13px;font-weight:600;color:var(--accent-ink);flex:none}
 .ctry-row{display:flex;align-items:center;gap:12px;width:100%;min-height:52px;padding:9px 2px;text-align:left}
 .ctry-row+.ctry-row{border-top:1px solid var(--border)}
 .ctry-row .fl{font-size:22px;flex:none}
@@ -334,6 +340,15 @@ a{color:inherit;text-decoration:none}
 .net-pulse.bep20{background:#F0B90B;color:#3A3200}
 .qr-frame{width:196px;padding:14px;border:1px solid var(--border);border-radius:var(--r-md);background:var(--surface);margin:16px auto 12px}
 .crypto-addr{font-size:12px;word-break:break-all;margin-top:8px;background:var(--fg-soft);border-radius:8px;padding:8px 10px;text-align:center}
+/* ── 评审落地新增组件(2026-09-12)────────────────────────────────────── */
+/* 欢迎页设备建议说明(评审 §1:建议而非预设) */
+.suggest-bar{display:flex;align-items:flex-start;gap:8px;margin-top:14px;padding:10px 12px;border-radius:var(--r-sm);background:var(--accent-soft);font-size:12.5px;line-height:1.6;color:var(--fg)}
+/* 示例数据 / 地区相关披露横幅(评审 P0:金融与奖励页) */
+.demo-bar{display:flex;align-items:flex-start;gap:8px;margin-top:8px;padding:10px 12px;border-radius:var(--r-sm);background:var(--warn-soft);border:1px solid color-mix(in oklch,var(--warn) 30%,transparent);font-size:12.5px;line-height:1.6;color:var(--fg)}
+/* 付款前固定披露(评审 §3.4:Quote) */
+.quote-box{margin-top:10px;padding:10px 14px;border:1px solid var(--border);border-radius:var(--r-md);background:var(--surface)}
+.quote-box .quote-h{display:flex;align-items:center;gap:6px;margin-bottom:4px;font-size:12px;color:var(--muted);font-weight:700}
+.quote-box .kv{font-size:13px}
 /* ── 小屏：手机框全屏化 ───────────────────────────────────────────────── */
 @media(max-width:520px){
   #app{padding:0}

@@ -1,12 +1,21 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { PAY_METHODS, closePicker, pay } from '../pay'
 import { t } from '../i18n'
+import { overlayFocusIn, overlayFocusOut } from '../store'
 
 /**
  * 支付方式选择弹层(卡申请 P04 入口;充值页内联同款结构):
  * 顶部钱包快捷行 + 其余方式单选列表,选择即写回 pay.method(记住上次使用)。
+ * 弹层无障碍(评审 §6.4):关闭态 inert;打开焦点进入,关闭焦点复位。
  */
+const open = computed(() => pay.pickerOpen)
+const root = ref<HTMLElement | null>(null)
+watch(open, v => {
+  if (v) overlayFocusIn(root.value)
+  else overlayFocusOut(root.value)
+})
+
 const methods = computed(() => PAY_METHODS.filter(m => m.available))
 const wallets = computed(() => methods.value.filter(m => m.kind === 'wallet'))
 const others = computed(() => methods.value.filter(m => m.kind !== 'wallet'))
@@ -18,8 +27,14 @@ function pick(id: typeof PAY_METHODS[number]['id']) {
 </script>
 
 <template>
-  <div class="paypick-veil" :class="{ on: pay.pickerOpen }" @click="closePicker">
-    <div class="sheet paypick" :class="{ on: pay.pickerOpen }" role="dialog" @click.stop>
+  <div class="paypick-veil" :class="{ on: open }" @click="closePicker">
+    <div
+      ref="root"
+      class="sheet paypick" :class="{ on: open }"
+      :inert="!open" tabindex="-1"
+      role="dialog" aria-modal="true" :aria-label="t('pay.methodTitle')"
+      @click.stop
+    >
       <div class="grip"></div>
       <b style="font-size:16px">{{ t('pay.methodTitle') }}</b>
 

@@ -23,6 +23,11 @@ function copyLink() {
 <template>
   <section class="scr" :class="{ on: app.screen === 'referral' }" data-screen="referral">
     <PageHeader :title="t('referral.title')" />
+    <!-- 示例收益披露(评审 P0:多级现金奖励须先过市场资格与合规确认;原型为示例数据) -->
+    <div class="demo-bar" role="note">
+      <svg class="ic sm" style="flex:none;margin-top:1px"><use href="#i-alert"/></svg>
+      <span>{{ t('referral.demoBanner') }}</span>
+    </div>
     <div class="row" style="gap:8px;margin-top:8px">
       <div class="card" style="flex:1;padding:12px"><div class="num" style="font-weight:700">128</div><div class="meta">{{ t('referral.invited') }}</div></div>
       <div class="card" style="flex:1;padding:12px"><div class="num" style="font-weight:700">32</div><div class="meta">{{ t('referral.direct') }}</div></div>

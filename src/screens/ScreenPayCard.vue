@@ -4,6 +4,7 @@ import { app, back, toast } from '../store'
 import { pay, cardBrand, cardOk, cardLast4, fmtCardNumber, fmtExp, markPaid } from '../pay'
 import { t } from '../i18n'
 import PageHeader from '../components/PageHeader.vue'
+import QuoteDisclosure from '../components/QuoteDisclosure.vue'
 
 /** 银行卡支付(卡号/有效期/安全码 + 实时格式化与品牌识别;演示态不外发) */
 
@@ -50,6 +51,9 @@ function payNow() {
           <span class="v num" style="font-weight:700">{{ req.totalText }}</span>
         </div>
       </div>
+
+      <!-- 付款前固定披露(评审 §3.4):与发起页同一份 Quote -->
+      <QuoteDisclosure v-if="req.quote" :quote="req.quote" style="margin-top:10px" />
 
       <div class="field" style="margin-top:16px">
         <label>{{ t('pay.card.number') }}</label>

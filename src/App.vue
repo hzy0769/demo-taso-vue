@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
-import { app, ROOTS, show, openSheet, closeSheets, closeDialog, dialogOk, bootstrap } from './store'
+import { computed, onMounted, ref, watch } from 'vue'
+import { app, ROOTS, show, openSheet, closeSheets, closeDialog, dialogOk, bootstrap, overlayFocusIn, overlayFocusOut } from './store'
 import { t, prefs } from './i18n'
+import { pay, walletCancel, closePicker } from './pay'
 import IconSprite from './components/IconSprite.vue'
 import ComposerSheet from './components/ComposerSheet.vue'
 import CommentsSheet from './components/CommentsSheet.vue'
@@ -73,15 +74,34 @@ function tick() {
 
 const isRoot = computed(() => ROOTS.includes(app.screen))
 const veilOn = computed(() => !!app.sheet || !!app.dialog)
+/** 任意弹层打开时背景内容 inert(评审 §6.4:弹层打开后只有其中内容可被聚焦) */
+const overlayOn = computed(() => veilOn.value || pay.pickerOpen || !!pay.wallet)
 
 function veilClick() {
   closeSheets()
   closeDialog()
 }
 
+/** Escape 逐层关闭:对话框 → 钱包支付单 → 支付方式选择 → 内容弹层 */
+function onKeydown(e: KeyboardEvent) {
+  if (e.key !== 'Escape') return
+  if (app.dialog) closeDialog()
+  else if (pay.wallet && pay.wallet.phase === 'review') walletCancel()
+  else if (pay.pickerOpen) closePicker()
+  else if (app.sheet) closeSheets()
+}
+
+/** 对话框焦点管理:打开进入、关闭复位(评审 §6.4) */
+const dialogEl = ref<HTMLElement | null>(null)
+watch(() => app.dialog, on => {
+  if (on) overlayFocusIn(dialogEl.value)
+  else overlayFocusOut(dialogEl.value)
+})
+
 onMounted(() => {
   tick()
   setInterval(tick, 30000)
+  window.addEventListener('keydown', onKeydown)
   bootstrap()
 })
 </script>
@@ -97,7 +117,7 @@ onMounted(() => {
         </span>
       </div>
 
-      <div class="viewport">
+      <div class="viewport" :inert="overlayOn">
         <ScreenSplash />
         <ScreenWelcome />
         <ScreenLogin />
@@ -154,7 +174,7 @@ onMounted(() => {
         <ScreenAuthDelete />
       </div>
 
-      <nav class="tabbar" v-show="isRoot">
+      <nav class="tabbar" v-show="isRoot" :inert="overlayOn">
         <button class="tab" :class="{ on: app.screen === 'home' }" @click="show('home')"><svg class="ic"><use href="#i-home"/></svg>{{ t('nav.home') }}</button>
         <button class="tab" :class="{ on: app.screen === 'discover' }" @click="show('discover')"><svg class="ic"><use href="#i-compass"/></svg>{{ t('nav.discover') }}</button>
         <button class="tab-plus" :aria-label="t('nav.post')" @click="openSheet('composer')"><svg class="ic"><use href="#i-plus"/></svg></button>
@@ -172,7 +192,13 @@ onMounted(() => {
       <PaymentPickerSheet />
       <WalletPaySheet />
 
-      <div class="dialog" :class="{ on: !!app.dialog }" role="alertdialog">
+      <div
+        ref="dialogEl"
+        class="dialog" :class="{ on: !!app.dialog }"
+        :inert="!app.dialog"
+        role="alertdialog" aria-modal="true" :aria-label="app.dialog?.title ?? t('common.ok')"
+        tabindex="-1"
+      >
         <b style="font-size:16px">{{ app.dialog?.title }}</b>
         <p style="color:var(--muted);font-size:14px;margin-top:8px;white-space:pre-line">{{ app.dialog?.text }}</p>
         <div class="row" style="margin-top:18px;gap:10px">

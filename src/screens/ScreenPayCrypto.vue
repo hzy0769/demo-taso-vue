@@ -5,6 +5,7 @@ import { pay, CRYPTO_NETS, chooseCryptoNet, cryptoAddress, cryptoSent, finishCry
 import { prefs, t } from '../i18n'
 import PageHeader from '../components/PageHeader.vue'
 import PseudoQr from '../components/PseudoQr.vue'
+import QuoteDisclosure from '../components/QuoteDisclosure.vue'
 
 /**
  * USDT / USDC 支付(Kraken / Crypto.com 入金模式):
@@ -93,6 +94,9 @@ function doneFlow() {
             <svg class="ic sm"><use href="#i-copy"/></svg>{{ t('pay.crypto.copy') }}
           </button>
         </div>
+
+        <!-- 付款前固定披露(评审 §3.4):网络费、到账与退款规则与发起页同源 -->
+        <QuoteDisclosure v-if="req.quote" :quote="req.quote" style="margin-top:10px" />
 
         <div class="alertbar" style="margin-top:14px">
           <svg class="ic sm" style="margin-top:2px"><use href="#i-alert"/></svg>

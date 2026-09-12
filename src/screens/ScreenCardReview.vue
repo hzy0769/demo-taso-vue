@@ -2,10 +2,11 @@
 import { computed, ref } from 'vue'
 import { app, show, toast } from '../store'
 import { CARD_FEE_HKD, card, etaRange, etaText, methodOf, methodName, phoneText, submitOrder, addrLines } from '../card'
-import { t, FX_RATES } from '../i18n'
-import { fmtMoney } from '../i18n/format'
-import { pay, payMethodName, startCard, startCrypto, startWallet, openPicker, lastPaidText, type PayRequest } from '../pay'
+import { t, FX_RATES, FX_UPDATED_AT } from '../i18n'
+import { fmtMoney, fmtDate } from '../i18n/format'
+import { pay, payMethodName, startCard, startCrypto, startWallet, openPicker, lastPaidText, type PayRequest, type Quote } from '../pay'
 import PageHeader from '../components/PageHeader.vue'
+import QuoteDisclosure from '../components/QuoteDisclosure.vue'
 
 /**
  * P04 确认申请(全球配送 PRD §12 + V2.3 支付):
@@ -28,6 +29,27 @@ const submitting = ref(false)
 /** 加密支付所需 USD 金额:办理费按演示汇率折算 + 运费(估算,§9.1) */
 const totalUSD = computed(() => CARD_FEE_HKD / FX_RATES.HKD + method.value.fee)
 
+const isCryptoSel = computed(() => pay.method === 'usdt' || pay.method === 'usdc')
+const cryptoAsset = computed(() => (pay.method === 'usdt' ? 'USDT' : 'USDC'))
+
+/** 付款前披露(评审 §3.4):办理费以 HKD 计价,非 HKD 方式附演示汇率与时点 */
+const quote = computed<Quote>(() => ({
+  priceCurrency: 'HKD',
+  chargeCurrency: isCryptoSel.value ? cryptoAsset.value : 'HKD',
+  fxNote: isCryptoSel.value
+    ? t('quote.fxNote', { rate: (1 / FX_RATES.HKD).toFixed(4), time: fmtDate(FX_UPDATED_AT) })
+    : t('quote.fxNone'),
+  platformFee: { label: t('card.review.cardFee'), money: hkdFee.value },
+  networkFee: isCryptoSel.value
+    ? { label: t('quote.networkFee'), money: t('quote.borneBySender') }
+    : undefined,
+  tax: { label: t('quote.tax'), money: t('quote.taxIncluded') },
+  arrival: { label: t('quote.arrivalCard'), money: `${methodName(method.value)} · ${eta.value}` },
+  refund: t('quote.refundCard'),
+  payee: t('quote.payee'),
+  support: t('quote.support'),
+}))
+
 function buildRequest(): PayRequest {
   const isCrypto = pay.method === 'usdt' || pay.method === 'usdc'
   return {
@@ -38,6 +60,7 @@ function buildRequest(): PayRequest {
     ],
     totalText: isCrypto ? fmtMoney({ amount: totalUSD.value, currency: 'USD' }) : total.value,
     amountUSD: totalUSD.value,
+    quote: quote.value,
     onSuccess: () => {
       submitting.value = true
       setTimeout(() => {
@@ -103,6 +126,9 @@ function payAndSubmit() {
       <div class="kv"><span class="k">{{ t('card.review.shippingFee') }}</span><span class="v num">{{ feeText(method.fee) }}</span></div>
       <div class="kv"><span class="k" style="font-weight:600;color:var(--fg)">{{ t('card.review.total') }}</span><span class="v num" style="font-weight:700">{{ total }}</span></div>
     </div>
+
+    <!-- 付款前固定披露(评审 §3.4):随所选支付方式更新 -->
+    <QuoteDisclosure :quote="quote" style="margin-top:10px" />
 
     <!-- 支付方式 -->
     <div class="card" style="margin-top:12px">

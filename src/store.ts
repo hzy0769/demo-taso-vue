@@ -337,6 +337,32 @@ export function dialogOk() {
   req?.onOk?.()
 }
 
+/* ── 弹层无障碍(评审 §6.4:焦点进入弹层、关闭后返回触发控件)────────── */
+
+let overlayReturnFocus: HTMLElement | null = null
+
+/** 弹层打开:记录触发控件,并把焦点移入弹层内第一个可聚焦元素 */
+export function overlayFocusIn(root: HTMLElement | null) {
+  overlayReturnFocus = document.activeElement instanceof HTMLElement ? document.activeElement : null
+  void nextTick(() => {
+    if (!document.contains(root)) return
+    const target = root?.querySelector<HTMLElement>(
+      'button:not([disabled]), [href], input:not([disabled]), select, textarea, [tabindex]:not([tabindex="-1"])',
+    )
+    ;(target ?? root)?.focus()
+  })
+}
+
+/** 弹层关闭:焦点复位到触发控件(须等背景 inert 移除后再聚焦,否则会被吞掉) */
+export function overlayFocusOut(root?: HTMLElement | null) {
+  const el = overlayReturnFocus
+  overlayReturnFocus = null
+  void nextTick(() => {
+    if (el && document.contains(el)) el.focus()
+    else root?.focus?.()
+  })
+}
+
 /** 启动逻辑:已登录恢复上次屏幕;回头客(已登出)直接进登录页;新用户进欢迎页 */
 export function bootstrap() {
   if (app.auth.user?.session) {
@@ -650,16 +676,12 @@ export function logout() {
   toast(t('settings.loggedOut'))
 }
 
-/** 演示:点击「我的」页账号级别标记,在股东 / 会员间切换(真实环境股东由后台审核开通) */
-export function toggleRole() {
-  const user = app.auth.user
-  if (!user) {
-    toast(t('me.needLogin'))
-    return
-  }
-  user.role = user.role === 'shareholder' ? 'member' : 'shareholder'
-  persistAuth()
-  toast(t(user.role === 'shareholder' ? 'me.switchedHolder' : 'me.switchedMember'))
+/**
+ * 股东资格说明(评审 §3.5:股东身份不可由资料页交互切换,仅后台审核 + 合法披露后展示)。
+ * 原型保留入口与示例数据,点击标记只展示审核状态示例,不变更账号级别。
+ */
+export function showRoleStatus() {
+  showDialog(t('me.roleStatusTitle'), t('me.roleStatusBody'))
 }
 
 /** 删除账号(AUTH-016/017):清空全部本地状态与偏好,回到首次启动 */

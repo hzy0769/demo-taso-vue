@@ -1,12 +1,13 @@
 <script setup lang="ts">
+import { computed } from 'vue'
 import { app, show, syncAccountPrefs } from '../store'
-import { t, prefs, UI_LANGS, regionName } from '../i18n'
+import { t, prefs, UI_LANGS, regionName, uiLocaleLabel, suggestTimeZone } from '../i18n'
 import ToggleSwitch from '../components/ToggleSwitch.vue'
 
 /**
- * 歡迎頁(§4.3):首屏直接以繁體中文(香港)呈現,不阻塞註冊;
- * 提供緊湊的三項設定;跳過 = 沿用默認值。
- * 翻譯內容跟隨 App 語言，所有語言內容皆可進入推薦候選。
+ * 欢迎页(评审 §1):首启以「设备语言 + 时区」给出可见但可跳过的建议,
+ * 不预设任何市场;用户可修改,跳过 = 沿用建议值(来源标记 default)。
+ * 翻译内容跟随 App 语言,所有语言内容皆可进入推荐候选。
  */
 function setUiLocale(code: string) {
   prefs.uiLocale = code
@@ -25,6 +26,13 @@ function commit() {
   syncAccountPrefs()
   show('login')
 }
+
+/** 建议说明:告知当前值来自设备信号且可随时更改,不是定位结果 */
+const suggested = computed(() => t('welcome.suggestHint', {
+  lang: uiLocaleLabel(prefs.uiLocale),
+  region: regionName(prefs.contentRegion),
+  tz: suggestTimeZone(),
+}))
 </script>
 
 <template>
@@ -35,7 +43,13 @@ function commit() {
     <h1 style="font-size:26px;font-weight:700;letter-spacing:-.02em;line-height:1.3">Welcome to Taso<br /><span class="gold">{{ t('welcome.title') }}</span></h1>
     <p class="meta" style="margin-top:6px">{{ t('welcome.sub') }}</p>
 
-    <div class="card" style="margin-top:24px;padding:14px">
+    <!-- 设备建议说明(评审 §1:建议而非预设;未使用定位权限) -->
+    <div class="suggest-bar" role="note">
+      <svg class="ic sm" style="flex:none;margin-top:1px"><use href="#i-globe"/></svg>
+      <span>{{ suggested }}</span>
+    </div>
+
+    <div class="card" style="margin-top:14px;padding:14px">
       <div class="row-b" style="margin-bottom:4px">
         <b style="font-size:14px">{{ t('welcome.langRegion') }}</b>
       </div>

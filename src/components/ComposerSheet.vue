@@ -1,9 +1,17 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
-import { app, closeSheets, toast } from '../store'
+import { computed, ref, watch } from 'vue'
+import { app, closeSheets, toast, overlayFocusIn, overlayFocusOut } from '../store'
 import { t, prefs } from '../i18n'
 import { fmtMoney, fmtDateTime } from '../i18n/format'
 import ToggleSwitch from './ToggleSwitch.vue'
+
+const open = computed(() => app.sheet === 'composer')
+/** 弹层无障碍(评审 §6.4):关闭态 inert 不可聚焦;打开焦点进入,关闭焦点复位 */
+const root = ref<HTMLElement | null>(null)
+watch(open, v => {
+  if (v) overlayFocusIn(root.value)
+  else overlayFocusOut(root.value)
+})
 
 const ctab = ref<'text' | 'video' | 'checkin'>('text')
 const tabs = computed(() => ([
@@ -54,7 +62,12 @@ function publish() {
 </script>
 
 <template>
-  <div class="sheet" :class="{ on: app.sheet === 'composer' }" role="dialog" :aria-label="t('composer.title')">
+  <div
+    ref="root"
+    class="sheet" :class="{ on: open }"
+    :inert="!open" tabindex="-1"
+    role="dialog" aria-modal="true" :aria-label="t('composer.title')"
+  >
     <div class="grip"></div>
     <div class="row-b">
       <b style="font-size:17px">{{ t('composer.title') }}</b>

@@ -49,6 +49,11 @@ const pct = (r: number) => new Intl.NumberFormat('en', { style: 'percent', minim
 <template>
   <section class="scr" :class="{ on: app.screen === 'dividend' }" data-screen="dividend">
     <PageHeader :title="t('dividend.title')" />
+    <!-- 示例数据披露(评审 P0:非真实投资邀约;资格、披露与预计值须与历史区分) -->
+    <div class="demo-bar" role="note">
+      <svg class="ic sm" style="flex:none;margin-top:1px"><use href="#i-alert"/></svg>
+      <span>{{ t('dividend.demoBanner') }}</span>
+    </div>
     <div class="taso-card" style="margin-top:8px;min-height:0">
       <div>
         <div class="row-b">

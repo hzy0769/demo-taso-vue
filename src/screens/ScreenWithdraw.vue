@@ -49,6 +49,11 @@ function confirm() {
 <template>
   <section class="scr" :class="{ on: app.screen === 'withdraw' }" data-screen="withdraw">
     <PageHeader :title="t('withdraw.title')" />
+    <!-- 能力矩阵示例(评审 §3.2:提现渠道按账户地区/KYC 开放;原型全量展示) -->
+    <div class="demo-bar" role="note">
+      <svg class="ic sm" style="flex:none;margin-top:1px"><use href="#i-alert"/></svg>
+      <span>{{ t('withdraw.demoBanner') }}</span>
+    </div>
     <div class="card" style="margin-top:8px">
       <div class="row-b">
         <div>

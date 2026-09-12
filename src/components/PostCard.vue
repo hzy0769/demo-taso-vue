@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
-import { show, toast, openSheet, openPost, openPostMore } from '../store'
+import { show, showDialog, toast, openSheet, openPost, openPostMore } from '../store'
 import { t, prefs } from '../i18n'
 import { fmtMoney, fmtMoneyEstimate, compact } from '../i18n/format'
 import { postMeta } from '../i18n/content'
@@ -11,6 +11,11 @@ const props = defineProps<{ post: Post }>()
 
 const liked = ref(false)
 const saved = ref(false)
+
+/** 已核销消费:可点开说明页(评审 §5.3:解释验证含义,不只放标记) */
+function explainVerified() {
+  showDialog(t('verify.vpTitle'), t('verify.vpBody'), undefined, t('common.gotIt'))
+}
 
 /** 商家价格:原币种始终可见;展示货币不同且可换算时附估算辅信息(§9.1) */
 const priceText = computed(() => (props.post.merchant ? t('money.perPerson', { price: fmtMoney(props.post.merchant.price) }) : ''))
@@ -37,13 +42,18 @@ function toggleBookmark() {
         <div>
           <div class="row" style="gap:5px">
             <b style="font-size:14px">{{ post.author }}</b>
-            <span class="vfy"><svg class="ic sm f"><use href="#i-check"/></svg>{{ t(`verify.${post.verifyKey}`) }}</span>
+            <button
+              v-if="post.verifyKey === 'verifiedPurchase'"
+              class="vfy" style="border:0;background:none;padding:0"
+              :aria-label="t('verify.vpTitle')" @click.stop="explainVerified"
+            ><svg class="ic sm f"><use href="#i-check"/></svg>{{ t(`verify.${post.verifyKey}`) }}</button>
+            <span v-else class="vfy"><svg class="ic sm f"><use href="#i-check"/></svg>{{ t(`verify.${post.verifyKey}`) }}</span>
           </div>
           <span class="meta">{{ postMeta(post) }}</span>
         </div>
       </div>
       <div class="row" style="gap:4px">
-        <span v-if="post.ad" class="ad-tag">Ad</span>
+        <span v-if="post.ad" class="ad-tag">{{ t('post.adTag') }}</span>
         <button class="bk" :aria-label="t('a11y.more')" @click.stop="openPostMore(post)"><svg class="ic"><use href="#i-more"/></svg></button>
       </div>
     </div>
