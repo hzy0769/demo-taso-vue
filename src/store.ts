@@ -1,6 +1,7 @@
 import { nextTick, reactive } from 'vue'
 import { foryouSeed, followingPosts, MEMBERS, REPLIES, GENERIC_REPLIES, SOCIAL_SEED, type Post, type Social } from './data'
 import { resetCard } from './card'
+import { resetPay } from './pay'
 import { t, prefs, snapshotPrefs, applyAccountPrefs, resetPrefs, type LocalizationPreferences } from './i18n'
 
 export type ScreenId =
@@ -9,7 +10,7 @@ export type ScreenId =
   | 'home' | 'post' | 'profile' | 'discover' | 'search'
   | 'merchant' | 'place'
   | 'benefits' | 'card-apply' | 'card-address' | 'card-country' | 'card-shipping' | 'card-review' | 'card-success' | 'card-tracking'
-  | 'my-card' | 'card-detail' | 'topup' | 'wallet' | 'dividend'
+  | 'my-card' | 'card-detail' | 'topup' | 'pay-card' | 'pay-crypto' | 'wallet' | 'dividend'
   | 'transactions' | 'wallet-transactions' | 'reimburse' | 'reimburse-detail' | 'withdraw'
   | 'referral' | 'referral-rules' | 'creator'
   | 'me' | 'settings' | 'language' | 'content-region' | 'security' | 'kyc' | 'notifications'
@@ -25,8 +26,8 @@ const ONBOARDING: ScreenId[] = [
   'auth-oauth', 'auth-entry', 'auth-otp', 'auth-error', 'auth-nickname',
 ]
 
-/** 另外不可恢复的屏幕:chat 依赖内存中的 chatWith,重启后回退首页 */
-const NO_RESTORE: ScreenId[] = [...ONBOARDING, 'chat']
+/** 另外不可恢复的屏幕:chat 依赖内存中的 chatWith;支付屏依赖内存中的支付上下文 */
+const NO_RESTORE: ScreenId[] = [...ONBOARDING, 'chat', 'pay-card', 'pay-crypto']
 
 interface DialogReq {
   title: string
@@ -663,7 +664,7 @@ export function toggleRole() {
 
 /** 删除账号(AUTH-016/017):清空全部本地状态与偏好,回到首次启动 */
 export function deleteAccount() {
-  for (const k of ['taso-auth', 'taso-visited', 'taso-screen', 'taso-social', 'taso-bal', 'taso-wd', 'taso-follows', 'taso-card', 'taso-locale']) {
+  for (const k of ['taso-auth', 'taso-visited', 'taso-screen', 'taso-social', 'taso-bal', 'taso-wd', 'taso-follows', 'taso-card', 'taso-locale', 'taso-pay']) {
     localStorage.removeItem(k)
   }
   app.auth.user = null
@@ -674,6 +675,7 @@ export function deleteAccount() {
   app.follows = []
   app.morePost = null
   resetCard()
+  resetPay()
   resetPrefs()
   app.social = JSON.parse(JSON.stringify(SOCIAL_SEED))
   app.stack = ['splash']

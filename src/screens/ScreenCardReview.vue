@@ -2,36 +2,64 @@
 import { computed, ref } from 'vue'
 import { app, show, toast } from '../store'
 import { CARD_FEE_HKD, card, etaRange, etaText, methodOf, methodName, phoneText, submitOrder, addrLines } from '../card'
-import { t } from '../i18n'
+import { t, FX_RATES } from '../i18n'
 import { fmtMoney } from '../i18n/format'
+import { pay, payMethodName, startCard, startCrypto, startWallet, openPicker, lastPaidText, type PayRequest } from '../pay'
 import PageHeader from '../components/PageHeader.vue'
 
-/** P04 确认申请(全球配送 PRD §12):汇总卡片 / 地址 / 配送方式 / 费用 + 地址确认勾选 */
+/**
+ * P04 确认申请(全球配送 PRD §12 + V2.3 支付):
+ * 汇总卡片 / 地址 / 配送方式 / 费用 + 地址确认勾选 + 支付方式选择;
+ * 支付成功后才生成申请单(P05)。加密方式按估算汇率折算 USD 支付。
+ */
 
 const lines = computed(() => addrLines(card.draft))
 const method = computed(() => methodOf(card.method))
 const eta = computed(() => { const [a, b] = etaRange(method.value.days); return etaText(a, b) })
 const feeText = (fee: number) => (fee ? fmtMoney({ amount: fee, currency: 'USD' }) : t('common.free'))
 const hkdFee = computed(() => fmtMoney({ amount: CARD_FEE_HKD, currency: 'HKD' }))
+const usdShip = computed(() => fmtMoney({ amount: method.value.fee, currency: 'USD' }))
 const total = computed(() =>
-  method.value.fee ? t('card.ship.totalSplit', { a: hkdFee.value, b: fmtMoney({ amount: method.value.fee, currency: 'USD' }) }) : hkdFee.value)
+  method.value.fee ? t('card.ship.totalSplit', { a: hkdFee.value, b: usdShip.value }) : hkdFee.value)
 
 const confirmed = ref(false)
 const submitting = ref(false)
 
-function submit() {
+/** 加密支付所需 USD 金额:办理费按演示汇率折算 + 运费(估算,§9.1) */
+const totalUSD = computed(() => CARD_FEE_HKD / FX_RATES.HKD + method.value.fee)
+
+function buildRequest(): PayRequest {
+  const isCrypto = pay.method === 'usdt' || pay.method === 'usdc'
+  return {
+    purpose: 'card',
+    lines: [
+      { label: t('card.review.cardFee'), money: hkdFee.value },
+      ...(method.value.fee ? [{ label: t('card.review.shippingFee'), money: usdShip.value }] : []),
+    ],
+    totalText: isCrypto ? fmtMoney({ amount: totalUSD.value, currency: 'USD' }) : total.value,
+    amountUSD: totalUSD.value,
+    onSuccess: () => {
+      submitting.value = true
+      setTimeout(() => {
+        submitOrder(lastPaidText())
+        submitting.value = false
+        show('card-success')
+      }, 600)
+    },
+  }
+}
+
+function payAndSubmit() {
   if (!confirmed.value) {
     toast(t('card.review.confirmFirst'))
     return
   }
   if (submitting.value) return
-  submitting.value = true
-  // 演示态:模拟提交/支付请求(§31 提交按钮需有明确 Loading 状态)
-  setTimeout(() => {
-    submitOrder()
-    submitting.value = false
-    show('card-success')
-  }, 900)
+  const m = pay.method
+  const req = buildRequest()
+  if (m === 'apple-pay' || m === 'google-pay') startWallet(m, req)
+  else if (m === 'card') { startCard(req); show('pay-card') }
+  else { startCrypto(m as 'usdt' | 'usdc', req); show('pay-crypto') }
 }
 </script>
 
@@ -76,6 +104,26 @@ function submit() {
       <div class="kv"><span class="k" style="font-weight:600;color:var(--fg)">{{ t('card.review.total') }}</span><span class="v num" style="font-weight:700">{{ total }}</span></div>
     </div>
 
+    <!-- 支付方式 -->
+    <div class="card" style="margin-top:12px">
+      <div class="row-b">
+        <span class="meta">{{ t('card.review.payment') }}</span>
+        <button class="edit-btn" @click="openPicker()">{{ t('common.change') }}</button>
+      </div>
+      <div class="row" style="gap:12px;margin-top:8px">
+        <span class="pm-ic" :class="pay.method">
+          <svg v-if="pay.method === 'card'" class="ic"><use href="#i-card"/></svg>
+          <svg v-else-if="pay.method === 'usdt'" class="pm-logo" viewBox="0 0 24 24"><use href="#pm-usdt"/></svg>
+          <svg v-else-if="pay.method === 'usdc'" class="pm-logo" viewBox="0 0 24 24"><use href="#pm-usdc"/></svg>
+          <svg v-else class="pm-logo" viewBox="0 0 24 24"><use :href="pay.method === 'apple-pay' ? '#logo-apple' : '#logo-google'"/></svg>
+        </span>
+        <b style="flex:1;font-size:14px">{{ payMethodName(pay.method) }}</b>
+      </div>
+      <p v-if="pay.method === 'usdt' || pay.method === 'usdc'" class="meta" style="margin-top:6px">
+        {{ t('pay.crypto.cardEstimate', { amount: fmtMoney({ amount: totalUSD, currency: 'USD' }) }) }}
+      </p>
+    </div>
+
     <button class="ckrow" style="margin-top:16px" @click="confirmed = !confirmed">
       <span class="ckbox" :class="{ on: confirmed }">
         <svg v-if="confirmed" class="ic sm" style="color:var(--surface)"><use href="#i-check"/></svg>
@@ -83,10 +131,17 @@ function submit() {
       <span>{{ t('card.review.confirmAddr') }}</span>
     </button>
 
-    <button class="btn btn-gold" style="margin-top:18px" :disabled="!confirmed || submitting" @click="submit">
-      <span v-if="submitting" class="spin"></span>
-      {{ submitting ? t('card.review.submitting') : t('card.review.submit') }}
-    </button>
     <p class="meta" style="margin-top:12px">{{ t('card.review.note') }}</p>
+
+    <div class="paybar">
+      <span class="paybar-total">
+        <span class="meta">{{ t('card.review.total') }}</span>
+        <b class="num">{{ total }}</b>
+      </span>
+      <button class="btn btn-gold paybar-btn" :disabled="!confirmed || submitting" @click="payAndSubmit">
+        <span v-if="submitting" class="spin"></span>
+        {{ submitting ? t('card.review.submitting') : t('card.review.payAndSubmit') }}
+      </button>
+    </div>
   </section>
 </template>

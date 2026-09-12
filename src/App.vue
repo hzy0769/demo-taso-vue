@@ -7,6 +7,8 @@ import ComposerSheet from './components/ComposerSheet.vue'
 import CommentsSheet from './components/CommentsSheet.vue'
 import AddFriendSheet from './components/AddFriendSheet.vue'
 import PostMoreSheet from './components/PostMoreSheet.vue'
+import PaymentPickerSheet from './components/PaymentPickerSheet.vue'
+import WalletPaySheet from './components/WalletPaySheet.vue'
 
 import ScreenSplash from './screens/ScreenSplash.vue'
 import ScreenWelcome from './screens/ScreenWelcome.vue'
@@ -35,6 +37,8 @@ import ScreenCardSuccess from './screens/ScreenCardSuccess.vue'
 import ScreenCardTracking from './screens/ScreenCardTracking.vue'
 import ScreenCardDetail from './screens/ScreenCardDetail.vue'
 import ScreenTopup from './screens/ScreenTopup.vue'
+import ScreenPayCard from './screens/ScreenPayCard.vue'
+import ScreenPayCrypto from './screens/ScreenPayCrypto.vue'
 import ScreenWallet from './screens/ScreenWallet.vue'
 import ScreenDividend from './screens/ScreenDividend.vue'
 import ScreenTransactions from './screens/ScreenTransactions.vue'
@@ -121,6 +125,8 @@ onMounted(() => {
         <ScreenCardTracking />
         <ScreenCardDetail />
         <ScreenTopup />
+        <ScreenPayCard />
+        <ScreenPayCrypto />
         <ScreenWallet />
         <ScreenDividend />
         <ScreenTransactions />
@@ -162,6 +168,9 @@ onMounted(() => {
       <CommentsSheet />
       <AddFriendSheet />
       <PostMoreSheet />
+
+      <PaymentPickerSheet />
+      <WalletPaySheet />
 
       <div class="dialog" :class="{ on: !!app.dialog }" role="alertdialog">
         <b style="font-size:16px">{{ app.dialog?.title }}</b>

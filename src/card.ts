@@ -215,6 +215,8 @@ export interface CardOrder {
   etaTo: string
   carrier: string
   trackingNo: string
+  /** 支付完成时的支付方式展示文本(V2.3:申请费经 Apple Pay / Google Pay / 银行卡 / USDT / USDC 支付) */
+  paidVia?: string
 }
 
 interface CardState {
@@ -335,8 +337,8 @@ export const isoLocalDateOf = (base: string, offsetDays: number) => {
   return d.toISOString().slice(0, 10)
 }
 
-/** 提交申請(P04 → P05):生成申請單並快照地址;保存默認地址按勾選生效(§16) */
-export function submitOrder(): CardOrder {
+/** 提交申請(P04 → P05):生成申請單並快照地址與支付方式;保存默認地址按勾選生效(§16) */
+export function submitOrder(paidVia?: string): CardOrder {
   const m = methodOf(card.method)
   const [etaFrom, etaTo] = etaRange(m.days)
   const date = new Date().toISOString().slice(0, 10)
@@ -351,6 +353,7 @@ export function submitOrder(): CardOrder {
     etaTo,
     carrier: 'Taso Express',
     trackingNo: `TR${Math.floor(1e8 + Math.random() * 9e8)}${card.draft.countryCode}`,
+    paidVia,
   }
   return card.order
 }

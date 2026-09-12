@@ -255,6 +255,85 @@ a{color:inherit;text-decoration:none}
 .ctry-row .fl{font-size:22px;flex:none}
 .ctry-row .nm{flex:1;min-width:0;font-size:15px;font-weight:500}
 .ctry-row .nm .en{display:block;font-size:12px;color:var(--muted);font-weight:400}
+/* ── 支付（V2.3 · Stripe Express Checkout / Apple Pay HIG / Google Pay 品牌规范 / Kraken 入金流）──
+   品牌标准色与 IconSprite 中的品牌标志同级例外，不走设计令牌 */
+.amt-box{margin-top:12px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r-md);padding:14px}
+.amt-row{display:flex;align-items:baseline;gap:8px;margin-top:6px}
+.amt-cur{font-family:var(--font-mono);font-size:15px;color:var(--muted)}
+.amt-input{flex:1;min-width:0;border:0;background:transparent;font-family:var(--font-mono);font-variant-numeric:tabular-nums;font-size:28px;font-weight:700;padding:0}
+.amt-input:focus{outline:none}
+.wrow{display:flex;gap:8px;margin-top:10px}
+.wrow.single .wbtn{flex:1}
+.wbtn{position:relative;flex:1;display:flex;align-items:center;justify-content:center;gap:5px;min-height:48px;border-radius:var(--r-sm);background:var(--fg);color:var(--surface);font-size:16px;font-weight:600;letter-spacing:.01em;transition:transform .05s ease}
+.wbtn:active{transform:translateY(1px)}
+.wbtn.on{outline:2px solid var(--fg);outline-offset:2px}
+.wbtn-mark{width:20px;height:20px;flex:none}
+.wbtn .on-ic{position:absolute;right:10px;color:var(--surface)}
+.paydiv{display:flex;align-items:center;gap:12px;margin:16px 0 2px;color:var(--muted);font-size:12px}
+.paydiv::before,.paydiv::after{content:'';flex:1;height:1px;background:var(--border)}
+.pm-row{display:flex;align-items:center;gap:12px;width:100%;min-height:60px;padding:10px 12px;margin-top:8px;border:1.5px solid var(--border);border-radius:var(--r-md);background:var(--surface);text-align:left;transition:border-color .15s ease,background .15s ease}
+.pm-row:hover{border-color:var(--fg)}
+.pm-row.on{border-color:var(--fg);background:color-mix(in oklch,var(--fg) 3%,var(--surface))}
+.pm-ic{width:36px;height:36px;border-radius:10px;display:grid;place-items:center;background:var(--fg-soft);flex:none}
+.pm-ic.sm{width:28px;height:28px;border-radius:8px}
+.pm-ic .pm-logo{width:22px;height:22px}
+.pm-ic.sm .pm-logo{width:18px;height:18px}
+.pm-name{display:block;font-size:15px;font-weight:600}
+.pm-sub{display:block;font-size:12px;color:var(--muted);margin-top:1px}
+.ckdot{width:20px;height:20px;border-radius:50%;border:1.5px solid var(--border);flex:none;position:relative;transition:border-color .15s}
+.ckdot.on{border-color:var(--fg)}
+.ckdot.on::after{content:'';position:absolute;inset:4px;border-radius:50%;background:var(--fg)}
+.paybar{position:sticky;bottom:0;z-index:5;display:flex;align-items:center;gap:10px;margin:24px -16px -16px;padding:12px 16px 14px;background:color-mix(in oklch,var(--bg) 92%,transparent);backdrop-filter:blur(12px);border-top:1px solid var(--border)}
+.paybar-mth{flex:1;display:flex;align-items:center;gap:10px;min-height:44px;min-width:0;text-align:left}
+.paybar-mth-t{display:flex;flex-direction:column;align-items:flex-start;gap:1px;min-width:0}
+.paybar-mth-t b{font-size:15px}
+.paybar-mth-t span{font-size:12px;color:var(--muted);max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.paybar-btn{flex:none;min-width:132px;width:auto}
+.paybar-total{display:flex;flex-direction:column;gap:1px;flex:1;min-width:0}
+.paybar-total b{font-size:15px;line-height:1.25}
+/* 钱包支付单（系统 PKPaymentSheet / Google Pay 支付单模拟） */
+.wps-veil{position:absolute;inset:0;z-index:44;background:color-mix(in oklch,var(--fg) 45%,transparent);display:flex;align-items:flex-end}
+.wps{width:100%;background:var(--surface);border-radius:20px 20px 0 0;padding:18px 16px 26px;box-shadow:0 -18px 50px color-mix(in oklch,var(--fg) 25%,transparent);animation:sheetup .28s cubic-bezier(.32,.72,.28,1)}
+@keyframes sheetup{from{transform:translateY(40%);opacity:.4}to{transform:none;opacity:1}}
+.wps-brand{display:flex;align-items:center;justify-content:center;gap:4px;font-size:20px;font-weight:600;letter-spacing:.01em;padding:2px 0 10px}
+.wps-mark{width:22px;height:22px}
+.wps-body{border-top:1px solid var(--border)}
+.wps-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 2px;font-size:14px}
+.wps-row+.wps-row{border-top:1px solid var(--border)}
+.wps-k{color:var(--muted)}
+.wps-total b{font-size:16px}
+.wps-chip{display:inline-flex;align-items:center;padding:3px 8px;border-radius:999px;background:var(--fg);color:var(--surface);font-size:11px;font-weight:600}
+.wps-confirm{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;min-height:50px;margin-top:14px;border-radius:999px;background:var(--fg);color:var(--surface);font-size:15px;font-weight:600;transition:transform .05s ease}
+.wps-confirm:active{transform:translateY(1px)}
+.wps-cancel{width:100%;margin-top:10px;min-height:44px;font-size:15px;font-weight:600;color:var(--muted)}
+.wps-state{display:flex;flex-direction:column;align-items:center;gap:10px;padding:18px 0 6px}
+.wps-ok{width:64px;height:64px;border-radius:50%;background:var(--ok-soft);display:grid;place-items:center;animation:pop .3s cubic-bezier(.32,.72,.28,1)}
+@keyframes pop{from{transform:scale(.6);opacity:0}to{transform:none;opacity:1}}
+/* 支付方式选择弹层 */
+.paypick-veil{position:absolute;inset:0;z-index:42;background:color-mix(in oklch,var(--fg) 40%,transparent);opacity:0;pointer-events:none;transition:opacity .2s}
+.paypick-veil.on{opacity:1;pointer-events:auto}
+.paypick .wrow{margin-top:12px}
+.paypick .pm-row{margin-top:0}
+.paypick .pm-row+.pm-row{margin-top:0;border-top:0}
+.paypick .pm-list{border:1px solid var(--border);border-radius:var(--r-md);overflow:hidden;margin-top:10px}
+/* 银行卡表单 */
+.cardnum-wrap{position:relative}
+.cardbrand{position:absolute;right:12px;top:50%;transform:translateY(-50%);font-size:12px;font-weight:700;font-style:italic;font-family:var(--font-mono);pointer-events:none}
+.cardbrand.visa{color:#1A1F71}
+.cardbrand.mastercard{color:#EB001B}
+.cardbrand.amex{color:#006FCF}
+/* 加密支付 */
+.net-chip{display:inline-flex;align-items:center;padding:2px 7px;border-radius:6px;font-family:var(--font-mono);font-size:11px;font-weight:700;color:#FFFFFF}
+.net-chip.trc20{background:#E84142}
+.net-chip.erc20{background:#627EEA}
+.net-chip.bep20{background:#F0B90B;color:#3A3200}
+.net-pulse{width:64px;height:64px;border-radius:50%;display:grid;place-items:center;color:#FFFFFF}
+.net-pulse .ic{animation:rot 1.4s linear infinite}
+.net-pulse.trc20{background:#E84142}
+.net-pulse.erc20{background:#627EEA}
+.net-pulse.bep20{background:#F0B90B;color:#3A3200}
+.qr-frame{width:196px;padding:14px;border:1px solid var(--border);border-radius:var(--r-md);background:var(--surface);margin:16px auto 12px}
+.crypto-addr{font-size:12px;word-break:break-all;margin-top:8px;background:var(--fg-soft);border-radius:8px;padding:8px 10px;text-align:center}
 /* ── 小屏：手机框全屏化 ───────────────────────────────────────────────── */
 @media(max-width:520px){
   #app{padding:0}
