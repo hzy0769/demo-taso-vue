@@ -738,12 +738,16 @@ export function logout() {
   toast(t('settings.loggedOut'))
 }
 
-/**
- * 股东资格说明(评审 §3.5:股东身份不可由资料页交互切换,仅后台审核 + 合法披露后展示)。
- * 原型保留入口与示例数据,点击标记只展示审核状态示例,不变更账号级别。
- */
-export function showRoleStatus() {
-  showDialog(t('me.roleStatusTitle'), t('me.roleStatusBody'))
+/** 演示:点击「我的」页账号级别标记,在股东 / 会员间切换(真实环境股东由后台审核开通) */
+export function toggleRole() {
+  const user = app.auth.user
+  if (!user) {
+    toast(t('me.needLogin'))
+    return
+  }
+  user.role = user.role === 'shareholder' ? 'member' : 'shareholder'
+  persistAuth()
+  toast(t(user.role === 'shareholder' ? 'me.switchedHolder' : 'me.switchedMember'))
 }
 
 /** 删除账号(AUTH-016/017):清空全部本地状态与偏好,回到首次启动 */
