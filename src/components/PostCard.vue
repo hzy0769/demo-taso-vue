@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
-import { show, showDialog, toast, openSheet, openPost, openPostMore } from '../store'
+import { show, showDialog, toast, openSheet, openPost, openPostMore, isSaved, toggleSave } from '../store'
 import { t, prefs } from '../i18n'
 import { fmtMoney, fmtMoneyEstimate, compact } from '../i18n/format'
 import { postMeta } from '../i18n/content'
@@ -10,7 +10,8 @@ import PostText from './PostText.vue'
 const props = defineProps<{ post: Post }>()
 
 const liked = ref(false)
-const saved = ref(false)
+/** 收藏为全局状态(「我的收藏」与信息流、详情页联动) */
+const saved = computed(() => isSaved(props.post.id))
 
 /** 已核销消费:可点开说明页(评审 §5.3:解释验证含义,不只放标记) */
 function explainVerified() {
@@ -27,10 +28,6 @@ const priceEst = computed(() => {
 function toggleLike() {
   liked.value = !liked.value
   toast(t(liked.value ? 'post.liked' : 'post.unliked'))
-}
-function toggleBookmark() {
-  saved.value = !saved.value
-  toast(t(saved.value ? 'post.saved' : 'post.unsaved'))
 }
 </script>
 
@@ -87,7 +84,7 @@ function toggleBookmark() {
         <svg class="ic"><use href="#i-share"/></svg>
         <span v-if="post.shares" class="num">{{ compact(post.shares) }}</span>
       </button>
-      <button class="row" style="gap:6px;min-height:44px;color:var(--muted)" @click="toggleBookmark">
+      <button class="row" style="gap:6px;min-height:44px;color:var(--muted)" @click="toggleSave(post.id)">
         <svg class="ic" :class="{ f: saved }"><use href="#i-bookmark"/></svg>
       </button>
     </div>

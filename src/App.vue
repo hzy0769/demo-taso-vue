@@ -57,6 +57,10 @@ import ScreenContentRegion from './screens/ScreenContentRegion.vue'
 import ScreenSecurity from './screens/ScreenSecurity.vue'
 import ScreenKyc from './screens/ScreenKyc.vue'
 import ScreenNotifications from './screens/ScreenNotifications.vue'
+import ScreenMyPosts from './screens/ScreenMyPosts.vue'
+import ScreenMySaves from './screens/ScreenMySaves.vue'
+import ScreenMyFollows from './screens/ScreenMyFollows.vue'
+import ScreenMyHistory from './screens/ScreenMyHistory.vue'
 import ScreenFriends from './screens/ScreenFriends.vue'
 import ScreenMessages from './screens/ScreenMessages.vue'
 import ScreenChat from './screens/ScreenChat.vue'
@@ -164,6 +168,10 @@ onMounted(() => {
         <ScreenSecurity />
         <ScreenKyc />
         <ScreenNotifications />
+        <ScreenMyPosts />
+        <ScreenMySaves />
+        <ScreenMyFollows />
+        <ScreenMyHistory />
         <ScreenFriends />
         <ScreenMessages />
         <ScreenChat />

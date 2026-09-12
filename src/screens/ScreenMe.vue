@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import { app, show, showRoleStatus, roleLabel, toast } from '../store'
+import { app, show, showRoleStatus, roleLabel } from '../store'
 import { DIVIDEND_TOTAL } from '../data'
 import { t, regionName } from '../i18n'
 import { fmtMoney, compact } from '../i18n/format'
@@ -54,22 +54,22 @@ const followersLine = computed(() => t('me.followersLine', { city: regionName({ 
       </div>
     </div>
     <div class="card" style="margin-top:14px;padding:4px 14px">
-      <button class="li" @click="toast(t('me.myPosts'))">
+      <button class="li" @click="show('my-posts')">
         <span class="li-ic"><svg class="ic"><use href="#i-image"/></svg></span>
         <span class="li-title">{{ t('me.myPosts') }}</span>
         <svg class="ic" style="color:var(--muted)"><use href="#i-right"/></svg>
       </button>
-      <button class="li" @click="toast(t('me.mySaves'))">
+      <button class="li" @click="show('my-saves')">
         <span class="li-ic"><svg class="ic"><use href="#i-bookmark"/></svg></span>
         <span class="li-title">{{ t('me.mySaves') }}</span>
         <svg class="ic" style="color:var(--muted)"><use href="#i-right"/></svg>
       </button>
-      <button class="li" @click="toast(t('me.myFollows'))">
+      <button class="li" @click="show('my-follows')">
         <span class="li-ic"><svg class="ic"><use href="#i-user"/></svg></span>
         <span class="li-title">{{ t('me.myFollows') }}</span>
         <svg class="ic" style="color:var(--muted)"><use href="#i-right"/></svg>
       </button>
-      <button class="li" @click="toast(t('me.myHistory'))">
+      <button class="li" @click="show('my-history')">
         <span class="li-ic"><svg class="ic"><use href="#i-pin"/></svg></span>
         <span class="li-title">{{ t('me.myHistory') }}</span>
         <svg class="ic" style="color:var(--muted)"><use href="#i-right"/></svg>

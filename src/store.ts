@@ -1,5 +1,8 @@
 import { nextTick, reactive } from 'vue'
-import { foryouSeed, followingPosts, MEMBERS, REPLIES, GENERIC_REPLIES, SOCIAL_SEED, type Post, type Social } from './data'
+import {
+  foryouSeed, followingPosts, MEMBERS, REPLIES, GENERIC_REPLIES, SOCIAL_SEED,
+  FOLLOW_SEED, SAVE_SEED, HISTORY_SEED, type Post, type Social, type HistoryItem,
+} from './data'
 import { resetCard } from './card'
 import { resetPay } from './pay'
 import { t, prefs, snapshotPrefs, applyAccountPrefs, resetPrefs, type LocalizationPreferences } from './i18n'
@@ -14,6 +17,7 @@ export type ScreenId =
   | 'transactions' | 'wallet-transactions' | 'reimburse' | 'reimburse-detail' | 'withdraw'
   | 'referral' | 'referral-rules' | 'creator'
   | 'me' | 'settings' | 'language' | 'content-region' | 'security' | 'kyc' | 'notifications'
+  | 'my-posts' | 'my-saves' | 'my-follows' | 'my-history'
   | 'friends' | 'messages' | 'chat' | 'my-qrcode'
   | 'account' | 'auth-methods' | 'auth-sessions' | 'auth-delete'
 
@@ -137,6 +141,10 @@ export const app = reactive({
   morePost: null as Post | null,
   /** 已关注的帖子作者(@handle,参考 X 的帖子菜单) */
   follows: loadFollows(),
+  /** 已收藏的帖子 id(「我的收藏」演示态:本地记录) */
+  saved: loadIds('taso-saves', SAVE_SEED),
+  /** 浏览足迹(打开过的帖子详情;「我的足迹」演示态:本地记录) */
+  history: loadItems('taso-history', HISTORY_SEED),
   dialog: null as DialogReq | null,
   /** 首页 For You 数据(发布成功后向头部插入新帖) */
   foryou: [...foryouSeed] as Post[],
@@ -199,16 +207,43 @@ export function openSheet(name: 'composer' | 'comments' | 'add-friend') {
   app.sheet = name
 }
 
-/** 点击帖子 → 详情页展示完整内容 */
+/** 点击帖子 → 详情页展示完整内容,并记入浏览足迹 */
 export function openPost(p: Post) {
-  app.postId = p.id
-  show('post')
+  openPostById(p.id)
 }
 
 /** 搜索等只知道 id 的场景 */
 export function openPostById(id: number) {
   app.postId = id
+  recordHistory(id)
   show('post')
+}
+
+/* ── 收藏与足迹(「我的」菜单,演示态:本地记录)────────────────── */
+
+export function isSaved(id: number) {
+  return app.saved.includes(id)
+}
+
+/** 收藏 / 取消收藏帖子(信息流、详情页与「我的收藏」共用同一状态) */
+export function toggleSave(id: number) {
+  const saved = isSaved(id)
+  app.saved = saved ? app.saved.filter(x => x !== id) : [id, ...app.saved]
+  localStorage.setItem('taso-saves', JSON.stringify(app.saved))
+  toast(t(saved ? 'post.unsaved' : 'post.saved'))
+}
+
+/** 打开帖子详情 → 写入足迹(重复浏览仅置顶,容量截断 50) */
+function recordHistory(id: number) {
+  app.history = [{ pid: id, at: new Date().toISOString() }, ...app.history.filter(h => h.pid !== id)].slice(0, 50)
+  localStorage.setItem('taso-history', JSON.stringify(app.history))
+}
+
+/** 清空足迹(「我的足迹」页确认后调用) */
+export function clearHistory() {
+  app.history = []
+  localStorage.setItem('taso-history', JSON.stringify(app.history))
+  toast(t('myHistory.cleared'))
 }
 
 /* ── 帖子更多操作(参考 X 的帖子菜单,前期版本只保留核心三项)────────── */
@@ -221,7 +256,34 @@ function loadFollows(): string[] {
       if (Array.isArray(a)) return a.filter(x => typeof x === 'string')
     }
   } catch { /* 损坏时视为未关注 */ }
-  return []
+  return [...FOLLOW_SEED]
+}
+
+/** 通用 id 列表读取(损坏或未初始化时回落演示种子) */
+function loadIds(key: string, seed: number[]): number[] {
+  try {
+    const raw = localStorage.getItem(key)
+    if (raw) {
+      const a = JSON.parse(raw) as unknown
+      if (Array.isArray(a)) return a.filter(x => typeof x === 'number')
+    }
+  } catch { /* 损坏时回落种子 */ }
+  return [...seed]
+}
+
+/** 通用 {pid, at} 记录读取(校验结构,损坏时回落演示种子) */
+function loadItems(key: string, seed: HistoryItem[]): HistoryItem[] {
+  try {
+    const raw = localStorage.getItem(key)
+    if (raw) {
+      const a = JSON.parse(raw) as unknown
+      if (Array.isArray(a)) {
+        return a.filter((x): x is HistoryItem =>
+          !!x && typeof (x as HistoryItem).pid === 'number' && typeof (x as HistoryItem).at === 'string')
+      }
+    }
+  } catch { /* 损坏时回落种子 */ }
+  return JSON.parse(JSON.stringify(seed))
 }
 
 /** 帖子右上角「更多」→ 打开操作菜单 */
@@ -686,7 +748,7 @@ export function showRoleStatus() {
 
 /** 删除账号(AUTH-016/017):清空全部本地状态与偏好,回到首次启动 */
 export function deleteAccount() {
-  for (const k of ['taso-auth', 'taso-visited', 'taso-screen', 'taso-social', 'taso-bal', 'taso-wd', 'taso-follows', 'taso-card', 'taso-locale', 'taso-pay']) {
+  for (const k of ['taso-auth', 'taso-visited', 'taso-screen', 'taso-social', 'taso-bal', 'taso-wd', 'taso-follows', 'taso-saves', 'taso-history', 'taso-card', 'taso-locale', 'taso-pay']) {
     localStorage.removeItem(k)
   }
   app.auth.user = null
@@ -694,7 +756,9 @@ export function deleteAccount() {
   app.visited = false
   app.bal = 12580
   app.wd = 800
-  app.follows = []
+  app.follows = [...FOLLOW_SEED]
+  app.saved = [...SAVE_SEED]
+  app.history = JSON.parse(JSON.stringify(HISTORY_SEED))
   app.morePost = null
   resetCard()
   resetPay()

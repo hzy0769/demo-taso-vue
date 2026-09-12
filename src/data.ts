@@ -35,6 +35,8 @@ export interface Post {
   shares?: number
   /** 合作商家卡片(官方名稱 + 結構化價格/評分) */
   merchant?: { title: string; price: Money; rating: number }
+  /** 我的帖文審核狀態:缺省視為已發布(審核中僅出現在「我的帖文」) */
+  status?: 'published' | 'reviewing'
   /** 廣告帖:值為落地頁域名,有值即顯示 Ad 標籤與廣告專屬選單 */
   ad?: string
   /** 廣告落地頁連結文案(譯文尾部金色展示) */
@@ -227,6 +229,105 @@ export const followingPosts: Post[] = [
     likes: 1800,
     comments: 93,
   },
+]
+
+/* ── 我的內容(「我的」選單:帖文 / 收藏 / 追蹤 / 足跡)────────────── */
+
+/** 「我」的演示 handle(與 ComposerSheet 發布身份一致) */
+export const MY_HANDLE = '@alex'
+
+/** 我的帖文種子:除這裡外,兩條信息流中以 MY_HANDLE 發布的帖子(含剛發布的)同樣歸入「我的帖文」 */
+export const MY_POSTS: Post[] = [
+  {
+    id: 41,
+    avatar: 'A',
+    author: MY_HANDLE,
+    verifyKey: 'creator',
+    createdAt: hoursAgo(30),
+    placeCityId: 'tokyo',
+    original: {
+      locale: 'zh-Hans',
+      text: '鮨 Taso 午市板前体验:17 贯握寿司 5,500 円,玉子烧收尾当场现烤。\n\n渔港直送的白身鱼油脂清甜,金枪鱼大腹入口即化;师傅会按节奏控制出餐,配茶免费换两次。\n\n用 Taso 卡结账有 5% 返报销金,适合纪念日或招待。',
+    },
+    translations: [
+      { locale: 'zh-Hant', source: 'human', text: '鮨 Taso 午市板前體驗:17 貫握壽司 5,500 円,玉子燒收尾當場現烤。\n\n漁港直送的白身魚油脂清甜,金槍魚大腹入口即化;師傅會按節奏控制出餐,配茶免費換兩次。\n\n用 Taso 卡結賬有 5% 返報銷金,適合紀念日或招待。' },
+      { locale: 'en', source: 'human', text: 'Lunch omakase at Sushi Taso: 17 nigiri for ¥5,500, ending with tamago grilled to order.\n\nWhite fish straight from the harbor, melt-in-your-mouth otoro, and the itamae paces the meal perfectly — tea refills are free.\n\nPay with the Taso card for 5% back in reimbursement credit. Great for celebrations.' },
+      { locale: 'ja', source: 'machine', text: '鮨 Taso のランチお任せ:17 貫の握りが 5,500 円、玉子焼きはその場で焼き上げて〆。\n\n漁港直送の白身は脂が上品で、大トロは口の中でとろけます。大将の間隔も絶妙で、お茶は 2 杯まで無料。\n\nTaso カード決済で 5% 還元(報銷金)。記念日にもおすすめ。' },
+      { locale: 'ko', source: 'machine', text: '스시 타소 점심 오마카세: 17관 초밥이 ¥5,500, 마무리는 그 자리에서 구운 달걀 지단.\n\n항공 직송 흰살생선은 기름이 깔끔하고 대뱃살은 입에서 녹습니다. 셰프가 템포를 조절해 내주고 차 리필은 무료.\n\nTaso 카드 결제 시 5% 보상금 적립. 기념일에 딱입니다.' },
+    ],
+    goldTag: '#鮨Taso',
+    image: '/assets/taso-sushi.jpg',
+    imgW: 720,
+    imgH: 480,
+    likes: 458,
+    comments: 23,
+    shares: 31,
+    merchant: { title: '鮨 Taso', price: { amount: 5500, currency: 'JPY' }, rating: 4.8 },
+  },
+  {
+    id: 42,
+    avatar: 'A',
+    author: MY_HANDLE,
+    verifyKey: 'creator',
+    createdAt: hoursAgo(74),
+    placeCityId: 'tokyo',
+    original: {
+      locale: 'zh-Hans',
+      text: '箱根温泉两日一夜:周末从新宿坐浪漫特快 85 分钟直达。\n\n订的是私汤房,晚上泡完汤在房间吃会席,早上拉开窗帘就是山雾。\n\n避坑贴士:周日中午退房后大涌谷人多,建议一早先去。',
+    },
+    translations: [
+      { locale: 'zh-Hant', source: 'human', text: '箱根溫泉兩日一夜:週末從新宿坐浪漫特快 85 分鐘直達。\n\n訂的是私湯房,晚上泡完湯在房間吃會席,早上拉開窗簾就是山霧。\n\n避坑貼士:週日中午退房後大湧谷人多,建議一早先去。' },
+      { locale: 'en', source: 'human', text: 'One night in Hakone: 85 minutes from Shinjuku on the Romancecar.\n\nBooked a room with a private onsen — soak, kaiseki dinner in-room, then mountain fog outside the window at dawn.\n\nTip: Owakudani gets crowded after Sunday checkout; go early instead.' },
+    ],
+    goldTag: '#温泉Taso',
+    image: '/assets/taso-onsen.jpg',
+    imgW: 720,
+    imgH: 480,
+    likes: 312,
+    comments: 18,
+    shares: 12,
+  },
+  {
+    id: 43,
+    avatar: 'A',
+    author: MY_HANDLE,
+    verifyKey: 'creator',
+    createdAt: hoursAgo(2),
+    placeCityId: 'seoul',
+    original: {
+      locale: 'zh-Hans',
+      text: '首尔四天三夜行程表整理中:明洞住两晚、圣水洞一天、最后一天留给机场前的传统市场。\n\n含交通卡、T-money 充值和退税流程,写完就发。',
+    },
+    translations: [
+      { locale: 'zh-Hant', source: 'human', text: '首爾四天三夜行程表整理中:明洞住兩晚、聖水洞一天、最後一天留給機場前的傳統市場。\n\n含交通卡、T-money 充值和退稅流程,寫完就發。' },
+      { locale: 'en', source: 'machine', text: 'Drafting my 4-day Seoul itinerary: two nights in Myeongdong, a day in Seongsu, and the last morning at a traditional market before the airport.\n\nIncludes the transit card, T-money top-up and tax refund flow. Publishing once done.' },
+    ],
+    image: '/assets/taso-seoul.jpg',
+    imgW: 720,
+    imgH: 480,
+    likes: 0,
+    comments: 0,
+    status: 'reviewing',
+  },
+]
+
+/** 追蹤列表演示種子(handle 與信息流作者一致,詳情可在 MEMBERS 補全) */
+export const FOLLOW_SEED: string[] = ['@tokyofood', '@coffeelog', '@mia']
+
+/** 收藏演示種子(帖子 id) */
+export const SAVE_SEED: number[] = [2, 3]
+
+export interface HistoryItem {
+  pid: number
+  at: string
+}
+
+/** 瀏覽足跡演示種子(時間為 ISO instant,分組「今天 / 昨天」即時計算) */
+export const HISTORY_SEED: HistoryItem[] = [
+  { pid: 1, at: hoursAgo(3) },
+  { pid: 3, at: hoursAgo(26) },
+  { pid: 2, at: hoursAgo(28) },
+  { pid: 4, at: hoursAgo(73) },
 ]
 
 /* ── 多語言檢索(設計方案 §8.3 SearchDocument)────────────────────── */

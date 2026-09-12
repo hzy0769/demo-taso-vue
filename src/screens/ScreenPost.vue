@@ -1,21 +1,22 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
-import { app, show, toast, openSheet, openPost } from '../store'
-import { foryouSeed, followingPosts } from '../data'
+import { app, show, toast, openSheet, openPost, isSaved, toggleSave } from '../store'
+import { foryouSeed, followingPosts, MY_POSTS } from '../data'
 import { t, prefs } from '../i18n'
 import { fmtMoney, compact, fmtMoneyEstimate } from '../i18n/format'
 import { postMeta } from '../i18n/content'
 import PageHeader from '../components/PageHeader.vue'
 import PostText from '../components/PostText.vue'
 
-/** 详情页展示 openPost 设置的帖子,未知 id(刷新恢复等)回退热帖 */
+/** 详情页展示 openPost 设置的帖子(含「我的帖文」种子),未知 id(刷新恢复等)回退热帖 */
 const post = computed(() =>
-  [...app.foryou, ...app.following].find(p => p.id === app.postId) ?? foryouSeed[0],
+  [...app.foryou, ...app.following, ...MY_POSTS].find(p => p.id === app.postId) ?? foryouSeed[0],
 )
 
 const following = ref(false)
 const liked = ref(false)
-const saved = ref(false)
+/** 收藏为全局状态(与信息流、「我的收藏」联动) */
+const saved = computed(() => isSaved(post.value.id))
 
 const priceText = computed(() => (post.value.merchant ? t('money.perPerson', { price: fmtMoney(post.value.merchant.price) }) : ''))
 const priceEst = computed(() => (post.value.merchant ? fmtMoneyEstimate(post.value.merchant.price, prefs.displayCurrency) : null))
@@ -27,10 +28,6 @@ function toggleFollow() {
 function toggleLike() {
   liked.value = !liked.value
   toast(t(liked.value ? 'post.liked' : 'post.unliked'))
-}
-function toggleBookmark() {
-  saved.value = !saved.value
-  toast(t(saved.value ? 'post.saved' : 'post.unsaved'))
 }
 </script>
 
@@ -85,7 +82,7 @@ function toggleBookmark() {
         <svg class="ic"><use href="#i-share"/></svg>
         <span v-if="post.shares" class="num">{{ compact(post.shares) }}</span>
       </button>
-      <button class="row" style="gap:6px;min-height:44px" @click="toggleBookmark">
+      <button class="row" style="gap:6px;min-height:44px" @click="toggleSave(post.id)">
         <svg class="ic" :class="{ f: saved }"><use href="#i-bookmark"/></svg>
       </button>
     </div>
