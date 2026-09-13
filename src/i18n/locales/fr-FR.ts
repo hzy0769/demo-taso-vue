@@ -698,7 +698,6 @@ export default {
   'pay.crypto.eta': 'Le paiement se termine automatiquement à la réception',
   'pay.crypto.txid': 'Hash de transaction',
   'pay.crypto.done': '{asset} reçu',
-  'pay.crypto.cardEstimate': "Le montant en HKD est converti au taux — total {amount} ; le taux de règlement s'applique à la réception.",
 
   'wallet.title': 'Portefeuille',
   'wallet.accountBadge': 'Compte de gains',

@@ -698,7 +698,6 @@ export default {
   'pay.crypto.eta': 'เมื่อเข้าบัญชีจะเสร็จสิ้นการชำระโดยอัตโนมัติ',
   'pay.crypto.txid': 'แฮชธุรกรรม',
   'pay.crypto.done': '{asset} เข้าบัญชีแล้ว',
-  'pay.crypto.cardEstimate': 'ยอดเงินบาทหลวงแปลงตามอัตราแลกเปลี่ยนแล้ว ชำระรวม {amount} การตัดบัญชียึดอัตราตอนเข้าบัญชี',
 
   'wallet.title': 'วอลเล็ต',
   'wallet.accountBadge': 'บัญชีรายได้',

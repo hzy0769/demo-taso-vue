@@ -3,8 +3,8 @@ import { computed, ref } from 'vue'
 import { app, show, toast } from '../store'
 import { CARD_FEE_HKD, card, etaRange, etaText, methodOf, methodName, phoneText, submitOrder, addrLines } from '../card'
 import { t, FX_UPDATED_AT } from '../i18n'
-import { fmtMoney, fmtDate } from '../i18n/format'
-import { pay, payMethodName, startCard, startCrypto, startWallet, openPicker, lastPaidText, hkdToUsd, HKD_USD_RATE, type PayRequest, type Quote } from '../pay'
+import { fmtDate } from '../i18n/format'
+import { pay, payMethodName, startCard, startCrypto, startWallet, openPicker, lastPaidText, hkdToUsd, HKD_USD_RATE, payDisplayMoney, payDisplayHint, isCryptoMethod, type PayRequest, type Quote } from '../pay'
 import PageHeader from '../components/PageHeader.vue'
 import QuoteDisclosure from '../components/QuoteDisclosure.vue'
 
@@ -12,32 +12,33 @@ import QuoteDisclosure from '../components/QuoteDisclosure.vue'
  * P04 确认申请(全球配送 PRD §12 + V2.3 支付):
  * 汇总卡片 / 地址 / 配送方式 / 费用 + 地址确认勾选 + 支付方式选择;
  * 支付成功后才生成申请单(P05)。注册主体在香港:办理费与配送费均为
- * 港币定价、合并港币支付(V2.4),Visa 美元账户按汇率实时换汇入账;
+ * 港币定价(V2.4),Visa 美元账户按汇率实时换汇入账;
  * USDT / USDC 与美元 1:1,支付数量 = 港币总额按同一汇率折算的美元数。
+ * 展示币种(V2.10):法币通道按 HK$;选 USDT / USDC 即全页换算 US$,
+ * 原港币金额以 ≈ 小字保留(选币即换算,不等支付步;§9.1)。
  */
 
 const lines = computed(() => addrLines(card.draft))
 const method = computed(() => methodOf(card.method))
 const eta = computed(() => { const [a, b] = etaRange(method.value.days); return etaText(a, b) })
-const feeText = (fee: number) => (fee ? fmtMoney({ amount: fee, currency: 'HKD' }) : t('common.free'))
-const hkdFee = computed(() => fmtMoney({ amount: CARD_FEE_HKD, currency: 'HKD' }))
-const total = computed(() => fmtMoney({ amount: CARD_FEE_HKD + method.value.fee, currency: 'HKD' }))
+const feeMoney = (fee: number) => (fee ? payDisplayMoney(fee) : t('common.free'))
+const totalHKD = computed(() => CARD_FEE_HKD + method.value.fee)
 
 const confirmed = ref(false)
 const submitting = ref(false)
 
 /** 加密支付所需美元等值:港币总额(办理费 + 配送费)按汇率折算(估算,§9.1) */
-const totalUSD = computed(() => hkdToUsd(CARD_FEE_HKD + method.value.fee))
+const totalUSD = computed(() => hkdToUsd(totalHKD.value))
 
 const isCryptoSel = computed(() => pay.method === 'usdt' || pay.method === 'usdc')
 const cryptoAsset = computed(() => (pay.method === 'usdt' ? 'USDT' : 'USDC'))
 
-/** 付款前披露(评审 §3.4):办理费以 HKD 计价扣款,按汇率换汇入账并附时点 */
+/** 付款前披露(评审 §3.4):法币通道展示汇率换汇说明;加密通道按美元展示,汇率行隐藏(V2.10) */
 const quote = computed<Quote>(() => ({
   priceCurrency: 'HKD',
   chargeCurrency: isCryptoSel.value ? cryptoAsset.value : 'HKD',
-  fxNote: t('quote.fxNote', { rate: HKD_USD_RATE.toFixed(4), time: fmtDate(FX_UPDATED_AT) }),
-  platformFee: { label: t('card.review.cardFee'), money: hkdFee.value },
+  fxNote: isCryptoSel.value ? undefined : t('quote.fxNote', { rate: HKD_USD_RATE.toFixed(4), time: fmtDate(FX_UPDATED_AT) }),
+  platformFee: { label: t('card.review.cardFee'), money: payDisplayMoney(CARD_FEE_HKD) },
   networkFee: isCryptoSel.value
     ? { label: t('quote.networkFee'), money: t('quote.borneBySender') }
     : undefined,
@@ -49,14 +50,13 @@ const quote = computed<Quote>(() => ({
 }))
 
 function buildRequest(): PayRequest {
-  const isCrypto = pay.method === 'usdt' || pay.method === 'usdc'
   return {
     purpose: 'card',
     lines: [
-      { label: t('card.review.cardFee'), money: hkdFee.value },
-      ...(method.value.fee ? [{ label: t('card.review.shippingFee'), money: feeText(method.value.fee) }] : []),
+      { label: t('card.review.cardFee'), money: payDisplayMoney(CARD_FEE_HKD) },
+      ...(method.value.fee ? [{ label: t('card.review.shippingFee'), money: feeMoney(method.value.fee) }] : []),
     ],
-    totalText: isCrypto ? fmtMoney({ amount: totalUSD.value, currency: 'USD' }) : total.value,
+    totalText: payDisplayMoney(totalHKD.value),
     amountUSD: totalUSD.value,
     quote: quote.value,
     onSuccess: () => {
@@ -94,7 +94,7 @@ function payAndSubmit() {
           <b style="font-size:14px">{{ t('card.review.product') }}</b>
           <p class="meta" style="margin-top:2px">{{ t('card.review.productSub') }}</p>
         </span>
-        <span class="num" style="font-size:14px;font-weight:700">{{ hkdFee }}</span>
+        <span class="num" style="font-size:14px;font-weight:700">{{ payDisplayMoney(CARD_FEE_HKD) }}</span>
       </div>
     </div>
 
@@ -115,14 +115,32 @@ function payAndSubmit() {
         <span class="meta">{{ t('card.review.method') }}</span>
         <button class="edit-btn" @click="show('card-shipping')">{{ t('common.edit') }}</button>
       </div>
-      <div class="kv" style="margin-top:4px"><span class="k" style="color:var(--fg);font-weight:600">{{ methodName(method) }}</span><span class="v num">{{ feeText(method.fee) }}</span></div>
+      <div class="kv" style="margin-top:4px"><span class="k" style="color:var(--fg);font-weight:600">{{ methodName(method) }}</span><span class="v num">{{ feeMoney(method.fee) }}</span></div>
       <div class="kv"><span class="k">{{ t('card.ship.eta') }}</span><span class="v num">{{ eta }}</span></div>
     </div>
 
     <div class="card" style="margin-top:12px">
-      <div class="kv"><span class="k">{{ t('card.review.cardFee') }}</span><span class="v num">{{ hkdFee }}</span></div>
-      <div class="kv"><span class="k">{{ t('card.review.shippingFee') }}</span><span class="v num">{{ feeText(method.fee) }}</span></div>
-      <div class="kv"><span class="k" style="font-weight:600;color:var(--fg)">{{ t('card.review.total') }}</span><span class="v num" style="font-weight:700">{{ total }}</span></div>
+      <div class="kv">
+        <span class="k">
+          {{ t('card.review.cardFee') }}
+          <span v-if="isCryptoMethod()" class="meta" style="display:block;margin-top:2px;font-size:11px">{{ payDisplayHint(CARD_FEE_HKD) }}</span>
+        </span>
+        <span class="v num">{{ payDisplayMoney(CARD_FEE_HKD) }}</span>
+      </div>
+      <div class="kv">
+        <span class="k">
+          {{ t('card.review.shippingFee') }}
+          <span v-if="method.fee && isCryptoMethod()" class="meta" style="display:block;margin-top:2px;font-size:11px">{{ payDisplayHint(method.fee) }}</span>
+        </span>
+        <span class="v num">{{ feeMoney(method.fee) }}</span>
+      </div>
+      <div class="kv">
+        <span class="k">
+          {{ t('card.review.total') }}
+          <span v-if="isCryptoMethod()" class="meta" style="display:block;margin-top:2px;font-size:11px">{{ payDisplayHint(totalHKD) }}</span>
+        </span>
+        <span class="v num" style="font-weight:700">{{ payDisplayMoney(totalHKD) }}</span>
+      </div>
     </div>
 
     <!-- 付款前固定披露(评审 §3.4):随所选支付方式更新 -->
@@ -143,9 +161,6 @@ function payAndSubmit() {
         </span>
         <b style="flex:1;font-size:14px">{{ payMethodName(pay.method) }}</b>
       </div>
-      <p v-if="pay.method === 'usdt' || pay.method === 'usdc'" class="meta" style="margin-top:6px">
-        {{ t('pay.crypto.cardEstimate', { amount: fmtMoney({ amount: totalUSD, currency: 'USD' }) }) }}
-      </p>
     </div>
 
     <button class="ckrow" style="margin-top:16px" @click="confirmed = !confirmed">
@@ -160,7 +175,7 @@ function payAndSubmit() {
     <div class="paybar">
       <span class="paybar-total">
         <span class="meta">{{ t('card.review.total') }}</span>
-        <b class="num">{{ total }}</b>
+        <b class="num">{{ payDisplayMoney(totalHKD) }}</b>
       </span>
       <button class="btn btn-gold paybar-btn" :disabled="!confirmed || submitting" @click="payAndSubmit">
         <span v-if="submitting" class="spin"></span>

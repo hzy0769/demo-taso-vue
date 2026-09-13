@@ -697,7 +697,6 @@ export default {
   'pay.crypto.eta': '到着後、自動的に支払いが完了します',
   'pay.crypto.txid': 'トランザクション',
   'pay.crypto.done': '{asset} が到着しました',
-  'pay.crypto.cardEstimate': 'HKD 金額はレートで換算。合計 {amount}。決済は入金時のレートを適用します。',
 
   'wallet.title': 'ウォレット',
   'wallet.accountBadge': '収益口座',

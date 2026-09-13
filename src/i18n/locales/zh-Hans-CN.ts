@@ -698,7 +698,6 @@ export default {
   'pay.crypto.eta': '到账后自动完成支付',
   'pay.crypto.txid': '交易哈希',
   'pay.crypto.done': '{asset} 已到账',
-  'pay.crypto.cardEstimate': '港币金额已按汇率折算,合计支付 {amount};结算以到账时汇率为准。',
 
   'wallet.title': '钱包',
   'wallet.accountBadge': '收益账户',

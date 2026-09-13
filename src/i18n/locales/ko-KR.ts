@@ -697,7 +697,6 @@ export default {
   'pay.crypto.eta': '도착 후 자동으로 결제가 완료됩니다',
   'pay.crypto.txid': '트랜잭션',
   'pay.crypto.done': '{asset} 입금 완료',
-  'pay.crypto.cardEstimate': 'HKD 금액은 환율로 환산되며 합계 {amount}입니다. 정산 환율은 입금 시점 기준입니다.',
 
   'wallet.title': '지갑',
   'wallet.accountBadge': '수익 계좌',

@@ -698,7 +698,6 @@ export default {
   'pay.crypto.eta': 'Payment completes automatically on arrival',
   'pay.crypto.txid': 'Transaction hash',
   'pay.crypto.done': '{asset} received',
-  'pay.crypto.cardEstimate': 'The HKD amount is converted at the rate — total {amount}; the settlement rate applies at arrival.',
 
   'wallet.title': 'Wallet',
   'wallet.accountBadge': 'Earnings account',

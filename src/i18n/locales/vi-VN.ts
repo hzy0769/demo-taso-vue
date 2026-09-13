@@ -698,7 +698,6 @@ export default {
   'pay.crypto.eta': 'Nhận đủ tiền sẽ tự động hoàn tất thanh toán',
   'pay.crypto.txid': 'Mã băm giao dịch',
   'pay.crypto.done': '{asset} đã tới tài khoản',
-  'pay.crypto.cardEstimate': 'Số tiền HKD đã quy đổi theo tỷ giá, tổng thanh toán {amount}; quyết toán theo tỷ giá lúc ghi có.',
 
   'wallet.title': 'Ví',
   'wallet.accountBadge': 'Tài khoản thu nhập',

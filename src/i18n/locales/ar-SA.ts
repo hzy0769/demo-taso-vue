@@ -698,7 +698,6 @@ export default {
   'pay.crypto.eta': 'يكتمل الدفع تلقائياً فور الوصول',
   'pay.crypto.txid': 'بصمة المعاملة (Hash)',
   'pay.crypto.done': 'وصل {asset}',
-  'pay.crypto.cardEstimate': 'حُوّل المبلغ بالدولار الهونغ كونغي بسعر الصرف، الإجمالي {amount}؛ تُعتمد تسوية بسعر الوصول.',
 
   'wallet.title': 'المحفظة',
   'wallet.accountBadge': 'حساب الأرباح',

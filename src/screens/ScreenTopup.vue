@@ -3,7 +3,7 @@ import { computed, ref } from 'vue'
 import { app, save, show, toast } from '../store'
 import { t, prefs, FX_UPDATED_AT } from '../i18n'
 import { fmtMoney, fmtDate } from '../i18n/format'
-import { PAY_METHODS, pay, payMethodName, startCard, startCrypto, startWallet, lastPaidText, hkdToUsd, HKD_USD_RATE, type PayRequest, type Quote } from '../pay'
+import { PAY_METHODS, pay, payMethodName, startCard, startCrypto, startWallet, lastPaidText, hkdToUsd, HKD_USD_RATE, payDisplayMoney, payDisplayHint, isCryptoMethod, type PayRequest, type Quote } from '../pay'
 import PageHeader from '../components/PageHeader.vue'
 import QuoteDisclosure from '../components/QuoteDisclosure.vue'
 
@@ -14,6 +14,8 @@ import QuoteDisclosure from '../components/QuoteDisclosure.vue'
  * 注册主体在香港:一律以港币(HKD)计价与扣款;会员卡为 Visa 美元账户,
  * 到账金额按汇率实时换汇为美元入账。USDT / USDC 与美元 1:1,
  * 支付数量 = 港币总额按同一汇率折算的美元数。加密方式带「地区相关」演示标签(评审 §3.2)。
+ * 展示币种(V2.10):法币通道按 HK$ 展示;选 USDT / USDC 即换算为 US$
+ * (选币即换算,不等支付步),原港币金额以 ≈ 小字保留(§9.1 原币可见)。
  */
 
 const amt = ref('1,000.00')
@@ -23,7 +25,6 @@ const FEE_RATE = 0.16
 const parsed = computed(() => parseFloat(amt.value.replace(/,/g, '')) || 0)
 const fee = computed(() => parsed.value * FEE_RATE)
 const total = computed(() => parsed.value * (1 + FEE_RATE))
-const HKD = (n: number) => fmtMoney({ amount: n, currency: 'HKD' })
 const USD = (n: number) => fmtMoney({ amount: n, currency: 'USD' })
 
 /** 汇率(1 HKD ≈ 0.1282 USD)与更新时点的展示文本 */
@@ -40,13 +41,13 @@ const others = computed(() => methods.value.filter(m => m.kind !== 'wallet'))
 const isCrypto = computed(() => pay.method === 'usdt' || pay.method === 'usdc')
 const cryptoAsset = computed(() => (pay.method === 'usdt' ? 'USDT' : 'USDC'))
 
-/** 付款前披露:随所选支付方式实时更新扣款币种与网络费(评审 §3.4) */
+/** 付款前披露:随所选支付方式实时更新扣款币种与网络费(评审 §3.4);加密方式不展示汇率行(V2.10) */
 const quote = computed<Quote>(() => ({
   priceCurrency: 'HKD',
   chargeCurrency: isCrypto.value ? cryptoAsset.value : 'HKD',
-  // 后台设置的港币兑美元汇率;加密方式另在转账步说明 U 币 1:1 美元
-  fxNote: t('quote.fxNote', { rate: rateText, time: rateTime }),
-  platformFee: { label: t('topup.fee', { rate: 16 }), money: HKD(fee.value) },
+  // 法币通道展示港币兑美元汇率;加密方式按美元展示,汇率行隐藏(U 币 1:1 在转账步说明)
+  fxNote: isCrypto.value ? undefined : t('quote.fxNote', { rate: rateText, time: rateTime }),
+  platformFee: { label: t('topup.fee', { rate: 16 }), money: payDisplayMoney(fee.value) },
   networkFee: isCrypto.value
     ? { label: t('quote.networkFee'), money: t('quote.borneBySender') }
     : undefined,
@@ -68,10 +69,10 @@ function buildRequest(): PayRequest {
   return {
     purpose: 'topup',
     lines: [
-      { label: t('topup.amount'), money: HKD(parsed.value) },
-      { label: t('topup.fee', { rate: 16 }), money: HKD(fee.value) },
+      { label: t('topup.amount'), money: payDisplayMoney(parsed.value) },
+      { label: t('topup.fee', { rate: 16 }), money: payDisplayMoney(fee.value) },
     ],
-    totalText: HKD(total.value),
+    totalText: payDisplayMoney(total.value),
     // USDT/USDC 1:1 美元:需支付数量 = 港币总额(含手续费)按汇率折算
     amountUSD: hkdToUsd(total.value),
     quote: quote.value,
@@ -141,17 +142,30 @@ function again() {
         </div>
       </div>
 
-      <!-- 费用摘要:港币扣款,到账按汇率实时换汇为美元 -->
+      <!-- 费用摘要:法币 HK$ / 加密选币即换算 US$(≈HK$ 小字保留原币,§9.1) -->
       <div class="card">
         <div class="kv">
           <span class="k">
             {{ t('topup.creditAmount') }}
-            <span class="meta" style="display:block;margin-top:2px;font-size:11px">{{ t('topup.creditConverted', { rate: rateText }) }}</span>
+            <!-- 法币通道:到账按汇率换汇入账;加密通道直接按美元展示,汇率小字隐藏(V2.10) -->
+            <span v-if="!isCryptoMethod()" class="meta" style="display:block;margin-top:2px;font-size:11px">{{ t('topup.creditConverted', { rate: rateText }) }}</span>
           </span>
           <span class="v num">{{ USD(creditUSD) }}</span>
         </div>
-        <div class="kv"><span class="k">{{ t('topup.fee', { rate: 16 }) }}</span><span class="v num">{{ HKD(fee) }}</span></div>
-        <div class="kv"><span class="k">{{ t('topup.estPay') }}</span><span class="v num" style="font-weight:700">{{ HKD(total) }}</span></div>
+        <div class="kv">
+          <span class="k">
+            {{ t('topup.fee', { rate: 16 }) }}
+            <span v-if="isCryptoMethod()" class="meta" style="display:block;margin-top:2px;font-size:11px">{{ payDisplayHint(fee) }}</span>
+          </span>
+          <span class="v num">{{ payDisplayMoney(fee) }}</span>
+        </div>
+        <div class="kv">
+          <span class="k">
+            {{ t('topup.estPay') }}
+            <span v-if="isCryptoMethod()" class="meta" style="display:block;margin-top:2px;font-size:11px">{{ payDisplayHint(total) }}</span>
+          </span>
+          <span class="v num" style="font-weight:700">{{ payDisplayMoney(total) }}</span>
+        </div>
       </div>
 
       <!-- 付款前固定披露(评审 §3.4) -->
@@ -203,7 +217,7 @@ function again() {
             <svg v-else class="pm-logo" viewBox="0 0 24 24"><use :href="pay.method === 'apple-pay' ? '#logo-apple' : '#logo-google'"/></svg>
           </span>
           <span class="paybar-mth-t">
-            <b>{{ HKD(total) }}</b>
+            <b>{{ payDisplayMoney(total) }}</b>
             <span>{{ payMethodName(pay.method) }}</span>
           </span>
         </button>

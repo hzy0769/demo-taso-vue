@@ -1,5 +1,6 @@
 import { reactive, watch } from 'vue'
 import { t, FX_RATES } from './i18n'
+import { fmtMoney } from './i18n/format'
 
 /* ── 支付方式與支付流(V2.3 · 參考 Stripe Express Checkout / Apple HIG /
    Google Pay 品牌規範 / Kraken·Crypto.com 穩定幣入金流程)──────────────
@@ -9,13 +10,30 @@ import { t, FX_RATES } from './i18n'
    - USDT / USDC → 選網絡 → 地址 + 二維碼 → 等待區塊確認
    上次使用的支付方式持久化(結賬最佳實踐:記住上次選擇)。
    結算幣種:註冊主體在香港,收款與扣款一律為港幣;會員卡為 Visa 美元
-   賬戶,到賬金額按匯率實時換匯為美元入賬(見 hkdToUsd)。 */
+   賬戶,到賬金額按匯率實時換匯為美元入賬(見 hkdToUsd)。
+   展示幣種(V2.10):法幣通道(錢包/銀行卡)按港幣展示;選擇 USDT / USDC
+   的那一刻起,頁面金額即換算為美元展示(選幣即換算,不等支付步)。 */
 
 /** 後台設置的港幣兌美元結算匯率:1 HKD ≈ 0.1282 USD(演示;正式版接入受認可匯率來源) */
 export const HKD_USD_RATE = 1 / FX_RATES.HKD
 
 /** 港幣金額 → 美元入賬金額(匯率實時換算) */
 export const hkdToUsd = (hkd: number) => hkd / FX_RATES.HKD
+
+/** 當前選中支付方式是否為數字貨幣(USDT / USDC) */
+export const isCryptoMethod = () => pay.method === 'usdt' || pay.method === 'usdc'
+
+/** 按當前支付方式的展示幣種格式化港幣金額:法幣 → HK$;USDT/USDC → 按匯率折算 US$(隨 pay.method 響應式切換) */
+export function payDisplayMoney(hkd: number): string {
+  return isCryptoMethod()
+    ? fmtMoney({ amount: hkdToUsd(hkd), currency: 'USD' })
+    : fmtMoney({ amount: hkd, currency: 'HKD' })
+}
+
+/** 數字貨幣方式下原港幣金額的輔助小字(≈ HK$…);法幣方式返回空串 */
+export function payDisplayHint(hkd: number): string {
+  return isCryptoMethod() ? `≈ ${fmtMoney({ amount: hkd, currency: 'HKD' })}` : ''
+}
 
 export type PayMethodId = 'apple-pay' | 'google-pay' | 'card' | 'usdt' | 'usdc'
 export type PayKind = 'wallet' | 'card' | 'crypto'

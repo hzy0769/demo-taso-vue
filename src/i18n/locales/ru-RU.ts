@@ -698,7 +698,6 @@ export default {
   'pay.crypto.eta': 'Платёж завершится автоматически после зачисления',
   'pay.crypto.txid': 'Хеш транзакции',
   'pay.crypto.done': '{asset} зачислен',
-  'pay.crypto.cardEstimate': 'Сумма в HKD конвертирована по курсу — итого {amount}; расчёт — по курсу на момент зачисления.',
 
   'wallet.title': 'Кошелёк',
   'wallet.accountBadge': 'Счёт доходов',
