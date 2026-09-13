@@ -28,9 +28,10 @@ const USD = (n: number) => fmtMoney({ amount: n, currency: 'USD' })
       </div>
       <div class="num" style="font-size:24px;font-weight:700;margin-top:4px">{{ USD(app.bal) }}</div>
       <div class="row" style="margin-top:14px;gap:10px">
-        <button class="btn btn-p" style="flex:1" @click="show('topup')">{{ t('benefits.topup') }}</button>
-        <button class="btn btn-o" style="flex:1" @click="show('transactions')">{{ t('benefits.spendRecords') }}</button>
+        <button class="btn btn-p" style="flex:1" @click="show('topup-fiat')">{{ t('topup.fiatTitle') }}</button>
+        <button class="btn btn-gold" style="flex:1" @click="show('topup-crypto')">{{ t('topup.cryptoTitle') }}</button>
       </div>
+      <button class="btn btn-o" style="margin-top:10px" @click="show('transactions')">{{ t('benefits.spendRecords') }}</button>
     </div>
     <div class="card" style="margin-top:14px;padding:4px 14px">
       <button class="li" @click="show('card-apply')">

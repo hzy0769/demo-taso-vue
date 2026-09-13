@@ -37,7 +37,8 @@ import ScreenCardReview from './screens/ScreenCardReview.vue'
 import ScreenCardSuccess from './screens/ScreenCardSuccess.vue'
 import ScreenCardTracking from './screens/ScreenCardTracking.vue'
 import ScreenCardDetail from './screens/ScreenCardDetail.vue'
-import ScreenTopup from './screens/ScreenTopup.vue'
+import ScreenTopupFiat from './screens/ScreenTopupFiat.vue'
+import ScreenTopupCrypto from './screens/ScreenTopupCrypto.vue'
 import ScreenPayCard from './screens/ScreenPayCard.vue'
 import ScreenPayCrypto from './screens/ScreenPayCrypto.vue'
 import ScreenWallet from './screens/ScreenWallet.vue'
@@ -148,7 +149,8 @@ onMounted(() => {
         <ScreenCardSuccess />
         <ScreenCardTracking />
         <ScreenCardDetail />
-        <ScreenTopup />
+        <ScreenTopupFiat />
+        <ScreenTopupCrypto />
         <ScreenPayCard />
         <ScreenPayCrypto />
         <ScreenWallet />

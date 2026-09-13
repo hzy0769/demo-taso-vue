@@ -23,7 +23,7 @@ defineProps<{ quote: Quote }>()
     <div class="kv"><span class="k">{{ quote.tax.label }}</span><span class="v num">{{ quote.tax.money }}</span></div>
     <div class="kv"><span class="k">{{ quote.arrival.label }}</span><span class="v num" style="font-weight:700">{{ quote.arrival.money }}</span></div>
     <div class="kv"><span class="k">{{ t('quote.refund') }}</span><span class="v">{{ quote.refund }}</span></div>
-    <div class="kv"><span class="k">{{ t('quote.payee') }}</span><span class="v">{{ quote.payee }}</span></div>
-    <div class="kv"><span class="k">{{ t('quote.support') }}</span><span class="v">{{ quote.support }}</span></div>
+    <div class="kv"><span class="k">{{ t('quote.payeeLabel') }}</span><span class="v">{{ quote.payee }}</span></div>
+    <div class="kv"><span class="k">{{ t('quote.supportLabel') }}</span><span class="v">{{ quote.support }}</span></div>
   </div>
 </template>

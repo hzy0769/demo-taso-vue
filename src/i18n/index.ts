@@ -117,9 +117,12 @@ function suggestRegion(tz: string): ContentRegion {
   return hit ? { scope: 'city', country: hit.country, cityId: hit.cityId } : { scope: 'global', country: '' }
 }
 
+/** 國家 → 當地貨幣(僅 FX_RATES 支持幣種,歐元區共用 EUR;suggestPrefs 兜底 HKD、countryCurrencyOf 兜底 USD) */
 const COUNTRY_CURRENCY: Record<string, string> = {
-  HK: 'HKD', JP: 'JPY', KR: 'KRW', TH: 'THB', SG: 'SGD',
-  FR: 'EUR', VN: 'VND', RU: 'RUB', SA: 'SAR', AE: 'AED',
+  HK: 'HKD', TW: 'TWD', JP: 'JPY', KR: 'KRW', TH: 'THB', SG: 'SGD',
+  VN: 'VND', RU: 'RUB', SA: 'SAR', AE: 'AED', US: 'USD', CN: 'CNY',
+  FR: 'EUR', DE: 'EUR', IT: 'EUR', ES: 'EUR', NL: 'EUR', BE: 'EUR',
+  PT: 'EUR', IE: 'EUR', FI: 'EUR', GR: 'EUR', AT: 'EUR',
 }
 
 /** 首启建议偏好:全部标记 default,可跳过 / 可修改;显式保存后永不自动重置 */
@@ -338,6 +341,15 @@ export const UI_LANGS: NamedOption[] = [
   { code: 'ru-RU', name: 'Русский' },
 ]
 
+/** 顯示語言 → 語言所屬地區的本地貨幣(V2.12 語言與地區「本地貨幣」選項來源;與 UI_LANGS 同步) */
+export const LANG_CURRENCY: Record<string, string> = {
+  'zh-Hant-HK': 'HKD', 'zh-Hans-CN': 'CNY', en: 'USD', 'ja-JP': 'JPY', 'ko-KR': 'KRW',
+  'fr-FR': 'EUR', 'vi-VN': 'VND', 'th-TH': 'THB', 'ar-SA': 'SAR', 'ru-RU': 'RUB',
+}
+
+/** 「本地貨幣」下拉選項:語言對應地區貨幣按 UI_LANGS 順序去重 */
+export const LOCAL_CURRENCIES: string[] = [...new Set(UI_LANGS.map(l => LANG_CURRENCY[l.code] ?? 'USD'))]
+
 /* 地區元數據(REGIONS)已提升至 loadPrefs 之前:loadPrefs 在模塊初始化時經
    normalizeContentRegion 讀取 REGIONS,若聲明在後會因 TDZ 拋錯並被靜默
    吞掉,導致已存偏好每次冷啟動都被丟棄、回落默認值。 */
@@ -499,6 +511,21 @@ export const CURRENCIES = ['HKD', 'USD', 'JPY', 'TWD', 'KRW', 'SGD', 'THB', 'EUR
 /** 演示匯率(每單位 USD),正式版須接入受認可匯率來源 */
 export const FX_RATES: Record<string, number> = {
   USD: 1, HKD: 7.8, JPY: 150, TWD: 31.5, KRW: 1340, SGD: 1.34, THB: 34.5, EUR: 0.92,
-  VND: 26350, RUB: 92, SAR: 3.75, AED: 3.67,
+  VND: 26350, RUB: 92, SAR: 3.75, AED: 3.67, CNY: 7.25,
 }
 export const FX_UPDATED_AT = '2026-09-11T10:00:00+08:00'
+
+/** 貨幣 → 國家 / 地區代碼(國旗僅作貨幣的輔助視覺,與幣碼同現;EUR 用歐盟旗) */
+const CURRENCY_COUNTRY: Record<string, string> = {
+  HKD: 'HK', USD: 'US', CNY: 'CN', JPY: 'JP', KRW: 'KR', TWD: 'TW', SGD: 'SG',
+  THB: 'TH', EUR: 'EU', VND: 'VN', SAR: 'SA', AED: 'AE', RUB: 'RU',
+}
+export const currencyFlag = (code: string) => countryFlag(CURRENCY_COUNTRY[code] ?? '')
+
+/**
+ * 用戶國家 / 地區 → 當地展示貨幣(V2.11 快捷充值本地化展示):
+ * 僅映射到 FX_RATES 支持的幣種(歐元區共用 EUR),未覆蓋市場回退 USD。
+ * 賬號國家未確認(空)時由調用方回落 displayCurrency 偏好。
+ * (與 suggestPrefs 共用頂部 COUNTRY_CURRENCY 表)
+ */
+export const countryCurrencyOf = (code: string) => COUNTRY_CURRENCY[code] ?? 'USD'

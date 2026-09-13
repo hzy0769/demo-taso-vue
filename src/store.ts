@@ -13,7 +13,7 @@ export type ScreenId =
   | 'home' | 'post' | 'profile' | 'discover' | 'search'
   | 'merchant' | 'place'
   | 'benefits' | 'card-apply' | 'card-address' | 'card-country' | 'card-shipping' | 'card-review' | 'card-success' | 'card-tracking'
-  | 'my-card' | 'card-detail' | 'topup' | 'pay-card' | 'pay-crypto' | 'wallet' | 'dividend'
+  | 'my-card' | 'card-detail' | 'topup-fiat' | 'topup-crypto' | 'pay-card' | 'pay-crypto' | 'wallet' | 'dividend'
   | 'transactions' | 'wallet-transactions' | 'reimburse' | 'reimburse-detail' | 'withdraw'
   | 'referral' | 'referral-rules' | 'creator'
   | 'me' | 'settings' | 'language' | 'content-region' | 'security' | 'kyc' | 'notifications'
@@ -428,7 +428,8 @@ export function overlayFocusOut(root?: HTMLElement | null) {
 /** 启动逻辑:已登录恢复上次屏幕;回头客(已登出)直接进登录页;新用户进欢迎页 */
 export function bootstrap() {
   if (app.auth.user?.session) {
-    const saved = localStorage.getItem('taso-screen') as ScreenId | null
+    const raw = localStorage.getItem('taso-screen')
+    const saved = (raw === 'topup' ? 'topup-fiat' : raw) as ScreenId | null // V2.11 拆屏迁移
     const ok = saved && !NO_RESTORE.includes(saved)
     app.stack = [ok ? saved : 'home']
     show(app.stack[0], false)

@@ -39,9 +39,10 @@ const USD = (n: number) => fmtMoney({ amount: n, currency: 'USD' })
       </div>
       <div class="num" style="font-size:22px;font-weight:700;margin-top:4px">{{ USD(app.bal) }}</div>
       <div class="row" style="margin-top:12px;gap:10px">
-        <button class="btn btn-p" style="flex:1" @click="show('topup')">{{ t('benefits.topup') }}</button>
-        <button class="btn btn-o" style="flex:1" @click="show('transactions')">{{ t('benefits.spendRecords') }}</button>
+        <button class="btn btn-p" style="flex:1" @click="show('topup-fiat')">{{ t('topup.fiatTitle') }}</button>
+        <button class="btn btn-gold" style="flex:1" @click="show('topup-crypto')">{{ t('topup.cryptoTitle') }}</button>
       </div>
+      <button class="btn btn-o" style="margin-top:10px;width:100%" @click="show('transactions')">{{ t('benefits.spendRecords') }}</button>
     </div>
 
     <!-- 钱包:收益账户摘要(V1.9 起在权益页展示,与会员卡并列) -->
