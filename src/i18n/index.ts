@@ -12,6 +12,11 @@ import en from './locales/en'
 import zhHansCN from './locales/zh-Hans-CN'
 import jaJP from './locales/ja-JP'
 import koKR from './locales/ko-KR'
+import frFR from './locales/fr-FR'
+import viVN from './locales/vi-VN'
+import thTH from './locales/th-TH'
+import arSA from './locales/ar-SA'
+import ruRU from './locales/ru-RU'
 
 /* ── 偏好模型(§11.1)────────────────────────────────────────────── */
 
@@ -61,7 +66,10 @@ export const DEFAULT_PREFS: LocalizationPreferences = {
    不得引用文件后部才声明的 UI_LANGS / REGIONS(TDZ)。 */
 
 /** 建议可映射的 UI 语言主标签(与 UI_LANGS 保持同步) */
-const SUGGEST_LANGS: Record<string, string> = { en: 'en', ja: 'ja-JP', ko: 'ko-KR' }
+const SUGGEST_LANGS: Record<string, string> = {
+  en: 'en', ja: 'ja-JP', ko: 'ko-KR',
+  fr: 'fr-FR', vi: 'vi-VN', th: 'th-TH', ar: 'ar-SA', ru: 'ru-RU',
+}
 
 /** 浏览器语言 → 已收录 UI 语言;zh 按文字系统分流,未收录语言回退 English */
 export function suggestUiLocale(): string {
@@ -98,6 +106,10 @@ const TZ_CITY: Record<string, { cityId: string; country: string }> = {
   'Asia/Taipei': { cityId: 'taipei', country: 'TW' },
   'Europe/London': { cityId: 'london', country: 'GB' },
   'America/New_York': { cityId: 'new-york', country: 'US' },
+  'Europe/Paris': { cityId: 'paris', country: 'FR' },
+  'Asia/Ho_Chi_Minh': { cityId: 'ho-chi-minh', country: 'VN' },
+  'Europe/Moscow': { cityId: 'moscow', country: 'RU' },
+  'Asia/Riyadh': { cityId: 'riyadh', country: 'SA' },
 }
 
 function suggestRegion(tz: string): ContentRegion {
@@ -107,6 +119,7 @@ function suggestRegion(tz: string): ContentRegion {
 
 const COUNTRY_CURRENCY: Record<string, string> = {
   HK: 'HKD', JP: 'JPY', KR: 'KRW', TH: 'THB', SG: 'SGD',
+  FR: 'EUR', VN: 'VND', RU: 'RUB', SA: 'SAR', AE: 'AED',
 }
 
 /** 首启建议偏好:全部标记 default,可跳过 / 可修改;显式保存后永不自动重置 */
@@ -130,6 +143,7 @@ const MIGRATE_LANG: Record<string, string> = {
   'zh-CN': 'zh-Hans-CN', 'zh': 'zh-Hans-CN', 'zh-Hans': 'zh-Hans-CN',
   'zh-TW': 'zh-Hant-TW', 'zh-Hant': 'zh-Hant-HK',
   'ja': 'ja-JP', 'ko': 'ko-KR',
+  'fr': 'fr-FR', 'vi': 'vi-VN', 'th': 'th-TH', 'ar': 'ar-SA', 'ru': 'ru-RU',
 }
 
 function migrateLocale(v: string): { locale: string; source: PrefSource } {
@@ -147,19 +161,32 @@ export interface RegionOption {
 }
 
 export const REGIONS: RegionOption[] = [
-  { id: 'hong-kong', country: 'HK', names: { 'zh-Hant': '香港', 'zh-Hans': '香港', en: 'Hong Kong', ja: '香港', ko: '홍콩' }, aliases: ['HK', 'HongKong', '香港島'] },
-  { id: 'tokyo', country: 'JP', names: { 'zh-Hant': '東京', 'zh-Hans': '东京', en: 'Tokyo', ja: '東京', ko: '도쿄' }, aliases: ['Dongjing', 'トウキョウ'] },
-  { id: 'osaka', country: 'JP', names: { 'zh-Hant': '大阪', 'zh-Hans': '大阪', en: 'Osaka', ja: '大阪', ko: '오사카' }, aliases: [] },
-  { id: 'seoul', country: 'KR', names: { 'zh-Hant': '首爾', 'zh-Hans': '首尔', en: 'Seoul', ja: 'ソウル', ko: '서울' }, aliases: ['漢城', '首尔'] },
-  { id: 'bangkok', country: 'TH', names: { 'zh-Hant': '曼谷', 'zh-Hans': '曼谷', en: 'Bangkok', ja: 'バンコク', ko: '방콕' }, aliases: [] },
-  { id: 'chiang-mai', country: 'TH', names: { 'zh-Hant': '清邁', 'zh-Hans': '清迈', en: 'Chiang Mai', ja: 'チェンマイ', ko: '치앙마이' }, aliases: [] },
-  { id: 'phuket', country: 'TH', names: { 'zh-Hant': '布吉', 'zh-Hans': '普吉', en: 'Phuket', ja: 'プーケット', ko: '푸껫' }, aliases: [] },
-  { id: 'singapore', country: 'SG', names: { 'zh-Hant': '新加坡', 'zh-Hans': '新加坡', en: 'Singapore', ja: 'シンガポール', ko: '싱가포르' }, aliases: ['狮城', '獅城'] },
-  { id: 'shanghai', country: 'CN', names: { 'zh-Hant': '上海', 'zh-Hans': '上海', en: 'Shanghai', ja: '上海', ko: '상하이' }, aliases: [] },
-  { id: 'taipei', country: 'TW', names: { 'zh-Hant': '台北', 'zh-Hans': '台北', en: 'Taipei', ja: 'タイペイ', ko: '타이베이' }, aliases: [] },
-  { id: 'london', country: 'GB', names: { 'zh-Hant': '倫敦', 'zh-Hans': '伦敦', en: 'London', ja: 'ロンドン', ko: '런던' }, aliases: [] },
-  { id: 'new-york', country: 'US', names: { 'zh-Hant': '紐約', 'zh-Hans': '纽约', en: 'New York', ja: 'ニューヨーク', ko: '뉴욕' }, aliases: ['NYC'] },
+  { id: 'hong-kong', country: 'HK', names: { 'zh-Hant': '香港', 'zh-Hans': '香港', en: 'Hong Kong', ja: '香港', ko: '홍콩', fr: 'Hong Kong', vi: 'Hồng Kông', th: 'ฮ่องกง', ar: 'هونغ كونغ', ru: 'Гонконг' }, aliases: ['HK', 'HongKong', '香港島'] },
+  { id: 'tokyo', country: 'JP', names: { 'zh-Hant': '東京', 'zh-Hans': '东京', en: 'Tokyo', ja: '東京', ko: '도쿄', fr: 'Tokyo', vi: 'Tokyo', th: 'โตเกียว', ar: 'طوكيو', ru: 'Токио' }, aliases: ['Dongjing', 'トウキョウ'] },
+  { id: 'osaka', country: 'JP', names: { 'zh-Hant': '大阪', 'zh-Hans': '大阪', en: 'Osaka', ja: '大阪', ko: '오사카', fr: 'Osaka', vi: 'Osaka', th: 'โอซากา', ar: 'أوساكا', ru: 'Осака' }, aliases: [] },
+  { id: 'seoul', country: 'KR', names: { 'zh-Hant': '首爾', 'zh-Hans': '首尔', en: 'Seoul', ja: 'ソウル', ko: '서울', fr: 'Séoul', vi: 'Seoul', th: 'โซล', ar: 'سيول', ru: 'Сеул' }, aliases: ['漢城', '首尔'] },
+  { id: 'bangkok', country: 'TH', names: { 'zh-Hant': '曼谷', 'zh-Hans': '曼谷', en: 'Bangkok', ja: 'バンコク', ko: '방콕', fr: 'Bangkok', vi: 'Bangkok', th: 'กรุงเทพฯ', ar: 'بانكوك', ru: 'Бангкок' }, aliases: ['Krung Thep'] },
+  { id: 'chiang-mai', country: 'TH', names: { 'zh-Hant': '清邁', 'zh-Hans': '清迈', en: 'Chiang Mai', ja: 'チェンマイ', ko: '치앙마이', fr: 'Chiang Mai', vi: 'Chiang Mai', th: 'เชียงใหม่', ar: 'تشياغ ماي', ru: 'Чиангмай' }, aliases: [] },
+  { id: 'phuket', country: 'TH', names: { 'zh-Hant': '布吉', 'zh-Hans': '普吉', en: 'Phuket', ja: 'プーケット', ko: '푸껫', fr: 'Phuket', vi: 'Phuket', th: 'ภูเก็ต', ar: 'بوكيت', ru: 'Пхукет' }, aliases: [] },
+  { id: 'singapore', country: 'SG', names: { 'zh-Hant': '新加坡', 'zh-Hans': '新加坡', en: 'Singapore', ja: 'シンガポール', ko: '싱가포르', fr: 'Singapour', vi: 'Singapore', th: 'สิงคโปร์', ar: 'سنغافورة', ru: 'Сингапур' }, aliases: ['狮城', '獅城'] },
+  { id: 'shanghai', country: 'CN', names: { 'zh-Hant': '上海', 'zh-Hans': '上海', en: 'Shanghai', ja: '上海', ko: '상하이', fr: 'Shanghai', vi: 'Thượng Hải', th: 'เซี่ยงไฮ้', ar: 'شنغهاي', ru: 'Шанхай' }, aliases: [] },
+  { id: 'taipei', country: 'TW', names: { 'zh-Hant': '台北', 'zh-Hans': '台北', en: 'Taipei', ja: 'タイペイ', ko: '타이베이', fr: 'Taipei', vi: 'Đài Bắc', th: 'ไทเป', ar: 'تايبيه', ru: 'Тайбэй' }, aliases: [] },
+  { id: 'london', country: 'GB', names: { 'zh-Hant': '倫敦', 'zh-Hans': '伦敦', en: 'London', ja: 'ロンドン', ko: '런던', fr: 'Londres', vi: 'London', th: 'ลอนดอน', ar: 'لندن', ru: 'Лондон' }, aliases: [] },
+  { id: 'new-york', country: 'US', names: { 'zh-Hant': '紐約', 'zh-Hans': '纽约', en: 'New York', ja: 'ニューヨーク', ko: '뉴욕', fr: 'New York', vi: 'New York', th: 'นิวยอร์ก', ar: 'نيويورك', ru: 'Нью-Йорк' }, aliases: ['NYC'] },
+  { id: 'paris', country: 'FR', names: { 'zh-Hant': '巴黎', 'zh-Hans': '巴黎', en: 'Paris', ja: 'パリ', ko: '파리', fr: 'Paris', vi: 'Paris', th: 'ปารีส', ar: 'باريس', ru: 'Париж' }, aliases: ['City of Light'] },
+  { id: 'hanoi', country: 'VN', names: { 'zh-Hant': '河內', 'zh-Hans': '河内', en: 'Hanoi', ja: 'ハノイ', ko: '하노이', fr: 'Hanoï', vi: 'Hà Nội', th: 'ฮานอย', ar: 'هانوي', ru: 'Ханой' }, aliases: ['Ha Noi'] },
+  { id: 'ho-chi-minh', country: 'VN', names: { 'zh-Hant': '胡志明市', 'zh-Hans': '胡志明市', en: 'Ho Chi Minh City', ja: 'ホーチミン', ko: '호치민', fr: 'Hô-Chi-Minh-Ville', vi: 'Thành phố Hồ Chí Minh', th: 'โฮจิมินห์ซิตี', ar: 'هوشي منه', ru: 'Хошимин' }, aliases: ['Saigon', '西貢', '西贡'] },
+  { id: 'moscow', country: 'RU', names: { 'zh-Hant': '莫斯科', 'zh-Hans': '莫斯科', en: 'Moscow', ja: 'モスクワ', ko: '모스크바', fr: 'Moscou', vi: 'Moscow', th: 'มอสโก', ar: 'موسكو', ru: 'Москва' }, aliases: ['Moskva'] },
+  { id: 'riyadh', country: 'SA', names: { 'zh-Hant': '利雅德', 'zh-Hans': '利雅得', en: 'Riyadh', ja: 'リヤド', ko: '리야드', fr: 'Riyad', vi: 'Riyadh', th: 'ริยาด', ar: 'الرياض', ru: 'Эр-Рияд' }, aliases: ['Ar Riyadh', 'Al Riyadh'] },
 ]
+
+/** 阿拉伯文等从右到左書寫的 UI 語言(html dir 基礎鏡像,§7.3)。
+    必須聲明在 persist 之前:persist 在模塊初始化時即調用 isRtlLocale。 */
+export const RTL_LANGS = new Set(['ar', 'ar-SA'])
+
+export function isRtlLocale(locale: string): boolean {
+  return RTL_LANGS.has(locale) || RTL_LANGS.has(locale.split('-')[0])
+}
 
 function loadPrefs(): LocalizationPreferences {
   try {
@@ -195,9 +222,11 @@ function persist() {
   prefs.updatedAt = new Date().toISOString()
   localStorage.setItem(STORAGE_KEY, JSON.stringify(prefs))
   document.documentElement.lang = prefs.uiLocale
+  document.documentElement.dir = isRtlLocale(prefs.uiLocale) ? 'rtl' : 'ltr'
 }
 watch(prefs, persist, { deep: true })
 document.documentElement.lang = prefs.uiLocale
+document.documentElement.dir = isRtlLocale(prefs.uiLocale) ? 'rtl' : 'ltr'
 
 /** 匿名偏好與帳號偏好合併(§4.3):帳號已有顯式偏好時以帳號為準 */
 export function applyAccountPrefs(saved: Partial<LocalizationPreferences> | undefined): boolean {
@@ -231,6 +260,11 @@ const CATALOGS: Record<string, Catalog> = {
   'ja-JP': jaJP as Catalog,
   'ko-KR': koKR as Catalog,
   en: en as Catalog,
+  'fr-FR': frFR as Catalog, fr: frFR as Catalog,
+  'vi-VN': viVN as Catalog, vi: viVN as Catalog,
+  'th-TH': thTH as Catalog, th: thTH as Catalog,
+  'ar-SA': arSA as Catalog, ar: arSA as Catalog,
+  'ru-RU': ruRU as Catalog, ru: ruRU as Catalog,
 }
 
 /** zh-Hant-HK → zh-Hant;zh-Hans-CN → zh-Hans;ja-JP → ja */
@@ -290,13 +324,18 @@ export interface NamedOption {
   name: string
 }
 
-/** P0:zh-Hant-HK、en;P1:zh-Hans-CN、ja-JP、ko-KR(§5.1) */
+/** P0:zh-Hant-HK、en;P1:zh-Hans-CN、ja-JP、ko-KR;運營版:fr-FR、vi-VN、th-TH、ar-SA、ru-RU(§5.1) */
 export const UI_LANGS: NamedOption[] = [
   { code: 'zh-Hant-HK', name: '繁體中文(香港)' },
   { code: 'en', name: 'English' },
   { code: 'zh-Hans-CN', name: '简体中文' },
   { code: 'ja-JP', name: '日本語' },
   { code: 'ko-KR', name: '한국어' },
+  { code: 'fr-FR', name: 'Français' },
+  { code: 'vi-VN', name: 'Tiếng Việt' },
+  { code: 'th-TH', name: 'ไทย' },
+  { code: 'ar-SA', name: 'العربية' },
+  { code: 'ru-RU', name: 'Русский' },
 ]
 
 /* 地區元數據(REGIONS)已提升至 loadPrefs 之前:loadPrefs 在模塊初始化時經
@@ -449,15 +488,17 @@ export const uiLocaleLabel = (code: string) =>
 
 export const TIMEZONES = [
   'Asia/Hong_Kong', 'Asia/Tokyo', 'Asia/Seoul', 'Asia/Shanghai', 'Asia/Taipei',
-  'Asia/Bangkok', 'Asia/Singapore', 'Europe/London', 'America/New_York', 'UTC',
+  'Asia/Bangkok', 'Asia/Singapore', 'Europe/London', 'America/New_York',
+  'Europe/Paris', 'Asia/Ho_Chi_Minh', 'Europe/Moscow', 'Asia/Riyadh', 'UTC',
 ]
 
-export const CURRENCIES = ['HKD', 'USD', 'JPY', 'TWD', 'KRW', 'SGD', 'THB', 'EUR']
+export const CURRENCIES = ['HKD', 'USD', 'JPY', 'TWD', 'KRW', 'SGD', 'THB', 'EUR', 'VND', 'RUB', 'SAR', 'AED']
 
 /* ── 展示貨幣換算披露(§9.1:估算 + 匯率來源與時間)──────────────── */
 
 /** 演示匯率(每單位 USD),正式版須接入受認可匯率來源 */
 export const FX_RATES: Record<string, number> = {
   USD: 1, HKD: 7.8, JPY: 150, TWD: 31.5, KRW: 1340, SGD: 1.34, THB: 34.5, EUR: 0.92,
+  VND: 26350, RUB: 92, SAR: 3.75, AED: 3.67,
 }
 export const FX_UPDATED_AT = '2026-09-11T10:00:00+08:00'

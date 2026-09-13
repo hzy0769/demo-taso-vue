@@ -9,12 +9,12 @@ import { t, FX_RATES } from './i18n'
    - USDT / USDC → 選網絡 → 地址 + 二維碼 → 等待區塊確認
    上次使用的支付方式持久化(結賬最佳實踐:記住上次選擇)。
    結算幣種:註冊主體在香港,收款與扣款一律為港幣;會員卡為 Visa 美元
-   賬戶,到賬金額按後台匯率實時換匯為美元入賬(見 hkdToUsd)。 */
+   賬戶,到賬金額按匯率實時換匯為美元入賬(見 hkdToUsd)。 */
 
 /** 後台設置的港幣兌美元結算匯率:1 HKD ≈ 0.1282 USD(演示;正式版接入受認可匯率來源) */
 export const HKD_USD_RATE = 1 / FX_RATES.HKD
 
-/** 港幣金額 → 美元入賬金額(後台匯率實時換算) */
+/** 港幣金額 → 美元入賬金額(匯率實時換算) */
 export const hkdToUsd = (hkd: number) => hkd / FX_RATES.HKD
 
 export type PayMethodId = 'apple-pay' | 'google-pay' | 'card' | 'usdt' | 'usdc'
@@ -62,7 +62,7 @@ export interface PayRequest {
   lines: PayLine[]
   /** 主 CTA / 錢包彈層的合計文本 */
   totalText: string
-  /** USDT/USDC 實際需支付的美元等值金額(含手續費;港幣總額按後台匯率折算,穩定幣與美元 1:1) */
+  /** USDT/USDC 實際需支付的美元等值金額(含手續費;港幣總額按匯率折算,穩定幣與美元 1:1) */
   amountUSD: number
   /** 付款前披露(評審 §3.4:確認頁與錢包支付單複述同一份 Quote) */
   quote?: Quote

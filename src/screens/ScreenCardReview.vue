@@ -11,30 +11,28 @@ import QuoteDisclosure from '../components/QuoteDisclosure.vue'
 /**
  * P04 确认申请(全球配送 PRD §12 + V2.3 支付):
  * 汇总卡片 / 地址 / 配送方式 / 费用 + 地址确认勾选 + 支付方式选择;
- * 支付成功后才生成申请单(P05)。注册主体在香港:一律以港币扣款,
- * Visa 美元账户按后台汇率实时换汇入账;USDT / USDC 与美元 1:1,
- * 支付数量 = 港币金额按同一汇率折算的美元数(另含美元定价的运费)。
+ * 支付成功后才生成申请单(P05)。注册主体在香港:办理费与配送费均为
+ * 港币定价、合并港币支付(V2.4),Visa 美元账户按汇率实时换汇入账;
+ * USDT / USDC 与美元 1:1,支付数量 = 港币总额按同一汇率折算的美元数。
  */
 
 const lines = computed(() => addrLines(card.draft))
 const method = computed(() => methodOf(card.method))
 const eta = computed(() => { const [a, b] = etaRange(method.value.days); return etaText(a, b) })
-const feeText = (fee: number) => (fee ? fmtMoney({ amount: fee, currency: 'USD' }) : t('common.free'))
+const feeText = (fee: number) => (fee ? fmtMoney({ amount: fee, currency: 'HKD' }) : t('common.free'))
 const hkdFee = computed(() => fmtMoney({ amount: CARD_FEE_HKD, currency: 'HKD' }))
-const usdShip = computed(() => fmtMoney({ amount: method.value.fee, currency: 'USD' }))
-const total = computed(() =>
-  method.value.fee ? t('card.ship.totalSplit', { a: hkdFee.value, b: usdShip.value }) : hkdFee.value)
+const total = computed(() => fmtMoney({ amount: CARD_FEE_HKD + method.value.fee, currency: 'HKD' }))
 
 const confirmed = ref(false)
 const submitting = ref(false)
 
-/** 加密支付所需美元等值:办理费按后台汇率折算 + 运费(估算,§9.1) */
-const totalUSD = computed(() => hkdToUsd(CARD_FEE_HKD) + method.value.fee)
+/** 加密支付所需美元等值:港币总额(办理费 + 配送费)按汇率折算(估算,§9.1) */
+const totalUSD = computed(() => hkdToUsd(CARD_FEE_HKD + method.value.fee))
 
 const isCryptoSel = computed(() => pay.method === 'usdt' || pay.method === 'usdc')
 const cryptoAsset = computed(() => (pay.method === 'usdt' ? 'USDT' : 'USDC'))
 
-/** 付款前披露(评审 §3.4):办理费以 HKD 计价扣款,按后台汇率换汇入账并附时点 */
+/** 付款前披露(评审 §3.4):办理费以 HKD 计价扣款,按汇率换汇入账并附时点 */
 const quote = computed<Quote>(() => ({
   priceCurrency: 'HKD',
   chargeCurrency: isCryptoSel.value ? cryptoAsset.value : 'HKD',
@@ -56,7 +54,7 @@ function buildRequest(): PayRequest {
     purpose: 'card',
     lines: [
       { label: t('card.review.cardFee'), money: hkdFee.value },
-      ...(method.value.fee ? [{ label: t('card.review.shippingFee'), money: usdShip.value }] : []),
+      ...(method.value.fee ? [{ label: t('card.review.shippingFee'), money: feeText(method.value.fee) }] : []),
     ],
     totalText: isCrypto ? fmtMoney({ amount: totalUSD.value, currency: 'USD' }) : total.value,
     amountUSD: totalUSD.value,

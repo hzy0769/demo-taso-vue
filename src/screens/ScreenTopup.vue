@@ -12,7 +12,7 @@ import QuoteDisclosure from '../components/QuoteDisclosure.vue'
  * 金额 → 费用摘要 + 付款前固定披露(Quote,评审 §3.4)→ 钱包快捷按钮
  * (Apple Pay 仅苹果设备,点击即付)→ 其他方式单选列表 → 吸底支付栏。
  * 注册主体在香港:一律以港币(HKD)计价与扣款;会员卡为 Visa 美元账户,
- * 到账金额按后台汇率实时换汇为美元入账。USDT / USDC 与美元 1:1,
+ * 到账金额按汇率实时换汇为美元入账。USDT / USDC 与美元 1:1,
  * 支付数量 = 港币总额按同一汇率折算的美元数。加密方式带「地区相关」演示标签(评审 §3.2)。
  */
 
@@ -26,11 +26,11 @@ const total = computed(() => parsed.value * (1 + FEE_RATE))
 const HKD = (n: number) => fmtMoney({ amount: n, currency: 'HKD' })
 const USD = (n: number) => fmtMoney({ amount: n, currency: 'USD' })
 
-/** 后台汇率(1 HKD ≈ 0.1282 USD)与更新时点的展示文本 */
+/** 汇率(1 HKD ≈ 0.1282 USD)与更新时点的展示文本 */
 const rateText = HKD_USD_RATE.toFixed(4)
 const rateTime = fmtDate(FX_UPDATED_AT)
 
-/** 到账金额(美元):港币扣款按后台汇率实时换汇入账 */
+/** 到账金额(美元):港币扣款按汇率实时换汇入账 */
 const creditUSD = computed(() => hkdToUsd(parsed.value))
 
 const methods = computed(() => PAY_METHODS.filter(m => m.available))
@@ -72,7 +72,7 @@ function buildRequest(): PayRequest {
       { label: t('topup.fee', { rate: 16 }), money: HKD(fee.value) },
     ],
     totalText: HKD(total.value),
-    // USDT/USDC 1:1 美元:需支付数量 = 港币总额(含手续费)按后台汇率折算
+    // USDT/USDC 1:1 美元:需支付数量 = 港币总额(含手续费)按汇率折算
     amountUSD: hkdToUsd(total.value),
     quote: quote.value,
     onSuccess: () => {
@@ -141,7 +141,7 @@ function again() {
         </div>
       </div>
 
-      <!-- 费用摘要:港币扣款,到账按后台汇率实时换汇为美元 -->
+      <!-- 费用摘要:港币扣款,到账按汇率实时换汇为美元 -->
       <div class="card">
         <div class="kv">
           <span class="k">

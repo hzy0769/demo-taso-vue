@@ -12,12 +12,11 @@ const country = computed(() => countryOf(card.draft.countryCode))
 const lines = computed(() => addrLines(card.draft))
 const method = computed(() => methodOf(card.method))
 
-/** 配送费(US$)与办理费(HK$)不同币种,分开列示、不静默相加(§9.1) */
-const feeText = (fee: number) => (fee ? fmtMoney({ amount: fee, currency: 'USD' }) : t('common.free'))
+/** 配送费与办理费同为港币定价(V2.4),分开列示、同币种合并合计 */
+const feeText = (fee: number) => (fee ? fmtMoney({ amount: fee, currency: 'HKD' }) : t('common.free'))
 const etaOf = (days: [number, number]) => { const [a, b] = etaRange(days); return etaText(a, b) }
 const hkdFee = computed(() => fmtMoney({ amount: CARD_FEE_HKD, currency: 'HKD' }))
-const total = computed(() =>
-  method.value.fee ? t('card.ship.totalSplit', { a: hkdFee.value, b: fmtMoney({ amount: method.value.fee, currency: 'USD' }) }) : hkdFee.value)
+const total = computed(() => fmtMoney({ amount: CARD_FEE_HKD + method.value.fee, currency: 'HKD' }))
 
 function setMethod(code: 'standard' | 'express') {
   if (code === 'express' && country.value && !country.value.express) {

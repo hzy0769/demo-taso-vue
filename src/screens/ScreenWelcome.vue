@@ -40,7 +40,7 @@ const suggested = computed(() => t('welcome.suggestHint', {
     <div style="display:flex;justify-content:flex-end;padding:10px 0">
       <button class="bk" style="width:auto;padding:0 10px;font-size:13px;color:var(--muted)" @click="show('login')">{{ t('welcome.skip') }}</button>
     </div>
-    <h1 style="font-size:26px;font-weight:700;letter-spacing:-.02em;line-height:1.3">Welcome to Taso<br /><span class="gold">{{ t('welcome.title') }}</span></h1>
+    <h1 style="font-size:26px;font-weight:700;letter-spacing:-.02em;line-height:1.3">{{ t('welcome.heading') }}<br /><span class="gold">{{ t('welcome.title') }}</span></h1>
     <p class="meta" style="margin-top:6px">{{ t('welcome.sub') }}</p>
 
     <!-- 设备建议说明(评审 §1:建议而非预设;未使用定位权限) -->

@@ -356,3 +356,16 @@ a{color:inherit;text-decoration:none}
   .statusbar{padding-top:max(14px,env(safe-area-inset-top))}
   .tabbar{padding-bottom:max(8px,env(safe-area-inset-bottom))}
 }
+
+/* ── RTL 基础镜像(阿拉伯文 ar-SA,设计方案 §7.3)───────────────────────
+   弹性布局随 html[dir=rtl] 自动镜像;这里只翻转物理属性写的装饰与对齐。 */
+html[dir="rtl"] .li,html[dir="rtl"] .li-title,html[dir="rtl"] .li-sub,
+html[dir="rtl"] .menu-btn,html[dir="rtl"] .pick,html[dir="rtl"] .conv,
+html[dir="rtl"] .ctry,html[dir="rtl"] .opt,html[dir="rtl"] .ckrow{text-align:right}
+html[dir="rtl"] .kv .v,html[dir="rtl"] .pick .v{text-align:left}
+html[dir="rtl"] .switch::after{left:auto;right:3px;transition:right .15s}
+html[dir="rtl"] .switch.on::after{right:23px}
+html[dir="rtl"] .av-dot{right:auto;left:-1px}
+html[dir="rtl"] .bk .rdot{right:auto;left:3px}
+html[dir="rtl"] .seg .sup{margin-left:0;margin-right:4px}
+html[dir="rtl"] .bk .ic{transform:scaleX(-1)}

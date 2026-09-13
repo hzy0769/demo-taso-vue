@@ -35,7 +35,7 @@ function copyId() {
         <div class="kv" style="margin-top:8px"><span class="k">{{ t('card.success.estDelivery') }}</span><span class="v num">{{ etaText(card.order.etaFrom, card.order.etaTo) }}</span></div>
         <div v-if="card.order.paidVia" class="kv"><span class="k">{{ t('pay.paidVia') }}</span><span class="v">{{ card.order.paidVia }}</span></div>
         <div class="kv"><span class="k">{{ t('card.success.cardFeePaid') }}</span><span class="v num">{{ fmtMoney({ amount: CARD_FEE_HKD, currency: 'HKD' }) }}</span></div>
-        <div class="kv"><span class="k">{{ t('card.success.shippingPaid') }}</span><span class="v num">{{ card.order.shippingFee ? fmtMoney({ amount: card.order.shippingFee, currency: 'USD' }) : t('common.free') }}</span></div>
+        <div class="kv"><span class="k">{{ t('card.success.shippingPaid') }}</span><span class="v num">{{ card.order.shippingFee ? fmtMoney({ amount: card.order.shippingFee, currency: 'HKD' }) : t('common.free') }}</span></div>
       </div>
 
       <button class="btn btn-p" style="margin-top:20px" @click="show('card-tracking')">{{ t('card.success.viewTracking') }}</button>

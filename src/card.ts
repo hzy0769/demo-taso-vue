@@ -180,13 +180,13 @@ export interface ShippingMethod {
   code: 'standard' | 'express'
   nameKey: string
   days: [number, number]
-  /** 配送費 US$(實體卡辦理費為發卡機構港幣定價,是全平台唯一非美元金額) */
+  /** 配送費 HK$(與辦理費同幣種,合併港幣支付;Express ≈US$12.99 按演示匯率 7.8 折算) */
   fee: number
 }
 
 export const METHODS: ShippingMethod[] = [
   { code: 'standard', nameKey: 'card.ship.standard', days: [5, 10], fee: 0 },
-  { code: 'express', nameKey: 'card.ship.express', days: [2, 4], fee: 12.99 },
+  { code: 'express', nameKey: 'card.ship.express', days: [2, 4], fee: 101.3 },
 ]
 
 export const methodOf = (code: string) => METHODS.find(m => m.code === code) ?? METHODS[0]

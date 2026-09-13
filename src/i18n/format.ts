@@ -49,18 +49,23 @@ export function fmtMoneyEstimate(m: Money, displayCurrency: string): { text: str
   return { text, rateNote: t('money.estRateNote', { rate, time: at }) }
 }
 
-/** 自然日(YYYY-MM-DD)格式化:結算週期、發放日等 LocalDate 字段(§9.2) */
+/** 自然日(YYYY-MM-DD)格式化:結算週期、發放日等 LocalDate 字段(§9.2)。
+    容錼:誤傳完整 ISO 時刻時按時刻解析;無效輸入原樣返回,不拋錯炸掉渲染樹。 */
 export function fmtLocalDate(iso: string): string {
+  const d = new Date(iso.includes('T') ? iso : `${iso}T00:00:00Z`)
+  if (Number.isNaN(d.getTime())) return iso
   return new Intl.DateTimeFormat(prefs.uiLocale, {
     timeZone: 'UTC', year: 'numeric', month: 'long', day: 'numeric',
-  }).format(new Date(`${iso}T00:00:00Z`))
+  }).format(d)
 }
 
 /** 自然日短格式(範圍兩端、ETA):zh「9月8日」/ en「Sep 8」 */
 export function fmtLocalDateShort(iso: string): string {
+  const d = new Date(iso.includes('T') ? iso : `${iso}T00:00:00Z`)
+  if (Number.isNaN(d.getTime())) return iso
   return new Intl.DateTimeFormat(prefs.uiLocale, {
     timeZone: 'UTC', month: 'short', day: 'numeric',
-  }).format(new Date(`${iso}T00:00:00Z`))
+  }).format(d)
 }
 
 /** 時刻 → 用戶時區完整日期時間(§9.2 示例:2026年9月8日 19:30) */
