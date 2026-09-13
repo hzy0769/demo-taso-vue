@@ -20,7 +20,7 @@ const net = computed(() => netOf(req.value?.network ?? ''))
 const address = computed(() => (req.value ? cryptoAddress() : ''))
 const assetName = computed(() => (req.value?.asset === 'usdt' ? 'USDT' : 'USDC'))
 
-/** 代币金额:稳定币按 ≈US$1:1 结算,直接以 USD 金额展示为代币数量 */
+/** 代币数量:U 币与美元 1:1,金额为港币总额按后台汇率折算的美元等值 */
 const tokenAmount = computed(() => {
   const n = req.value?.amountUSD ?? 0
   return `${n.toLocaleString(prefs.uiLocale, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ${assetName.value}`

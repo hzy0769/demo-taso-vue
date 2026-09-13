@@ -2,16 +2,18 @@
 import { computed, ref } from 'vue'
 import { app, show, toast } from '../store'
 import { CARD_FEE_HKD, card, etaRange, etaText, methodOf, methodName, phoneText, submitOrder, addrLines } from '../card'
-import { t, FX_RATES, FX_UPDATED_AT } from '../i18n'
+import { t, FX_UPDATED_AT } from '../i18n'
 import { fmtMoney, fmtDate } from '../i18n/format'
-import { pay, payMethodName, startCard, startCrypto, startWallet, openPicker, lastPaidText, type PayRequest, type Quote } from '../pay'
+import { pay, payMethodName, startCard, startCrypto, startWallet, openPicker, lastPaidText, hkdToUsd, HKD_USD_RATE, type PayRequest, type Quote } from '../pay'
 import PageHeader from '../components/PageHeader.vue'
 import QuoteDisclosure from '../components/QuoteDisclosure.vue'
 
 /**
  * P04 确认申请(全球配送 PRD §12 + V2.3 支付):
  * 汇总卡片 / 地址 / 配送方式 / 费用 + 地址确认勾选 + 支付方式选择;
- * 支付成功后才生成申请单(P05)。加密方式按估算汇率折算 USD 支付。
+ * 支付成功后才生成申请单(P05)。注册主体在香港:一律以港币扣款,
+ * Visa 美元账户按后台汇率实时换汇入账;USDT / USDC 与美元 1:1,
+ * 支付数量 = 港币金额按同一汇率折算的美元数(另含美元定价的运费)。
  */
 
 const lines = computed(() => addrLines(card.draft))
@@ -26,19 +28,17 @@ const total = computed(() =>
 const confirmed = ref(false)
 const submitting = ref(false)
 
-/** 加密支付所需 USD 金额:办理费按演示汇率折算 + 运费(估算,§9.1) */
-const totalUSD = computed(() => CARD_FEE_HKD / FX_RATES.HKD + method.value.fee)
+/** 加密支付所需美元等值:办理费按后台汇率折算 + 运费(估算,§9.1) */
+const totalUSD = computed(() => hkdToUsd(CARD_FEE_HKD) + method.value.fee)
 
 const isCryptoSel = computed(() => pay.method === 'usdt' || pay.method === 'usdc')
 const cryptoAsset = computed(() => (pay.method === 'usdt' ? 'USDT' : 'USDC'))
 
-/** 付款前披露(评审 §3.4):办理费以 HKD 计价,非 HKD 方式附演示汇率与时点 */
+/** 付款前披露(评审 §3.4):办理费以 HKD 计价扣款,按后台汇率换汇入账并附时点 */
 const quote = computed<Quote>(() => ({
   priceCurrency: 'HKD',
   chargeCurrency: isCryptoSel.value ? cryptoAsset.value : 'HKD',
-  fxNote: isCryptoSel.value
-    ? t('quote.fxNote', { rate: (1 / FX_RATES.HKD).toFixed(4), time: fmtDate(FX_UPDATED_AT) })
-    : t('quote.fxNone'),
+  fxNote: t('quote.fxNote', { rate: HKD_USD_RATE.toFixed(4), time: fmtDate(FX_UPDATED_AT) }),
   platformFee: { label: t('card.review.cardFee'), money: hkdFee.value },
   networkFee: isCryptoSel.value
     ? { label: t('quote.networkFee'), money: t('quote.borneBySender') }

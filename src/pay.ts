@@ -1,5 +1,5 @@
 import { reactive, watch } from 'vue'
-import { t } from './i18n'
+import { t, FX_RATES } from './i18n'
 
 /* ── 支付方式與支付流(V2.3 · 參考 Stripe Express Checkout / Apple HIG /
    Google Pay 品牌規範 / Kraken·Crypto.com 穩定幣入金流程)──────────────
@@ -7,7 +7,15 @@ import { t } from './i18n'
    - 錢包(Apple Pay / Google Pay)→ 系統支付單模擬彈層,生物識別後即時完成
    - 銀行卡 → 卡表單屏(P04 之後的獨立步驟)
    - USDT / USDC → 選網絡 → 地址 + 二維碼 → 等待區塊確認
-   上次使用的支付方式持久化(結賬最佳實踐:記住上次選擇)。 */
+   上次使用的支付方式持久化(結賬最佳實踐:記住上次選擇)。
+   結算幣種:註冊主體在香港,收款與扣款一律為港幣;會員卡為 Visa 美元
+   賬戶,到賬金額按後台匯率實時換匯為美元入賬(見 hkdToUsd)。 */
+
+/** 後台設置的港幣兌美元結算匯率:1 HKD ≈ 0.1282 USD(演示;正式版接入受認可匯率來源) */
+export const HKD_USD_RATE = 1 / FX_RATES.HKD
+
+/** 港幣金額 → 美元入賬金額(後台匯率實時換算) */
+export const hkdToUsd = (hkd: number) => hkd / FX_RATES.HKD
 
 export type PayMethodId = 'apple-pay' | 'google-pay' | 'card' | 'usdt' | 'usdc'
 export type PayKind = 'wallet' | 'card' | 'crypto'
@@ -54,7 +62,7 @@ export interface PayRequest {
   lines: PayLine[]
   /** 主 CTA / 錢包彈層的合計文本 */
   totalText: string
-  /** USDT/USDC 實際需支付的 USD 金額(含手續費;穩定幣按 ≈1:1 結算) */
+  /** USDT/USDC 實際需支付的美元等值金額(含手續費;港幣總額按後台匯率折算,穩定幣與美元 1:1) */
   amountUSD: number
   /** 付款前披露(評審 §3.4:確認頁與錢包支付單複述同一份 Quote) */
   quote?: Quote
