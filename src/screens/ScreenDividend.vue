@@ -9,10 +9,9 @@ import { t } from '../i18n'
 import { fmtMoney, fmtLocalDate, fmtLocalDateShort } from '../i18n/format'
 import PageHeader from '../components/PageHeader.vue'
 
-/** 每期按双公式现算(§79):
-    销售分红 = 平台总销售额 × 14% × (关联销售总额(下 3 级) ÷ 平台总销售额)
-    充值分红 = 会员总充值额 × 0.35% × (关联充值额(下 3 级) ÷ 会员总充值额) */
-const LEVELS = 3
+/** 每期按双公式现算(§79;V3.3 起关联额统计股东全部关联层级,不再限下 3 级):
+    销售分红 = 平台总销售额 × 14% × (关联销售总额 ÷ 平台总销售额)
+    充值分红 = 会员总充值额 × 0.35% × (关联充值额 ÷ 会员总充值额) */
 const SALES_PCT = Math.round(DIVIDEND_RATE * 100)
 const RECHARGE_PCT = (DIVIDEND_RECHARGE_RATE * 100).toFixed(2).replace(/\.?0+$/, '')
 
@@ -86,9 +85,9 @@ const pct = (r: number) => new Intl.NumberFormat('en', { style: 'percent', minim
 
     <div class="card" style="margin-top:14px">
       <div class="row-b"><b style="font-size:14px">{{ t('dividend.formulaTitle') }}</b><span class="badge soft">{{ t('dividend.monthly') }}</span></div>
-      <div class="formula">{{ t('dividend.formulaSales', { rate: SALES_PCT, levels: LEVELS }) }}</div>
-      <div class="formula" style="margin-top:8px">{{ t('dividend.formulaRecharge', { rate: RECHARGE_PCT, levels: LEVELS }) }}</div>
-      <p class="meta" style="margin-top:10px">{{ t('dividend.formulaNote', { levels: LEVELS }) }}</p>
+      <div class="formula">{{ t('dividend.formulaSales', { rate: SALES_PCT }) }}</div>
+      <div class="formula" style="margin-top:8px">{{ t('dividend.formulaRecharge', { rate: RECHARGE_PCT }) }}</div>
+      <p class="meta" style="margin-top:10px">{{ t('dividend.formulaNote') }}</p>
     </div>
 
     <div class="stack" style="margin-top:14px">
@@ -112,7 +111,7 @@ const pct = (r: number) => new Intl.NumberFormat('en', { style: 'percent', minim
         <div style="margin-top:2px">
           <div class="kv"><span class="k">{{ t('dividend.platformSales') }}</span><span class="v num">{{ USD(r.platformSales) }}</span></div>
           <div class="kv"><span class="k">{{ t('dividend.pool', { rate: SALES_PCT }) }}</span><span class="v num">{{ USD(r.salesPool) }}</span></div>
-          <div class="kv"><span class="k">{{ t('dividend.relatedSales', { levels: LEVELS }) }}</span><span class="v num">{{ USD(r.relatedSales) }}</span></div>
+          <div class="kv"><span class="k">{{ t('dividend.relatedSales') }}</span><span class="v num">{{ USD(r.relatedSales) }}</span></div>
           <div class="kv"><span class="k">{{ t('dividend.poolRatio') }}</span><span class="v num gold">{{ pct(r.salesRatio) }}</span></div>
         </div>
 
@@ -123,7 +122,7 @@ const pct = (r: number) => new Intl.NumberFormat('en', { style: 'percent', minim
         <div style="margin-top:2px">
           <div class="kv"><span class="k">{{ t('dividend.platformRecharge') }}</span><span class="v num">{{ USD(r.platformRecharge) }}</span></div>
           <div class="kv"><span class="k">{{ t('dividend.pool', { rate: RECHARGE_PCT }) }}</span><span class="v num">{{ USD(r.rechargePool) }}</span></div>
-          <div class="kv"><span class="k">{{ t('dividend.relatedRecharge', { levels: LEVELS }) }}</span><span class="v num">{{ USD(r.relatedRecharge) }}</span></div>
+          <div class="kv"><span class="k">{{ t('dividend.relatedRecharge') }}</span><span class="v num">{{ USD(r.relatedRecharge) }}</span></div>
           <div class="kv"><span class="k">{{ t('dividend.poolRatio') }}</span><span class="v num gold">{{ pct(r.rechargeRatio) }}</span></div>
         </div>
       </div>
