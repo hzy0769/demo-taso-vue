@@ -1,12 +1,14 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import { app, toast } from '../store'
+import { card, cardPanMasked } from '../card'
 import { t } from '../i18n'
 import { fmtMoney } from '../i18n/format'
 import PageHeader from '../components/PageHeader.vue'
 import TasoCard from '../components/TasoCard.vue'
 
 const frozen = ref(false)
+const activated = computed(() => !!card.activation)
 const USD = (n: number) => fmtMoney({ amount: n, currency: 'USD' })
 
 function toggleFreeze() {
@@ -23,9 +25,10 @@ function toggleFreeze() {
         <button class="bk" :aria-label="t('a11y.more')" @click="toast(t('profile.moreToast'))"><svg class="ic"><use href="#i-more"/></svg></button>
       </template>
     </PageHeader>
-    <TasoCard pan="•••• •••• •••• 3812" style="margin-top:10px">
+    <TasoCard :pan="cardPanMasked()" style="margin-top:10px">
       <template #top-right>
-        <span class="badge ok" style="background:color-mix(in oklch,var(--ok) 18%,transparent)">{{ t('mycard.activated') }}</span>
+        <span v-if="activated" class="badge ok" style="background:color-mix(in oklch,var(--ok) 18%,transparent)">{{ t('mycard.activated') }}</span>
+        <span v-else class="badge warn">{{ t('mycard.notActivated') }}</span>
       </template>
       <div class="row-b" style="margin-top:14px">
         <span class="meta" style="color:color-mix(in oklch,var(--fg) 62%,transparent)">Alex · 09/28</span>

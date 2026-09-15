@@ -1,10 +1,14 @@
 <script setup lang="ts">
+import { computed } from 'vue'
 import { app, show } from '../store'
-import { card, CARD_FEE_HKD } from '../card'
+import { card, cardPanMasked, CARD_FEE_HKD } from '../card'
 import { t } from '../i18n'
 import { fmtMoney } from '../i18n/format'
 import PageHeader from '../components/PageHeader.vue'
 import TasoCard from '../components/TasoCard.vue'
+
+/** App 內激活(V3.2):未激活顯示「未激活」徽標與激活入口,充值/消費記錄入口隱藏 */
+const activated = computed(() => !!card.activation)
 
 const USD = (n: number) => fmtMoney({ amount: n, currency: 'USD' })
 </script>
@@ -12,9 +16,10 @@ const USD = (n: number) => fmtMoney({ amount: n, currency: 'USD' })
 <template>
   <section class="scr" :class="{ on: app.screen === 'my-card' }" data-screen="my-card">
     <PageHeader :title="t('mycard.title')" />
-    <TasoCard pan="•••• •••• •••• 3812" style="cursor:pointer" @click="show('card-detail')">
+    <TasoCard :pan="cardPanMasked()" style="cursor:pointer" @click="show('card-detail')">
       <template #top-right>
-        <span class="badge ok">{{ t('mycard.activated') }}</span>
+        <span v-if="activated" class="badge ok">{{ t('mycard.activated') }}</span>
+        <span v-else class="badge warn">{{ t('mycard.notActivated') }}</span>
       </template>
       <div class="row-b" style="margin-top:14px">
         <span class="meta" style="color:color-mix(in oklch,var(--fg) 62%,transparent)">Alex · 09/28</span>
@@ -27,11 +32,19 @@ const USD = (n: number) => fmtMoney({ amount: n, currency: 'USD' })
         <span class="badge soft">{{ t('benefits.spendOnly') }}</span>
       </div>
       <div class="num" style="font-size:24px;font-weight:700;margin-top:4px">{{ USD(app.bal) }}</div>
-      <div class="row" style="margin-top:14px;gap:10px">
-        <button class="btn btn-p" style="flex:1" @click="show('topup-fiat')">{{ t('topup.fiatTitle') }}</button>
-        <button class="btn btn-gold" style="flex:1" @click="show('topup-crypto')">{{ t('topup.cryptoTitle') }}</button>
-      </div>
-      <button class="btn btn-o" style="margin-top:10px" @click="show('transactions')">{{ t('benefits.spendRecords') }}</button>
+      <template v-if="activated">
+        <div class="row" style="margin-top:14px;gap:10px">
+          <button class="btn btn-p" style="flex:1" @click="show('topup-fiat')">{{ t('topup.fiatTitle') }}</button>
+          <button class="btn btn-gold" style="flex:1" @click="show('topup-crypto')">{{ t('topup.cryptoTitle') }}</button>
+        </div>
+        <button class="btn btn-o" style="margin-top:10px" @click="show('transactions')">{{ t('benefits.spendRecords') }}</button>
+      </template>
+      <template v-else>
+        <button class="btn btn-gold" style="margin-top:14px" @click="show('card-activate')">
+          <svg class="ic sm"><use href="#i-card"/></svg>{{ t('mycard.activate') }}
+        </button>
+        <p class="meta" style="margin-top:10px">{{ t('mycard.activateSub') }}</p>
+      </template>
     </div>
     <div class="card" style="margin-top:14px;padding:4px 14px">
       <button class="li" @click="show('card-apply')">

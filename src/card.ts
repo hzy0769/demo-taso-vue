@@ -219,18 +219,29 @@ export interface CardOrder {
   paidVia?: string
 }
 
+/* ── App 內激活(V3.2:填卡號 → 設置卡密碼 → 首次充值,三步完成)────── */
+
+export interface CardActivation {
+  /** 激活時輸入的卡號(演示態僅存明文供卡面掩碼展示;正式版不落明文,同 pay.card.note 口徑) */
+  cardNo: string
+  /** 激活日期(自然日 YYYY-MM-DD) */
+  activatedAt: string
+}
+
 interface CardState {
   draft: CardAddress
   saveDefault: boolean
   default: CardAddress | null
   method: 'standard' | 'express'
   order: CardOrder | null
+  /** null = 未激活(P401A/P401 顯示「未激活」徽標與激活入口;充值/消費記錄入口隱藏) */
+  activation: CardActivation | null
 }
 
 /** 新草稿默認國家為 HK(本地化方案 §4.1) */
 const seedDraft = (): CardAddress => ({ countryCode: 'HK', values: {}, dial: '+852', phone: '' })
 
-const seed = (): CardState => ({ draft: seedDraft(), saveDefault: true, default: null, method: 'standard', order: null })
+const seed = (): CardState => ({ draft: seedDraft(), saveDefault: true, default: null, method: 'standard', order: null, activation: null })
 
 function loadCard(): CardState {
   try {
@@ -239,6 +250,8 @@ function loadCard(): CardState {
       const s = JSON.parse(raw) as CardState
       if (s && typeof s.draft === 'object' && typeof s.draft.values === 'object') {
         const st = { ...seed(), ...s }
+        // 舊存檔 / 損壞數據無 activation → 保持 null(未激活態)
+        if (st.activation && typeof st.activation.cardNo !== 'string') st.activation = null
         if (!countryOf(st.draft.countryCode)) st.draft = seedDraft()
         // 已保存默認地址可再次使用:草稿為空時帶入(§16 / P01 §4.2)
         const empty = !Object.keys(st.draft.values).length && !st.draft.phone
@@ -265,6 +278,20 @@ watch(card, persistCard, { deep: true })
 export function resetCard() {
   Object.assign(card, seed())
   card.draft = seedDraft()
+}
+
+/* ── App 內激活(V3.2 · P401B 三步:填卡號 → 設置卡密碼 → 首次充值)──── */
+
+/** 卡面掩碼 PAN:未激活顯示全掩碼;激活後顯示用戶輸入卡號的末四位 */
+export function cardPanMasked(): string {
+  if (!card.activation) return '•••• •••• •••• ••••'
+  const last4 = card.activation.cardNo.replace(/\D/g, '').slice(-4)
+  return `•••• •••• •••• ${last4}`
+}
+
+/** 完成激活(首次充值支付成功後由 P401B 調用);卡密碼僅在流程內使用,不落任何存儲 */
+export function activateCard(cardNo: string) {
+  card.activation = { cardNo, activatedAt: new Date().toISOString().slice(0, 10) }
 }
 
 /** 切換國家:保留同名欄位值、重置區號;返回此前是否已填地址(供調用方提示 §8.2) */

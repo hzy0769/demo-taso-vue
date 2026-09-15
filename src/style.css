@@ -76,6 +76,8 @@ a{color:inherit;text-decoration:none}
 .chips{display:flex;gap:8px;overflow-x:auto;padding:2px;scrollbar-width:none}
 .chips::-webkit-scrollbar{display:none}
 .chips .chip{flex:none}
+/* 激活三步進度(V3.2):三枚等寬步驟籤,當前及已完成高亮;超長語言回退默認橫向滾動 */
+.steps .chip{flex:1;justify-content:center;min-height:38px;padding:7px 6px;font-size:12px;gap:5px;white-space:nowrap}
 .li{display:flex;align-items:center;gap:12px;min-height:52px;padding:10px 4px;border-radius:12px;text-align:left;width:100%}
 .li+.li{border-top:1px solid var(--border)}
 .li .li-ic{width:36px;height:36px;border-radius:10px;display:grid;place-items:center;background:var(--fg-soft);flex:none}

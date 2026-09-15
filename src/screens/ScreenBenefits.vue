@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { app, show } from '../store'
+import { card, cardPanMasked } from '../card'
 import { DIVIDEND_TOTAL } from '../data'
 import { t } from '../i18n'
 import { fmtMoney } from '../i18n/format'
@@ -9,6 +10,9 @@ import TasoCard from '../components/TasoCard.vue'
 
 /** 股东账号展示「股东分红」入口(V1.6) */
 const isHolder = computed(() => app.auth.user?.role === 'shareholder')
+
+/** App 內激活(V3.2):未激活顯示「未激活」徽標與激活入口,充值/消費記錄入口隱藏 */
+const activated = computed(() => !!card.activation)
 
 const USD = (n: number) => fmtMoney({ amount: n, currency: 'USD' })
 </script>
@@ -26,7 +30,11 @@ const USD = (n: number) => fmtMoney({ amount: n, currency: 'USD' })
       <span>{{ t('benefits.memberCard') }}</span>
       <button class="sec-more" @click="show('my-card')">{{ t('benefits.myCard') }} ›</button>
     </div>
-    <TasoCard pan="•••• •••• •••• 3812" style="cursor:pointer" @click="show('my-card')">
+    <TasoCard :pan="cardPanMasked()" style="cursor:pointer" @click="show('my-card')">
+      <template #top-right>
+        <span v-if="!activated" class="badge warn">{{ t('mycard.notActivated') }}</span>
+        <span v-else class="visa">VISA</span>
+      </template>
       <div class="row-b" style="margin-top:14px">
         <span class="meta" style="color:color-mix(in oklch,var(--fg) 62%,transparent)">Alex · 09/28</span>
         <span class="meta" style="color:color-mix(in oklch,var(--fg) 62%,transparent)">GOLD MEMBER</span>
@@ -38,11 +46,19 @@ const USD = (n: number) => fmtMoney({ amount: n, currency: 'USD' })
         <span class="badge soft">{{ t('benefits.spendOnly') }}</span>
       </div>
       <div class="num" style="font-size:22px;font-weight:700;margin-top:4px">{{ USD(app.bal) }}</div>
-      <div class="row" style="margin-top:12px;gap:10px">
-        <button class="btn btn-p" style="flex:1" @click="show('topup-fiat')">{{ t('topup.fiatTitle') }}</button>
-        <button class="btn btn-gold" style="flex:1" @click="show('topup-crypto')">{{ t('topup.cryptoTitle') }}</button>
-      </div>
-      <button class="btn btn-o" style="margin-top:10px;width:100%" @click="show('transactions')">{{ t('benefits.spendRecords') }}</button>
+      <template v-if="activated">
+        <div class="row" style="margin-top:12px;gap:10px">
+          <button class="btn btn-p" style="flex:1" @click="show('topup-fiat')">{{ t('topup.fiatTitle') }}</button>
+          <button class="btn btn-gold" style="flex:1" @click="show('topup-crypto')">{{ t('topup.cryptoTitle') }}</button>
+        </div>
+        <button class="btn btn-o" style="margin-top:10px;width:100%" @click="show('transactions')">{{ t('benefits.spendRecords') }}</button>
+      </template>
+      <template v-else>
+        <button class="btn btn-gold" style="margin-top:12px" @click="show('card-activate')">
+          <svg class="ic sm"><use href="#i-card"/></svg>{{ t('mycard.activate') }}
+        </button>
+        <p class="meta" style="margin-top:10px">{{ t('mycard.activateSub') }}</p>
+      </template>
     </div>
 
     <!-- 钱包:收益账户摘要(V1.9 起在权益页展示,与会员卡并列) -->

@@ -13,7 +13,7 @@ export type ScreenId =
   | 'home' | 'post' | 'profile' | 'discover' | 'search'
   | 'merchant' | 'place'
   | 'benefits' | 'card-apply' | 'card-address' | 'card-country' | 'card-shipping' | 'card-review' | 'card-success' | 'card-tracking'
-  | 'my-card' | 'card-detail' | 'topup-fiat' | 'topup-crypto' | 'pay-card' | 'pay-crypto' | 'wallet' | 'dividend'
+  | 'my-card' | 'card-activate' | 'card-detail' | 'topup-fiat' | 'topup-crypto' | 'pay-card' | 'pay-crypto' | 'wallet' | 'dividend'
   | 'transactions' | 'wallet-transactions' | 'reimburse' | 'reimburse-detail' | 'withdraw'
   | 'referral' | 'referral-rules' | 'creator'
   | 'me' | 'settings' | 'language' | 'content-region' | 'security' | 'kyc' | 'notifications'
@@ -30,8 +30,8 @@ const ONBOARDING: ScreenId[] = [
   'auth-oauth', 'auth-entry', 'auth-otp', 'auth-error', 'auth-nickname',
 ]
 
-/** 另外不可恢复的屏幕:chat 依赖内存中的 chatWith;支付屏依赖内存中的支付上下文 */
-const NO_RESTORE: ScreenId[] = [...ONBOARDING, 'chat', 'pay-card', 'pay-crypto']
+/** 另外不可恢复的屏幕:chat 依赖内存中的 chatWith;支付屏依赖内存中的支付上下文;激活屏第 3 步为支付上下文 */
+const NO_RESTORE: ScreenId[] = [...ONBOARDING, 'chat', 'pay-card', 'pay-crypto', 'card-activate']
 
 interface DialogReq {
   title: string
