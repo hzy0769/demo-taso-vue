@@ -287,6 +287,16 @@ a{color:inherit;text-decoration:none}
 .lnk-row{display:flex;align-items:center;justify-content:center;gap:4px;width:100%;min-height:44px;margin-top:10px;font-size:13px;font-weight:600;color:var(--accent)}
 .lnk-row:active{opacity:.7}
 .pm-row{display:flex;align-items:center;gap:12px;width:100%;min-height:60px;padding:10px 12px;margin-top:8px;border:1.5px solid var(--border);border-radius:var(--r-md);background:var(--surface);text-align:left;transition:border-color .15s ease,background .15s ease}
+/* ── 报销活动期与任务档位(V3.1):后台配置活动参数,App 展示档位阶梯 ── */
+.rb-camp{display:flex;align-items:center;gap:10px;margin-top:8px;padding:12px;border-radius:12px;background:var(--accent-soft);border:1px solid color-mix(in oklch,var(--accent) 32%,transparent)}
+.rb-camp>.ic{color:var(--accent-ink);flex:none}
+.badge.gold-badge{background:var(--accent);color:var(--fg)}
+.tier{display:flex;align-items:center;gap:12px;padding:10px;border:1px solid transparent;border-radius:12px}
+.tier+.tier{margin-top:6px}
+.tier.on{border-color:var(--accent);background:var(--accent-soft)}
+.tier .t-ic{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;background:var(--fg-soft);font-size:13px;font-weight:600;font-family:var(--font-mono);flex:none}
+.tier.done .t-ic{background:var(--ok-soft);color:var(--ok)}
+.tier.on .t-ic{background:var(--accent);color:var(--fg)}
 .pm-row:hover{border-color:var(--fg)}
 .pm-row.on{border-color:var(--fg);background:color-mix(in oklch,var(--fg) 3%,var(--surface))}
 .pm-ic{width:36px;height:36px;border-radius:10px;display:grid;place-items:center;background:var(--fg-soft);flex:none}
